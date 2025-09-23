@@ -25,28 +25,45 @@ $firstName = htmlspecialchars($_SESSION['first_name']);
     </style>
 </head>
 <body>
-    <h1>Welcome, <?php echo $firstName; ?>!</h1>
-    <p>This is your secure dashboard.</p>
-    <p><a href="logout.php">Logout</a></p>
+     <header class="header">
+        <h1>Dashboard</h1>
+    </header>
 
-    <div id="notification"></div>
+    <div class="dashboard-content">
+        <h2>Welcome, <?php echo $firstName; ?>!</h2>
+        <p>You have successfully logged in to your dashboard.</p>
+        <a href="logout.php" class="logout-button">Logout</a>
+    </div>
+
+    <div id="notification">
+        <div class="notification-header">
+            <span class="icon"></span>
+            <span class="title"></span>
+        </div>
+        <div class="notification-body">
+            <span class="message"></span>
+        </div>
+    </div>
 
     <script>
-        // Same notification logic as the index page
-        function showNotification(message, type) {
+        function showNotification(title, message, type, iconClass) {
             const notification = document.getElementById('notification');
-            notification.textContent = message;
+            const notificationTitle = notification.querySelector('.title');
+            const notificationMessage = notification.querySelector('.message');
+            const notificationIcon = notification.querySelector('.icon');
+            notificationTitle.textContent = title;
+            notificationMessage.textContent = message;
+            notificationIcon.innerHTML = `<i class="${iconClass}"></i>`;
             notification.className = type + ' show';
             setTimeout(() => {
                 notification.className = notification.className.replace(' show', '');
-            }, 3000);
+            }, 3500);
         }
 
-        // Check for the login success status on page load
         window.onload = () => {
             const params = new URLSearchParams(window.location.search);
             if (params.get('status') === 'login_success') {
-                showNotification('Login successful!', 'success');
+                showNotification('Success', 'You have logged in successfully.', 'success', 'fas fa-check-circle');
             }
         };
     </script>
