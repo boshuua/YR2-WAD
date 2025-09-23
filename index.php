@@ -10,9 +10,7 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <style>
-        
-    </style>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="login-container">
