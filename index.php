@@ -14,11 +14,10 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
 </head>
 <body>
      <header class="header">
-        <h1>CPD Training</h1>
+        <<h1>CPD Training</h1>
     </header>
 
     <div class="main-container">
-
         <div class="card login-card">
             <h2>User Login</h2>
             <form action="login_process.php" method="post">
@@ -37,27 +36,39 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
 
         <div class="card info-card">
             <h2>Training & eLearning</h2>
-            <p>We provide a range of courses designed for professionals. Enhance your skills and ensure compliance with our expert-led training.</p>
+            <p>We provide a range of courses designed for you. Enhance your skills and ensure compliance with our expert-led training.</p>
         </div>
-
     </div>
 
     <div id="notification">
-        <span class="icon"></span>
-        <span id="notification-message"></span>
+        <div class="notification-header">
+            <span class="icon"></span>
+            <span class="title"></span>
+        </div>
+        <div class="notification-body">
+            <span class="message"></span>
+        </div>
     </div>
 
     <script>
-        function showNotification(message, type, iconClass) {
+        function showNotification(title, message, type, iconClass) {
             const notification = document.getElementById('notification');
-            const notificationMessage = document.getElementById('notification-message');
+            const notificationTitle = notification.querySelector('.title');
+            const notificationMessage = notification.querySelector('.message');
             const notificationIcon = notification.querySelector('.icon');
+
+            // Set the content
+            notificationTitle.textContent = title;
             notificationMessage.textContent = message;
             notificationIcon.innerHTML = `<i class="${iconClass}"></i>`;
+
+            // Set the class for styling (success/error) and show the modal
             notification.className = type + ' show';
+
+            // Hide after 3.5 seconds
             setTimeout(() => {
                 notification.className = notification.className.replace(' show', '');
-            }, 3000);
+            }, 3500);
         }
 
         window.onload = () => {
@@ -65,9 +76,9 @@ if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
             if (params.has('status')) {
                 const status = params.get('status');
                 if (status === 'invalid') {
-                    showNotification('Invalid credentials. Please try again.', 'error', 'fas fa-times-circle');
+                    showNotification('Login Failed', 'The username or password you entered is incorrect.', 'error', 'fas fa-times-circle');
                 } else if (status === 'logged_out') {
-                    showNotification('You have been logged out successfully.', 'success', 'fas fa-check-circle');
+                    showNotification('Success', 'You have been logged out successfully.', 'success', 'fas fa-check-circle');
                 }
             }
         };
