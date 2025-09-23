@@ -1,6 +1,5 @@
 <?php
 // logout.php
-
 session_start();
 $_SESSION = array();
 
@@ -14,8 +13,6 @@ if (ini_get("session.use_cookies")) {
 
 session_destroy();
 
-
-// Redirect to the new index page
-header("Location: index.php");
+// Redirect to index with a logged out status
+header("Location: index.php?status=logged_out");
 exit();
-?>

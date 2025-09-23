@@ -1,9 +1,11 @@
+/* --- Page Styles --- */
 body {
     font-family: sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
+    margin: 0;
     background-color: #f4f4f4;
 }
 
@@ -12,14 +14,7 @@ body {
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.error {
-    color: #D8000C;
-    background-color: #FFD2D2;
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 1rem;
+    width: 300px;
 }
 
 input {
@@ -43,4 +38,40 @@ button {
 
 button:hover {
     background-color: #0056b3;
+}
+
+/* --- Notification Modal Styles --- */
+#notification {
+    visibility: hidden;
+    /* Hidden by default */
+    min-width: 250px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 16px;
+    position: fixed;
+    /* Sit on top of the page */
+    z-index: 1;
+    right: 30px;
+    bottom: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.5s, visibility 0.5s;
+}
+
+/* Style for the success message (green) */
+#notification.success {
+    background-color: #4CAF50;
+}
+
+/* Style for the error message (red) */
+#notification.error {
+    background-color: #f44336;
+}
+
+/* Animation to show the modal */
+#notification.show {
+    visibility: visible;
+    opacity: 1;
 }
