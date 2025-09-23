@@ -16,17 +16,9 @@ $options = [
 
 
 try {
-    // ✅ If this line runs without error, you are connected!
     $pdo = new PDO($dsn, $db_user, $db_pass, $options);
-    
-    // Optional: You can add this line for testing during development
-    // echo "Database connection successful!";
-
 } catch (\PDOException $e) {
-   
-    
-    
-    // You should log the error and show a generic, user-friendly message.
-    error_log("Database Connection Error: " . $e->getMessage());
-    die("Error: Could not connect to the database. Please try again later.");
+    // In a real application, you would log this error and show a generic message
+    // For now, we'll just display the error.
+    throw new \PDOException($e->getMessage(), (int)$e->getCode());
 }
