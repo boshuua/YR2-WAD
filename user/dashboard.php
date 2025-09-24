@@ -28,15 +28,7 @@ $upcoming_count = $stmt->fetchColumn();
 </head>
 <body>
     <div class="app-container">
-        <aside class="app-sidebar">
-            <h3>LVS Portal</h3>
-            <nav class="sidebar-nav">
-                <a href="dashboard.php" class="active">Dashboard</a>
-                <a href="courses.php">Available Courses</a>
-                <a href="my_courses.php">My Enrolments</a>
-                <a href="../logout.php">Logout</a>
-            </nav>
-        </aside>
+        <?php include '../includes/user_sidebar.php'; ?>
 
         <main class="app-main">
             <header class="app-header">

@@ -47,6 +47,7 @@ require_once '../includes/auth_check.php';
             center: 'title',
             right: 'dayGridMonth,timeGridWeek'
           },
+          height: 'auto', 
           events: '/api/get_courses.php',
           eventClick: function(info) {
             window.location.href = `course_details.php?id=${info.event.id}`;

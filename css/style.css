@@ -244,34 +244,59 @@ thead th {
 }
 
 /* =================================
-   5. RESPONSIVE STYLES (for smaller screens)
+   5. RESPONSIVE STYLES
    ================================= */
 @media (max-width: 768px) {
     .app-container {
-        flex-direction: column; /* Stack sidebar and main content vertically */
+        flex-direction: column;
     }
 
     .app-sidebar {
-        width: 100%; /* Make sidebar full width */
+        width: 100%;
         height: auto;
         border-right: none;
         border-bottom: 1px solid var(--border-grey);
     }
 
     .app-header h1 {
-        font-size: 20px; /* Smaller header title */
+        font-size: 20px;
     }
     
     .app-content {
-        padding: 15px; /* Reduce padding to give calendar more space */
+        padding: 15px;
     }
 
     .card {
-        padding: 15px; /* Reduce card padding */
+        padding: 15px;
     }
 
-    /* Make the calendar font size smaller on mobile */
     #calendar {
         --fc-small-font-size: .8em;
     }
+}
+
+
+/* =================================
+   6. CALENDAR STYLE OVERRIDES
+   ================================= */
+.fc .fc-toolbar-title {
+    font-size: 1.5em; /* Make the main title a bit smaller */
+}
+
+.fc .fc-daygrid-day-number {
+    padding: 0.5em;
+    font-size: 0.9em;
+}
+
+.fc-daygrid-day:hover {
+    background-color: #f9fafb; /* Add a subtle hover effect to calendar days */
+}
+
+.fc-event {
+    border: 1px solid var(--dark-blue) !important;
+    font-size: 0.8em !important; /* Smaller font for events */
+}
+
+.fc .fc-day-today {
+    background: var(--fc-today-bg-color) !important;
 }
