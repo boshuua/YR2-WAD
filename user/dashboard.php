@@ -29,16 +29,6 @@ $upcoming_count = $stmt->fetchColumn(); // fetchColumn() is efficient for a sing
 </head>
 <body>
     <div class="app-container">
-        <aside class="app-sidebar">
-            <h3>LVS Portal</h3>
-            <nav class="sidebar-nav">
-                <a href="dashboard.php" class="active">Dashboard</a>
-                <a href="courses.php">Available Courses</a>
-                <a href="my_courses.php">My Enrolments</a>
-                <a href="../logout.php">Logout</a>
-            </nav>
-        </aside>
-
         <main class="app-main">
             <header class="app-header">
                 <h1>User Dashboard</h1>
