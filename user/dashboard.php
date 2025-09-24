@@ -2,7 +2,7 @@
 // Gatekeeper: Make sure the user is logged in
 require_once '../includes/auth_check.php';
 require_once '../includes/db_connect.php';
-include '../includes/user_sidebar.php';
+
 
 // Get the logged-in user's ID from the session
 $user_id = $_SESSION['user_id'];
@@ -29,6 +29,7 @@ $upcoming_count = $stmt->fetchColumn(); // fetchColumn() is efficient for a sing
 </head>
 <body>
     <div class="app-container">
+        <?php include '../includes/user_sidebar.php'; ?>
         <main class="app-main">
             <header class="app-header">
                 <h1>User Dashboard</h1>
