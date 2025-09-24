@@ -37,7 +37,7 @@ try {
     $stmt->execute([$user_id, $course_id]);
     
 
-    log_activity("Enrolled in course: '" . $course['title'] . "' (ID: " . $course['id'] . ")");
+    log_activity("Enrolled in course: '" . $course['title'] . "'");
     // 4. Send Email Confirmation
     $user_stmt = $pdo->prepare("SELECT email, first_name FROM users WHERE id = ?");
     $user_stmt->execute([$user_id]);
