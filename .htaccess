@@ -1,0 +1,2 @@
+# --- Custom Error Document for 404 Not Found ---
+ErrorDocument 404 /404_handler.php
