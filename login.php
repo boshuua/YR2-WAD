@@ -15,24 +15,19 @@
                 unset($_SESSION['error_message']); // Clear the message
             }
         ?>
-        <form action="validate.php" method="post">
+        <form action="includes/login_process.php" method="post">
         <div class="login-box">
             <h1>Login</h1>
 
             <div class="textbox">
                 <i class="fa fa-user" aria-hidden="true"></i>
-                <input type="text" placeholder="Username"
-                         name="username" value="">
+                <input type="text" placeholder="Email" name="email" value="">
             </div>
-
             <div class="textbox">
                 <i class="fa fa-lock" aria-hidden="true"></i>
-                <input type="password" placeholder="Password"
-                         name="password" value="">
+                <input type="password" placeholder="Password" name="password" value="">
             </div>
-
-            <input class="button" type="submit"
-                     name="login" value="Sign In">
+            <input class="button" type="submit" name="login" value="Sign In">
         </div>
     </form>
     </div>
