@@ -7,23 +7,56 @@ $error = '';
 $success = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Sanitize and validate input
+    // --- Form Data ---
     $title = trim($_POST['title']);
-    $course_date = trim($_POST['course_date']);
-    $duration = trim($_POST['duration']);
+    $start_date_str = trim($_POST['start_date']);
+    $duration_hours = filter_input(INPUT_POST, 'duration_hours', FILTER_VALIDATE_INT) ?: 0;
+    $duration_minutes = filter_input(INPUT_POST, 'duration_minutes', FILTER_VALIDATE_INT) ?: 0;
     $max_attendees = filter_input(INPUT_POST, 'max_attendees', FILTER_VALIDATE_INT);
     $description = trim($_POST['description']);
-
-    if (empty($title) || empty($course_date) || empty($duration) || $max_attendees === false || empty($description)) {
-        $error = "All fields are required.";
-    } elseif ($max_attendees <= 0) {
-        $error = "Max attendees must be a positive number.";
+    $recurrence_type = $_POST['recurrence_type'];
+    $recurrence_count = filter_input(INPUT_POST, 'recurrence_count', FILTER_VALIDATE_INT) ?: 0;
+    
+    // --- Validation ---
+    if (empty($title) || empty($start_date_str) || !$max_attendees) {
+        $error = "Title, start date, and max attendees are required.";
     } else {
         try {
-            $stmt = $pdo->prepare("INSERT INTO courses (title, course_date, duration, max_attendees, description) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$title, $course_date, $duration, $max_attendees, $description]);
-            $success = "Course added successfully! <a href='courses.php'>View Courses</a>";
-        } catch (PDOException $e) {
+            $pdo->beginTransaction();
+
+            $start_date = new DateTime($start_date_str);
+            // Calculate end date based on duration
+            $end_date = clone $start_date;
+            $end_date->modify("+$duration_hours hours +$duration_minutes minutes");
+
+            // Generate a unique ID for this series of events
+            $series_id = uniqid('series_');
+
+            $stmt = $pdo->prepare(
+                "INSERT INTO courses (series_id, title, course_date, end_date, max_attendees, description) VALUES (?, ?, ?, ?, ?, ?)"
+            );
+
+            // Insert the first course
+            $stmt->execute([$series_id, $title, $start_date->format('Y-m-d H:i:s'), $end_date->format('Y-m-d H:i:s'), $max_attendees, $description]);
+            $created_count = 1;
+
+            // Handle recurrence
+            if ($recurrence_type !== 'none' && $recurrence_count > 0) {
+                for ($i = 0; $i < $recurrence_count; $i++) {
+                    // Get the next date based on the selected recurrence type
+                    $start_date->modify($recurrence_type);
+                    $end_date->modify($recurrence_type);
+                    
+                    $stmt->execute([$series_id, $title, $start_date->format('Y-m-d H:i:s'), $end_date->format('Y-m-d H:i:s'), $max_attendees, $description]);
+                    $created_count++;
+                }
+            }
+            
+            $pdo->commit();
+            $success = "Successfully created " . $created_count . " course(s)! <a href='courses.php'>View Courses</a>";
+
+        } catch (Exception $e) {
+            $pdo->rollBack();
             $error = "Database error: " . $e->getMessage();
         }
     }
@@ -31,10 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Add Course</title>
-    <link rel="stylesheet" href="../css/style.css">
-</head>
+<head><title>Add Course</title><link rel="stylesheet" href="../css/style.css"></head>
 <body>
     <div class="app-container">
         <?php include '../includes/admin_sidebar.php'; ?>
@@ -45,28 +75,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <?php if ($error): ?><p class="error-message"><?php echo $error; ?></p><?php endif; ?>
                     <?php if ($success): ?><p class="success-message"><?php echo $success; ?></p><?php endif; ?>
                     
-                    <form action="course_add.php" method="post">
-                        <div class="form-group">
-                            <label for="title">Course Title</label>
-                            <input type="text" id="title" name="title" required>
+                    <form method="post">
+                        <div class="form-group"><label>Course Title</label><input type="text" name="title" required></div>
+                        <div class="form-group"><label>Course Start Date & Time</label><input type="datetime-local" name="start_date" required></div>
+                        <div class="form-group"><label>Duration</label>
+                            <input type="number" name="duration_hours" min="0" value="1" style="width: 60px;"> Hours
+                            <input type="number" name="duration_minutes" min="0" max="59" value="0" style="width: 60px;"> Minutes
+                        </div>
+                        <div class="form-group"><label>Max Attendees</label><input type="number" name="max_attendees" required></div>
+                        <div class="form-group"><label>Description</label><textarea name="description" rows="5" required></textarea></div>
+                        <hr style="border: 0; border-top: 1px solid var(--border-grey); margin: 20px 0;">
+                        
+                        <div class="form-group"><label>Recurrence</label>
+                            <select name="recurrence_type">
+                                <option value="none">None</option>
+                                <option value="+1 month">Repeat every month</option>
+                                <option value="+2 months">Repeat every 2 months</option>
+                                <option value="+1 year">Repeat every year</option>
+                            </select>
                         </div>
                         <div class="form-group">
-                            <label for="course_date">Course Date & Time</label>
-                            <input type="datetime-local" id="course_date" name="course_date" required>
+                            <label>Number of additional repetitions:</label>
+                            <input type="number" name="recurrence_count" min="0" value="0">
                         </div>
-                        <div class="form-group">
-                            <label for="duration">Duration (e.g., 2 hours, 1 day)</label>
-                            <input type="text" id="duration" name="duration" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="max_attendees">Max Attendees</label>
-                            <input type="number" id="max_attendees" name="max_attendees" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="description">Description</label>
-                            <textarea id="description" name="description" rows="5" required></textarea>
-                        </div>
-                        <button type="submit" class="btn">Add Course</button>
+                        <button type="submit" class="btn">Add Course(s)</button>
                     </form>
                 </div>
             </div>
