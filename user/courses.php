@@ -1,58 +1,63 @@
 <?php
 require_once '../includes/auth_check.php';
-require_once '../includes/db_connect.php';
-$user_id = $_SESSION['user_id'];
-
-// SQL to get all future courses, their enrolled count, and whether the current user is already enrolled.
-$sql = "SELECT c.*, 
-               (SELECT COUNT(*) FROM enrolments WHERE course_id = c.id) AS enrolled_count,
-               (SELECT COUNT(*) FROM enrolments WHERE course_id = c.id AND user_id = :user_id) AS is_user_enrolled
-        FROM courses c
-        WHERE c.course_date >= CURDATE()
-        ORDER BY c.course_date ASC";
-
-$stmt = $pdo->prepare($sql);
-$stmt->execute(['user_id' => $user_id]);
-$courses = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Available Courses</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courses Calendar</title>
     <link rel="stylesheet" href="../css/style.css">
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.13/index.global.min.js'></script>
+    <style>
+        /* A few tweaks to make the calendar look great with our theme */
+        :root {
+            --fc-border-color: var(--border-grey);
+            --fc-today-bg-color: rgba(52, 152, 219, 0.15);
+            --fc-button-bg-color: var(--primary-blue);
+            --fc-button-border-color: var(--primary-blue);
+            --fc-button-hover-bg-color: var(--dark-blue);
+            --fc-button-hover-border-color: var(--dark-blue);
+        }
+        .fc-event {
+             cursor: pointer; /* Makes events look clickable */
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
         <?php include '../includes/user_sidebar.php'; ?>
         <main class="app-main">
-            <header class="app-header"><h1>Available Courses</h1></header>
+            <header class="app-header"><h1>Courses Calendar</h1></header>
             <div class="app-content">
-                <div class="dashboard-grid">
-                    <?php foreach ($courses as $course): ?>
-                    <div class="card">
-                        <div class="card-content">
-                            <h3><?php echo htmlspecialchars($course['title']); ?></h3>
-                            <p><strong>Date:</strong> <?php echo date('d M Y, H:i', strtotime($course['course_date'])); ?></p>
-                            <p><strong>Duration:</strong> <?php echo htmlspecialchars($course['duration']); ?></p>
-                            <p><?php echo nl2br(htmlspecialchars($course['description'])); ?></p>
-                            <p><strong>Spaces:</strong> <?php echo $course['enrolled_count'] . ' of ' . $course['max_attendees'] . ' booked'; ?></p>
-                        </div>
-                        
-                        <?php
-                            $is_full = $course['enrolled_count'] >= $course['max_attendees'];
-                            if ($course['is_user_enrolled']) {
-                                echo '<button class="btn" disabled>Already Enrolled</button>';
-                            } elseif ($is_full) {
-                                echo '<button class="btn" disabled>Course Full</button>';
-                            } else {
-                                echo '<a href="enrol.php?course_id=' . $course['id'] . '" class="btn">Enrol Now</a>';
-                            }
-                        ?>
-                    </div>
-                    <?php endforeach; ?>
+                <div class="card">
+                    <div id='calendar'></div>
                 </div>
             </div>
         </main>
     </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth', // Start with the month view
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay' // Buttons to change view
+          },
+          // This tells the calendar where to get its course data from
+          events: '/api/get_courses.php',
+
+          // This function runs when a user clicks on a course in the calendar
+          eventClick: function(info) {
+            // Redirect to a new details page with the course ID
+            window.location.href = `course_details.php?id=${info.event.id}`;
+          }
+        });
+        calendar.render();
+      });
+    </script>
 </body>
 </html>
