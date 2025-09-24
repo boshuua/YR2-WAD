@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 require_once 'includes/db_connect.php';
 
 echo "<h1>User Creation Script</h1>";
@@ -53,3 +53,4 @@ try {
 } catch (PDOException $e) {
     die("DB ERROR: " . $e->getMessage());
 }
+?> -->
