@@ -86,10 +86,10 @@ a:hover {
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
 }
 
+
 .btn {
-    display: inline-block;
-    width: 100%;
-    padding: 12px;
+    display: inline-block; /* Allows the button to size to its content */
+    padding: 12px 20px; /* Adjusted padding for better look */
     background-color: var(--primary-blue);
     color: white;
     border: none;
@@ -99,6 +99,11 @@ a:hover {
     text-align: center;
     cursor: pointer;
     transition: background-color 0.2s;
+}
+
+
+.btn-block {
+    width: 100%; /* This class is for buttons that should be full-width */
 }
 
 .btn:hover {
@@ -207,7 +212,7 @@ a:hover {
 }
 
 .card-content {
-    flex-grow: 1; /* This pushes the button down */
+    flex-grow: 1; 
 }
 
 .card p {
@@ -223,7 +228,6 @@ a:hover {
     margin-bottom: 15px;
 }
 
-/* Basic table styling */
 table {
     width: 100%;
     border-collapse: collapse;
