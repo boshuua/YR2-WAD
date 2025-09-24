@@ -3,7 +3,6 @@
 require_once '../includes/auth_check.php';
 require_once '../includes/db_connect.php';
 
-
 // Get the logged-in user's ID from the session
 $user_id = $_SESSION['user_id'];
 
@@ -16,7 +15,7 @@ $stmt = $pdo->prepare(
      WHERE e.user_id = ? AND c.course_date >= CURDATE()"
 );
 $stmt->execute([$user_id]);
-$upcoming_count = $stmt->fetchColumn(); // fetchColumn() is efficient for a single value
+$upcoming_count = $stmt->fetchColumn();
 
 ?>
 <!DOCTYPE html>
@@ -29,7 +28,16 @@ $upcoming_count = $stmt->fetchColumn(); // fetchColumn() is efficient for a sing
 </head>
 <body>
     <div class="app-container">
-        <?php include '../includes/user_sidebar.php'; ?>
+        <aside class="app-sidebar">
+            <h3>LVS Portal</h3>
+            <nav class="sidebar-nav">
+                <a href="dashboard.php" class="active">Dashboard</a>
+                <a href="courses.php">Available Courses</a>
+                <a href="my_courses.php">My Enrolments</a>
+                <a href="../logout.php">Logout</a>
+            </nav>
+        </aside>
+
         <main class="app-main">
             <header class="app-header">
                 <h1>User Dashboard</h1>
@@ -42,19 +50,25 @@ $upcoming_count = $stmt->fetchColumn(); // fetchColumn() is efficient for a sing
                 <div class="dashboard-grid">
                     
                     <div class="card">
-                        <h3>Welcome</h3>
-                        <p>This is your personal dashboard for managing Continuing Professional Development (CPD) and training courses.</p>
+                        <div class="card-content">
+                            <h3>Welcome</h3>
+                            <p>This is your personal dashboard for managing Continuing Professional Development (CPD) and training courses.</p>
+                        </div>
                     </div>
 
                     <div class="card">
-                        <h3>My Upcoming Courses</h3>
-                        <p>You are currently enrolled in <strong><?php echo $upcoming_count; ?></strong> upcoming course(s).</p>
+                        <div class="card-content">
+                            <h3>My Upcoming Courses</h3>
+                            <p>You are currently enrolled in <strong><?php echo $upcoming_count; ?></strong> upcoming course(s).</p>
+                        </div>
                         <a href="my_courses.php" class="btn">View My Enrolments</a>
                     </div>
 
                     <div class="card">
-                        <h3>Browse & Enrol</h3>
-                        <p>View all available courses and enrol in new training sessions to enhance your skills.</p>
+                        <div class="card-content">
+                            <h3>Browse & Enrol</h3>
+                            <p>View all available courses and enrol in new training sessions to enhance your skills.</p>
+                        </div>
                         <a href="courses.php" class="btn">Browse Available Courses</a>
                     </div>
 

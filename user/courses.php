@@ -23,18 +23,20 @@ $courses = $stmt->fetchAll();
 </head>
 <body>
     <div class="app-container">
-        <?php include '../includes/user_sidebar.php'; // We'll create this too ?>
+        <?php include '../includes/user_sidebar.php'; ?>
         <main class="app-main">
             <header class="app-header"><h1>Available Courses</h1></header>
             <div class="app-content">
                 <div class="dashboard-grid">
                     <?php foreach ($courses as $course): ?>
                     <div class="card">
-                        <h3><?php echo htmlspecialchars($course['title']); ?></h3>
-                        <p><strong>Date:</strong> <?php echo date('d M Y, H:i', strtotime($course['course_date'])); ?></p>
-                        <p><strong>Duration:</strong> <?php echo htmlspecialchars($course['duration']); ?></p>
-                        <p><?php echo nl2br(htmlspecialchars($course['description'])); ?></p>
-                        <p><strong>Spaces:</strong> <?php echo $course['enrolled_count'] . ' of ' . $course['max_attendees'] . ' booked'; ?></p>
+                        <div class="card-content">
+                            <h3><?php echo htmlspecialchars($course['title']); ?></h3>
+                            <p><strong>Date:</strong> <?php echo date('d M Y, H:i', strtotime($course['course_date'])); ?></p>
+                            <p><strong>Duration:</strong> <?php echo htmlspecialchars($course['duration']); ?></p>
+                            <p><?php echo nl2br(htmlspecialchars($course['description'])); ?></p>
+                            <p><strong>Spaces:</strong> <?php echo $course['enrolled_count'] . ' of ' . $course['max_attendees'] . ' booked'; ?></p>
+                        </div>
                         
                         <?php
                             $is_full = $course['enrolled_count'] >= $course['max_attendees'];

@@ -32,7 +32,6 @@ a:hover {
 
 /* =================================
    2. LOGIN PAGE STYLES
-   Inspired by image_8ca105.png
    ================================= */
 .login-page-wrapper {
     display: flex;
@@ -120,7 +119,6 @@ a:hover {
 
 /* =================================
    3. MAIN APP LAYOUT & HEADER
-   For dashboards and internal pages
    ================================= */
 .app-container {
     display: flex;
@@ -191,7 +189,6 @@ a:hover {
 
 /* =================================
    4. DASHBOARD CARDS & TABLES
-   Inspired by image_8ca3cf.png
    ================================= */
 .dashboard-grid {
     display: grid;
@@ -200,11 +197,22 @@ a:hover {
 }
 
 .card {
+    display: flex;
+    flex-direction: column;
     background: var(--white);
     border: 1px solid var(--border-grey);
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+
+.card-content {
+    flex-grow: 1; /* This pushes the button down */
+}
+
+.card p {
+    line-height: 1.6;
+    margin-bottom: 1rem;
 }
 
 .card h3 {
