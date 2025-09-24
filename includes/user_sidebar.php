@@ -1,5 +1,5 @@
 <aside class="app-sidebar">
-    <h3>LVS Portal</h3>
+    <h3>CPD Portal</h3>
     <nav class="sidebar-nav">
         <a href="dashboard.php">Dashboard</a>
         <a href="courses.php">Available Courses</a>
