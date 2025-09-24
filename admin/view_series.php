@@ -1,0 +1,69 @@
+<?php
+require_once '../includes/auth_check.php';
+require_admin();
+require_once '../includes/db_connect.php';
+
+if (!isset($_GET['series_id'])) {
+    header("Location: courses.php");
+    exit();
+}
+
+$series_id = $_GET['series_id'];
+
+// Fetch all courses belonging to this series
+$stmt = $pdo->prepare(
+    "SELECT c.*, COUNT(e.id) AS enrolled_count
+     FROM courses c
+     LEFT JOIN enrolments e ON c.id = e.course_id
+     WHERE c.series_id = ?
+     GROUP BY c.id
+     ORDER BY c.course_date ASC"
+);
+$stmt->execute([$series_id]);
+$courses_in_series = $stmt->fetchAll();
+
+// Get the title from the first course for the header
+$series_title = !empty($courses_in_series) ? $courses_in_series[0]['title'] : 'Unknown Series';
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>View Course Series</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <?php include '../includes/admin_sidebar.php'; ?>
+        <main class="app-main">
+            <header class="app-header"><h1>Course Series: <?php echo htmlspecialchars($series_title); ?></h1></header>
+            <div class="app-content">
+                <a href="courses.php" style="margin-bottom: 20px; display:inline-block;">&larr; Back to Main List</a>
+                <div class="card">
+                    <h3>All Occurrences</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Attendees</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($courses_in_series as $course): ?>
+                                <tr>
+                                    <td><?php echo date('d M Y, H:i', strtotime($course['course_date'])); ?></td>
+                                    <td><?php echo $course['enrolled_count'] . ' / ' . $course['max_attendees']; ?></td>
+                                    <td>
+                                        <a href="course_edit.php?id=<?php echo $course['id']; ?>">Edit</a> |
+                                        <a href="course_delete.php?id=<?php echo $course['id']; ?>">Delete</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
