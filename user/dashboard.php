@@ -2,6 +2,7 @@
 // Gatekeeper: Make sure the user is logged in
 require_once '../includes/auth_check.php';
 require_once '../includes/db_connect.php';
+include '../includes/user_sidebar.php';
 
 // Get the logged-in user's ID from the session
 $user_id = $_SESSION['user_id'];
