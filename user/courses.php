@@ -43,7 +43,7 @@ require_once '../includes/auth_check.php';
         var calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'dayGridMonth',
           headerToolbar: {
-            left: 'prev,next today',
+            left: 'prev,next Today',
             center: 'title',
             right: 'dayGridMonth,timeGridWeek'
           },
