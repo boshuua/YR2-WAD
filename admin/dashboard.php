@@ -12,15 +12,7 @@ require_admin();
 </head>
 <body>
     <div class="app-container">
-        <aside class="app-sidebar">
-            <h3>LVS Admin</h3>
-            <nav class="sidebar-nav">
-                <a href="dashboard.php" class="active">Dashboard</a>
-                <a href="courses.php">Manage Courses</a>
-                <a href="users.php">Manage Users</a>
-                <a href="../logout.php">Logout</a>
-            </nav>
-        </aside>
+        <?php include '../includes/admin_sidebar.php'; ?>
 
         <main class="app-main">
             <header class="app-header">
