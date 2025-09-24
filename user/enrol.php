@@ -28,7 +28,7 @@ $course = $stmt->fetch();
 
 if (!$course || $course['is_user_enrolled'] || $course['enrolled_count'] >= $course['max_attendees'] || new DateTime($course['course_date']) < new DateTime()) {
     header("Location: courses.php?error=enrolmentfailed");
-    exit(); // Stop if user is already enrolled, course is full, or in the past
+    exit();
 }
 
 // 3. All checks passed, process enrolment
@@ -42,26 +42,30 @@ try {
     $user = $user_stmt->fetch();
 
     $mail = new PHPMailer(true);
-    // -- CONFIGURE YOUR SMTP SETTINGS HERE --
+    
+    // -- CORRECT SMTP SETTINGS BASED ON YOUR SCREENSHOT --
     $mail->isSMTP();
-    $mail->Host       = 'plesk.remote.ac'; // Your Plesk SMTP server
+    $mail->Host       = 'plesk.remote.ac';                  // From your screenshot
     $mail->SMTPAuth   = true;
-    $mail->Username   = 'admin@WS369808-wad.remote.ac'; // Your email address
-    $mail->Password   = 'e2zQ4$8j0';    // Your email password
-    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-    $mail->Port       = 465;
-    // -- END CONFIGURATION --
+    $mail->Username   = 'admin@WS369808-wad.remote.ac';     // From your screenshot
+    $mail->Password   = 'YOUR_EMAIL_PASSWORD_HERE';         // **IMPORTANT: Enter your correct password**
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;         // Use 'ssl' (SMTPS) for port 465
+    $mail->Port       = 465;                                // From your screenshot
+    
+    // Keep this line for testing, then change to 0
+    $mail->SMTPDebug = 2; 
 
-    $mail->setFrom('no-reply@yourdomain.co.uk', 'Logical View CPD System');
+    $mail->setFrom('admin@WS369808-wad.remote.ac', 'Logical View CPD System');
     $mail->addAddress($user['email'], $user['first_name']);
     $mail->isHTML(true);
     $mail->Subject = 'Course Enrolment Confirmation: ' . $course['title'];
     $mail->Body    = 'Hi ' . $user['first_name'] . ',<br><br>You have successfully enrolled on the course: <b>' . $course['title'] . '</b> on ' . date('d/m/Y', strtotime($course['course_date'])) . '.<br><br>Thank you.';
+    
     $mail->send();
 
 } catch (Exception $e) {
-    // Enrolment still succeeded, but email failed. Redirect with a different message.
-    header("Location: my_courses.php?status=enrolled_email_failed");
+    echo "Enrolment succeeded, but the confirmation email could not be sent.<br>";
+    echo "Mailer Error: " . $mail->ErrorInfo;
     exit();
 }
 
