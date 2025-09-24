@@ -1,26 +1,62 @@
+/* =================================
+   1. GLOBAL STYLES & VARIABLES
+   ================================= */
+:root {
+    --primary-blue: #3498db;
+    --dark-blue: #2980b9;
+    --light-grey: #f4f7f6;
+    --border-grey: #dfe6e9;
+    --text-dark: #2d3436;
+    --text-light: #636e72;
+    --white: #ffffff;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
 body {
+    margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: #f4f7f6;
+    background-color: var(--light-grey);
+    color: var(--text-dark);
+    font-size: 16px;
+}
+
+a {
+    color: var(--primary-blue);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--dark-blue);
+    text-decoration: underline;
+}
+
+/* =================================
+   2. LOGIN PAGE STYLES
+   Inspired by image_8ca105.png
+   ================================= */
+.login-page-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
 }
 
 .login-container {
-    background-color: #ffffff;
+    background-color: var(--white);
     padding: 40px;
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow);
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
+    border-top: 5px solid var(--primary-blue);
 }
 
-h2 {
+.login-container h2 {
     text-align: center;
-    color: #333;
-    margin-bottom: 25px;
+    color: var(--text-dark);
+    margin-top: 0;
+    margin-bottom: 30px;
+    font-size: 24px;
 }
 
 .form-group {
@@ -30,41 +66,169 @@ h2 {
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    color: #555;
+    color: var(--text-light);
     font-size: 14px;
+    font-weight: 600;
 }
 
 .form-group input {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
+    padding: 12px 15px;
+    border: 1px solid var(--border-grey);
     border-radius: 4px;
-    box-sizing: border-box; /* Important */
+    box-sizing: border-box;
     font-size: 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.submit-btn {
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.btn {
+    display: inline-block;
     width: 100%;
     padding: 12px;
-    background-color: #0056b3;
+    background-color: var(--primary-blue);
     color: white;
     border: none;
     border-radius: 4px;
     font-size: 16px;
+    font-weight: 600;
+    text-align: center;
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
-.submit-btn:hover {
-    background-color: #004494;
+.btn:hover {
+    background-color: var(--dark-blue);
+    text-decoration: none;
 }
 
 .error-message {
     color: #D8000C;
     background-color: #FFD2D2;
-    border: 1px solid;
+    border: 1px solid #D8000C;
     padding: 10px;
     border-radius: 4px;
     text-align: center;
     margin-bottom: 20px;
+}
+
+
+/* =================================
+   3. MAIN APP LAYOUT & HEADER
+   For dashboards and internal pages
+   ================================= */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.app-sidebar {
+    width: 240px;
+    background-color: var(--white);
+    border-right: 1px solid var(--border-grey);
+    padding: 20px;
+    flex-shrink: 0;
+}
+
+.app-sidebar h3 {
+    margin-top: 0;
+    font-size: 20px;
+    color: var(--primary-blue);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-grey);
+}
+
+.sidebar-nav a {
+    display: block;
+    color: var(--text-dark);
+    padding: 12px 15px;
+    margin: 5px 0;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.sidebar-nav a:hover, .sidebar-nav a.active {
+    background-color: #eaf5fc;
+    color: var(--dark-blue);
+}
+
+.app-main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-header {
+    background-color: var(--white);
+    padding: 15px 30px;
+    border-bottom: 1px solid var(--border-grey);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.app-header h1 {
+    font-size: 24px;
+    margin: 0;
+}
+
+.header-user-info {
+    color: var(--text-light);
+}
+
+.app-content {
+    padding: 30px;
+    background-color: var(--light-grey);
+    flex-grow: 1;
+}
+
+
+/* =================================
+   4. DASHBOARD CARDS & TABLES
+   Inspired by image_8ca3cf.png
+   ================================= */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.card {
+    background: var(--white);
+    border: 1px solid var(--border-grey);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
+
+.card h3 {
+    margin-top: 0;
+    font-size: 18px;
+    border-bottom: 1px solid var(--border-grey);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+/* Basic table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-grey);
+}
+
+thead th {
+    background-color: #f9fafb;
+    font-weight: 600;
 }
