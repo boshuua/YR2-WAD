@@ -373,3 +373,32 @@ thead th {
         grid-template-columns: 1fr;
     }
 }
+/* =================================
+   8. PAGINATION STYLES
+   ================================= */
+.pagination {
+    margin-top: 25px;
+    text-align: center;
+}
+
+.pagination a {
+    color: var(--primary-blue);
+    padding: 8px 16px;
+    text-decoration: none;
+    border: 1px solid var(--border-grey);
+    margin: 0 4px;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.pagination a:hover {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    text-decoration: none;
+}
+
+.pagination a.active {
+    background-color: var(--primary-blue);
+    color: var(--white);
+    border-color: var(--primary-blue);
+}
