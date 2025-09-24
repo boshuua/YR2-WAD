@@ -48,7 +48,7 @@ try {
     $mail->Host       = 'plesk.remote.ac';                  // From your screenshot
     $mail->SMTPAuth   = true;
     $mail->Username   = 'admin@WS369808-wad.remote.ac';     // From your screenshot
-    $mail->Password   = 'YOUR_EMAIL_PASSWORD_HERE';         // **IMPORTANT: Enter your correct password**
+    $mail->Password   = 'b~686Sxy8';         // **IMPORTANT: Enter your correct password**
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;         // Use 'ssl' (SMTPS) for port 465
     $mail->Port       = 465;                                // From your screenshot
     
