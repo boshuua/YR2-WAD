@@ -1,7 +1,7 @@
 <?php
 require_once '../includes/auth_check.php';
 require_once '../includes/db_connect.php';
-
+require_once '../includes/log_function.php'; 
 // --- PHPMailer Setup ---
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
@@ -36,6 +36,8 @@ try {
     $stmt = $pdo->prepare("INSERT INTO enrolments (user_id, course_id) VALUES (?, ?)");
     $stmt->execute([$user_id, $course_id]);
     
+
+    log_activity("Enrolled in course: '" . $course['title'] . "' (ID: " . $course['id'] . ")");
     // 4. Send Email Confirmation
     $user_stmt = $pdo->prepare("SELECT email, first_name FROM users WHERE id = ?");
     $user_stmt->execute([$user_id]);

@@ -4,6 +4,6 @@
         <a href="dashboard.php">Dashboard</a>
         <a href="courses.php">Manage Courses</a>
         <a href="users.php">Manage Users</a>
-        <a href="../logout.php">Logout</a>
+        <a href="view_log.php">Activity Log</a> <a href="../logout.php">Logout</a>
     </nav>
 </aside>
