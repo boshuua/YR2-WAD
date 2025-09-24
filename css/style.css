@@ -86,10 +86,9 @@ a:hover {
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
 }
 
-
 .btn {
-    display: inline-block; /* Allows the button to size to its content */
-    padding: 12px 20px; /* Adjusted padding for better look */
+    display: inline-block;
+    padding: 12px 20px;
     background-color: var(--primary-blue);
     color: white;
     border: none;
@@ -101,9 +100,8 @@ a:hover {
     transition: background-color 0.2s;
 }
 
-
 .btn-block {
-    width: 100%; /* This class is for buttons that should be full-width */
+    width: 100%;
 }
 
 .btn:hover {
@@ -243,4 +241,37 @@ th, td {
 thead th {
     background-color: #f9fafb;
     font-weight: 600;
+}
+
+/* =================================
+   5. RESPONSIVE STYLES (for smaller screens)
+   ================================= */
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column; /* Stack sidebar and main content vertically */
+    }
+
+    .app-sidebar {
+        width: 100%; /* Make sidebar full width */
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-grey);
+    }
+
+    .app-header h1 {
+        font-size: 20px; /* Smaller header title */
+    }
+    
+    .app-content {
+        padding: 15px; /* Reduce padding to give calendar more space */
+    }
+
+    .card {
+        padding: 15px; /* Reduce card padding */
+    }
+
+    /* Make the calendar font size smaller on mobile */
+    #calendar {
+        --fc-small-font-size: .8em;
+    }
 }

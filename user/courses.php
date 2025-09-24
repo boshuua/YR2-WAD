@@ -41,18 +41,14 @@ require_once '../includes/auth_check.php';
       document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
         var calendar = new FullCalendar.Calendar(calendarEl, {
-          initialView: 'dayGridMonth', // Start with the month view
+          initialView: 'dayGridMonth',
           headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay' // Buttons to change view
+            right: 'dayGridMonth,timeGridWeek'
           },
-          // This tells the calendar where to get its course data from
           events: '/api/get_courses.php',
-
-          // This function runs when a user clicks on a course in the calendar
           eventClick: function(info) {
-            // Redirect to a new details page with the course ID
             window.location.href = `course_details.php?id=${info.event.id}`;
           }
         });
