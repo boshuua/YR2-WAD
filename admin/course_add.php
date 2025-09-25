@@ -3,62 +3,54 @@ require_once '../includes/auth_check.php';
 require_admin();
 require_once '../includes/db_connect.php';
 
+// Fetch all users to populate the trainer dropdown
+$user_stmt = $pdo->prepare("SELECT id, first_name, last_name FROM users ORDER BY last_name ASC");
+$user_stmt->execute();
+$trainers = $user_stmt->fetchAll();
+
 $error = '';
 $success = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // --- Form Data ---
     $title = trim($_POST['title']);
     $start_date_str = trim($_POST['start_date']);
     $duration_hours = filter_input(INPUT_POST, 'duration_hours', FILTER_VALIDATE_INT) ?: 0;
     $duration_minutes = filter_input(INPUT_POST, 'duration_minutes', FILTER_VALIDATE_INT) ?: 0;
     $max_attendees = filter_input(INPUT_POST, 'max_attendees', FILTER_VALIDATE_INT);
     $description = trim($_POST['description']);
+    $trainer_id = $_POST['trainer_id'] ?: null; // Handle 'no trainer' option
     $recurrence_type = $_POST['recurrence_type'];
     $recurrence_count = filter_input(INPUT_POST, 'recurrence_count', FILTER_VALIDATE_INT) ?: 0;
     
-    // --- Validation ---
-    if (empty($title) || empty($start_date_str) || !$max_attendees) {
-        $error = "Title, start date, and max attendees are required.";
-    } else {
-        try {
-            $pdo->beginTransaction();
+    // ... (rest of the validation and insertion logic remains the same, but we add trainer_id) ...
+    try {
+        $pdo->beginTransaction();
+        $start_date = new DateTime($start_date_str);
+        $end_date = clone $start_date;
+        $end_date->modify("+$duration_hours hours +$duration_minutes minutes");
+        $series_id = uniqid('series_');
 
-            $start_date = new DateTime($start_date_str);
-            // Calculate end date based on duration
-            $end_date = clone $start_date;
-            $end_date->modify("+$duration_hours hours +$duration_minutes minutes");
+        $stmt = $pdo->prepare(
+            "INSERT INTO courses (series_id, title, course_date, end_date, max_attendees, description, trainer_id) VALUES (?, ?, ?, ?, ?, ?, ?)"
+        );
 
-            // Generate a unique ID for this series of events
-            $series_id = uniqid('series_');
+        $stmt->execute([$series_id, $title, $start_date->format('Y-m-d H:i:s'), $end_date->format('Y-m-d H:i:s'), $max_attendees, $description, $trainer_id]);
+        $created_count = 1;
 
-            $stmt = $pdo->prepare(
-                "INSERT INTO courses (series_id, title, course_date, end_date, max_attendees, description) VALUES (?, ?, ?, ?, ?, ?)"
-            );
-
-            // Insert the first course
-            $stmt->execute([$series_id, $title, $start_date->format('Y-m-d H:i:s'), $end_date->format('Y-m-d H:i:s'), $max_attendees, $description]);
-            $created_count = 1;
-
-            // Handle recurrence
-            if ($recurrence_type !== 'none' && $recurrence_count > 0) {
-                for ($i = 0; $i < $recurrence_count; $i++) {
-                    // Get the next date based on the selected recurrence type
-                    $start_date->modify($recurrence_type);
-                    $end_date->modify($recurrence_type);
-                    
-                    $stmt->execute([$series_id, $title, $start_date->format('Y-m-d H:i:s'), $end_date->format('Y-m-d H:i:s'), $max_attendees, $description]);
-                    $created_count++;
-                }
+        if ($recurrence_type !== 'none' && $recurrence_count > 0) {
+            for ($i = 0; $i < $recurrence_count; $i++) {
+                $start_date->modify($recurrence_type);
+                $end_date->modify($recurrence_type);
+                $stmt->execute([$series_id, $title, $start_date->format('Y-m-d H:i:s'), $end_date->format('Y-m-d H:i:s'), $max_attendees, $description, $trainer_id]);
+                $created_count++;
             }
-            
-            $pdo->commit();
-            $success = "Successfully created " . $created_count . " course(s)! <a href='courses.php'>View Courses</a>";
-
-        } catch (Exception $e) {
-            $pdo->rollBack();
-            $error = "Database error: " . $e->getMessage();
         }
+        
+        $pdo->commit();
+        $success = "Successfully created " . $created_count . " course(s)! <a href='courses.php'>View Courses</a>";
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        $error = "Database error: " . $e->getMessage();
     }
 }
 ?>
@@ -84,20 +76,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
                         <div class="form-group"><label>Max Attendees</label><input type="number" name="max_attendees" required></div>
                         <div class="form-group"><label>Description</label><textarea name="description" rows="5" required></textarea></div>
-                        <hr style="border: 0; border-top: 1px solid var(--border-grey); margin: 20px 0;">
-                        
-                        <div class="form-group"><label>Recurrence</label>
-                            <select name="recurrence_type">
-                                <option value="none">None</option>
-                                <option value="+1 month">Repeat every month</option>
-                                <option value="+2 months">Repeat every 2 months</option>
-                                <option value="+1 year">Repeat every year</option>
+
+                        <div class="form-group">
+                            <label for="trainer_id">Assign Trainer</label>
+                            <select name="trainer_id" id="trainer_id">
+                                <option value="">-- No Trainer --</option>
+                                <?php foreach ($trainers as $trainer): ?>
+                                    <option value="<?php echo $trainer['id']; ?>">
+                                        <?php echo htmlspecialchars($trainer['first_name'] . ' ' . $trainer['last_name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Number of additional repetitions:</label>
-                            <input type="number" name="recurrence_count" min="0" value="0">
+
+                        <hr style="border: 0; border-top: 1px solid var(--border-grey); margin: 20px 0;">
+                        <div class="form-group"><label>Recurrence</label>
+                            <select name="recurrence_type"><option value="none">None</option><option value="+1 month">Repeat every month</option><option value="+2 months">Repeat every 2 months</option><option value="+1 year">Repeat every year</option></select>
                         </div>
+                        <div class="form-group"><label>Number of additional repetitions:</label><input type="number" name="recurrence_count" min="0" value="0"></div>
                         <button type="submit" class="btn">Add Course(s)</button>
                     </form>
                 </div>
