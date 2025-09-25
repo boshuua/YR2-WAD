@@ -6,14 +6,26 @@
 :root {
     --primary-blue: #007bff;
     --dark-blue: #0056b3;
-    --light-grey: #f8f9fa;
-    --border-grey: #dee2e6;
-    --text-dark: #212529;
-    --text-light: #6c757d;
-    --white: #ffffff;
     --success: #28a745;
     --danger: #dc3545;
+    
+    /* Light Mode Colors (Default) */
+    --bg-main: #f8f9fa;
+    --bg-card: #ffffff;
+    --text-dark: #212529;
+    --text-light: #6c757d;
+    --border-color: #dee2e6;
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+body.dark-mode {
+    /* Dark Mode Color Overrides */
+    --bg-main: #121212;
+    --bg-card: #1e1e1e;
+    --text-dark: #e9ecef;
+    --text-light: #adb5bd;
+    --border-color: #495057;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 body {
