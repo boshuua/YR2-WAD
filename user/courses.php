@@ -26,6 +26,7 @@ $upcoming_courses = $stmt_upcoming->fetchAll();
     <div id="tooltip"></div>
     <div class="app-container">
         <?php include '../includes/user_sidebar.php'; ?>
+        <?php include '../includes/header.php'; ?>
         <main class="app-main">
             <header class="app-header"><h1>Course Dates</h1></header>
             <div class="app-content">
