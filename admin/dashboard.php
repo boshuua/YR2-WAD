@@ -13,7 +13,6 @@ require_admin();
 <body>
     <div class="app-container">
         <?php include '../includes/admin_sidebar.php'; ?>
-        <?php include '../includes/notification.php'; ?>
         <main class="app-main">
             <header class="app-header">
                 <h1>Admin Dashboard</h1>
