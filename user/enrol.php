@@ -79,6 +79,8 @@ try {
     
     $mail->send();
 
+    log_email($user['email'], $mail->Subject, $email_body);
+
 } catch (Exception $e) {
     header("Location: /my-courses?error=email_failed");
     exit();
