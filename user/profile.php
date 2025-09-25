@@ -18,7 +18,7 @@ require_once '../includes/header.php'; // Include the new header
             <div class="app-content">
                 <div class="card">
                     <h3>Personal Details</h3>
-                    <form action="profile_process.php" method="post">
+                    <form action="/user/profile_process.php" method="post">
                         <input type="hidden" name="action" value="update_details">
                         <div class="form-group"><label>First Name</label><input type="text" name="first_name" value="<?php echo htmlspecialchars($user['first_name']); ?>" required></div>
                         <div class="form-group"><label>Last Name</label><input type="text" name="last_name" value="<?php echo htmlspecialchars($user['last_name']); ?>" required></div>
@@ -30,7 +30,7 @@ require_once '../includes/header.php'; // Include the new header
 
                 <div class="card" style="margin-top: 30px;">
                     <h3>Change Password</h3>
-                    <form action="profile_process.php" method="post">
+                    <form action="/user/profile_process.php" method="post">
                         <input type="hidden" name="action" value="change_password">
                         <div class="form-group"><label>Current Password</label><input type="password" name="current_password" required></div>
                         <div class="form-group"><label>New Password</label><input type="password" name="new_password" required></div>
@@ -41,7 +41,7 @@ require_once '../includes/header.php'; // Include the new header
 
                 <div class="card" style="margin-top: 30px;">
                     <h3>Preferences</h3>
-                    <form action="profile_process.php" method="post">
+                    <form action="/user/profile_process.php" method="post">
                         <input type="hidden" name="action" value="update_theme">
                         <div class="form-group"><label>Site Theme</label>
                             <select name="theme">
