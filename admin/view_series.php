@@ -23,7 +23,6 @@ $stmt = $pdo->prepare(
 $stmt->execute([$series_id]);
 $courses_in_series = $stmt->fetchAll();
 
-// Get the title from the first course for the header
 $series_title = !empty($courses_in_series) ? $courses_in_series[0]['title'] : 'Unknown Series';
 ?>
 <!DOCTYPE html>

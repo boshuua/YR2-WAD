@@ -13,13 +13,18 @@ $course_id = $_GET['course_id'];
 $series_id_for_back_link = $_GET['series_id'] ?? null;
 
 // Fetch course details
-$course_stmt = $pdo->prepare("SELECT title, course_date FROM courses WHERE id = ?");
+$course_stmt = $pdo->prepare("SELECT title, course_date, series_id FROM courses WHERE id = ?");
 $course_stmt->execute([$course_id]);
 $course = $course_stmt->fetch();
 
 if (!$course) {
     header("Location: /admin/courses");
     exit();
+}
+
+// If series_id wasn't in the URL, try to get it from the course itself
+if (!$series_id_for_back_link) {
+    $series_id_for_back_link = $course['series_id'];
 }
 
 // Fetch enrolled users
@@ -42,12 +47,18 @@ $enrolled_users = $enrolment_stmt->fetchAll();
         <main class="app-main">
             <header class="app-header"><h1>View Enrolments</h1></header>
             <div class="app-content">
-                <?php display_breadcrumbs([
+                <?php 
+                $breadcrumbs = [
                     '/admin/dashboard' => 'Dashboard',
-                    '/admin/courses' => 'Manage Courses',
-                    '/admin/view_series.php?series_id=' . htmlspecialchars($series_id_for_back_link) => htmlspecialchars($course['title']),
-                    '#' => 'Enrolments for ' . date('d M Y', strtotime($course['course_date']))
-                ]); ?>
+                    '/admin/courses' => 'Manage Courses'
+                ];
+                if ($series_id_for_back_link) {
+                    $breadcrumbs['/admin/view_series.php?series_id=' . htmlspecialchars($series_id_for_back_link)] = htmlspecialchars($course['title']);
+                }
+                $breadcrumbs['#'] = 'Enrolments';
+                display_breadcrumbs($breadcrumbs);
+                ?>
+                
                 <div class="card">
                     <h3>Enrolled Staff for '<?php echo htmlspecialchars($course['title']); ?>' on <?php echo date('d M Y', strtotime($course['course_date'])); ?></h3>
                     <table>
@@ -60,7 +71,7 @@ $enrolled_users = $enrolment_stmt->fetchAll();
                         </thead>
                         <tbody>
                             <?php if (empty($enrolled_users)): ?>
-                                <tr><td colspan="3">No users are currently enrolled in this course instance.</td></tr>
+                                <tr><td colspan="3">No users are currently enrolled.</td></tr>
                             <?php else: ?>
                                 <?php foreach ($enrolled_users as $user): ?>
                                     <tr>
