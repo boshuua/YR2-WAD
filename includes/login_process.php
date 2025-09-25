@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'db_connect.php';
+require_once '../includes/log_function.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST['email']);
@@ -26,6 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['theme'] = $user['theme']; // Load theme preference
 
+        log_action($user['id'], "Logged in");
         if ($user['access_level'] == 'admin') {
             header("Location: ../admin/dashboard.php");
         } else {

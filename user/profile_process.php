@@ -1,6 +1,7 @@
 <?php
 require_once '../includes/auth_check.php';
 require_once '../includes/db_connect.php';
+require_once '../includes/log_function.php';
 
 $user_id = $_SESSION['user_id'];
 $action = $_POST['action'] ?? '';
@@ -15,6 +16,7 @@ if ($action === 'update_details') {
     $stmt->execute([$first_name, $last_name, $job_title, $user_id]);
     
     $_SESSION['user_name'] = $first_name; // Update session name immediately
+    log_action($user_id, "Updated personal details");
     header("Location: profile?status=details_updated");
     exit();
 }
@@ -44,6 +46,7 @@ if ($action === 'change_password') {
     $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
     $stmt->execute([$new_hashed_password, $user_id]);
 
+    log_action($user_id, "Changed password");
     header("Location: profile.php?status=password_updated");
     exit();
 }
