@@ -117,12 +117,12 @@ document.addEventListener('DOMContentLoaded', function() {
             
             let seriesButton = '';
             if (urlSeries) {
-                seriesButton = `<a href="${urlSeries}" class="btn btn-danger">Delete Entire Series</a>`;
+                seriesButton = `<a href="${urlSeries}" class="btn btn-danger">Delete Entire</a>`;
             }
 
             modalFooter.innerHTML = `
                 <button class="btn btn-secondary" id="modalCancelBtn">Cancel</button>
-                <a href="${urlOne}" class="btn btn-danger">${seriesButton ? 'Delete This Instance Only' : 'Delete Course'}</a>
+                <a href="${urlOne}" class="btn btn-danger">${seriesButton ? 'Delete Single' : 'Delete Course'}</a>
                 ${seriesButton}
             `;
             

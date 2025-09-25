@@ -433,7 +433,7 @@ body.dark-mode .btn-outline:hover {
     border-top: 1px solid var(--border-color);
     background-color: var(--bg-main);
     
-    /* --- THIS IS THE FIX --- */
+   
     display: flex;
     justify-content: flex-end; /* Aligns buttons to the right */
     align-items: center;
