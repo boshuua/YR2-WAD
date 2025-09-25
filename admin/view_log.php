@@ -27,9 +27,6 @@ if (empty($permission_error) && file_exists($log_file_path)) {
 <head>
     <title>User Activity Log</title>
     <link rel="stylesheet" href="../css/style.css">
-    <style>
-        .log-container { background-color: #2d3436; color: #dfe6e9; font-family: monospace; padding: 20px; border-radius: 5px; max-height: 600px; overflow-y: auto; white-space: pre-wrap; }
-    </style>
 </head>
 <body>
     <div class="app-container">
@@ -42,17 +39,34 @@ if (empty($permission_error) && file_exists($log_file_path)) {
                     
                     <?php if ($permission_error): ?>
                         <p class="error-message"><?php echo $permission_error; ?></p>
+                    <?php elseif (empty($log_content)): ?>
+                        <p>No activity has been logged yet.</p>
+                    <?php else: ?>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date & Time</th>
+                                    <th>User</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($log_content as $line): ?>
+                                    <?php
+                                    // Use a regular expression to parse the log entry into parts
+                                    $pattern = '/^\[(.*?)\]\s\[User:\s(.*?)\]\s(.*)$/';
+                                    if (preg_match($pattern, $line, $matches)) {
+                                        $timestamp = htmlspecialchars($matches[1]);
+                                        $user_info = htmlspecialchars($matches[2]);
+                                        $message = htmlspecialchars($matches[3]);
+                                        // Display the parts in table cells
+                                        echo "<tr><td>{$timestamp}</td><td>{$user_info}</td><td>{$message}</td></tr>";
+                                    }
+                                    ?>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
                     <?php endif; ?>
-
-                    <div class="log-container">
-                        <?php if (empty($log_content) && empty($permission_error)): ?>
-                            <p>No activity has been logged yet.</p>
-                        <?php else: ?>
-                            <?php foreach ($log_content as $line): ?>
-                                <?php echo htmlspecialchars($line) . "\n"; ?>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </div>
                 </div>
             </div>
         </main>

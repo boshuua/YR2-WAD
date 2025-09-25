@@ -8,6 +8,7 @@
     --dark-blue: #0056b3;
     --success: #28a745;
     --danger: #dc3545;
+    --white: #ffffff; /* <<< FIX: Added the missing --white variable */
     
     /* Light Mode Colors (Default) */
     --bg-main: #f8f9fa;
@@ -113,7 +114,7 @@ a:hover {
     display: inline-block;
     padding: 11px 20px;
     background-color: var(--primary-blue);
-    color: white;
+    color: var(--white);
     border: none;
     border-radius: 0;
     font-size: 15px;
@@ -346,6 +347,12 @@ tbody tr:hover {
 .btn-outline:hover { background-color: #e9ecef; color: var(--text-dark); text-decoration: none; }
 .fc .fc-toolbar-title { font-size: 1.2em; }
 @media (max-width: 992px) { .course-page-container { grid-template-columns: 1fr; } }
+
+
+body.dark-mode .btn-outline:hover {
+    color: #212529; /* Use a dark text color on the light hover background */
+}
+
 
 /* =================================
    8. NOTIFICATION MODAL 
