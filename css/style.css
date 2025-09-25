@@ -1,463 +1,548 @@
 /* =================================
    1. SETUP & THEME VARIABLES
    ================================= */
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Libertinus+Serif+Display&family=Zilla+Slab:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Libertinus+Serif+Display&family=Zilla+Slab:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap");
 
 :root {
-    --primary-blue: #007bff;
-    --dark-blue: #0056b3;
-    --success: #28a745;
-    --danger: #dc3545;
-    --white: #ffffff;
-    
-    /* Light Mode Colors (Default) */
-    --bg-main: #f8f9fa;
-    --bg-card: #ffffff;
-    --text-dark: #212529;
-    --text-light: #6c757d;
-    --border-color: #dee2e6;
-    --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --primary-blue: #007bff;
+  --dark-blue: #0056b3;
+  --success: #28a745;
+  --danger: #dc3545;
+  --white: #ffffff;
+
+  /* Light Mode Colors (Default) */
+  --bg-main: #f8f9fa;
+  --bg-card: #ffffff;
+  --text-dark: #212529;
+  --text-light: #6c757d;
+  --border-color: #dee2e6;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 body.dark-mode {
-    /* Dark Mode Color Overrides */
-    --bg-main: #121212;
-    --bg-card: #1e1e1e;
-    --text-dark: #e9ecef;
-    --text-light: #adb5bd;
-    --border-color: #495057;
-    --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  /* Dark Mode Color Overrides */
+  --bg-main: #121212;
+  --bg-card: #1e1e1e;
+  --text-dark: #e9ecef;
+  --text-light: #adb5bd;
+  --border-color: #495057;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
-
 body {
-    margin: 0;
-    font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--bg-main);
-    color: var(--text-dark);
-    font-size: 15px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  font-family: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-dark);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
-    color: var(--primary-blue);
-    text-decoration: none;
-    transition: color 0.2s ease-in-out;
+  color: var(--primary-blue);
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
 }
 
 a:hover {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 /* =================================
    2. LOGIN & FORMS
    ================================= */
 .login-page-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .login-container {
-    padding: 40px;
-    background: var(--bg-card);
-    box-shadow: var(--shadow);
-    border-top: 4px solid var(--primary-blue);
-    border-radius: 0;
-    width: 100%;
-    max-width: 400px;
+  padding: 40px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow);
+  border-top: 4px solid var(--primary-blue);
+  border-radius: 0;
+  width: 100%;
+  max-width: 400px;
 }
 
 .login-container h2 {
-    text-align: center;
-    color: var(--text-dark);
-    margin-top: 0;
-    margin-bottom: 30px;
-    font-size: 24px;
-    font-weight: 600;
+  text-align: center;
+  color: var(--text-dark);
+  margin-top: 0;
+  margin-bottom: 30px;
+  font-size: 24px;
+  font-weight: 600;
 }
 
 .form-group {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text-dark);
-    font-size: 14px;
-    font-weight: 500;
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.form-group input, .form-group select, .form-group textarea {
-    width: 100%;
-    padding: 10px 15px;
-    border: 1px solid var(--border-color);
-    background-color: var(--bg-card);
-    color: var(--text-dark);
-    border-radius: 0;
-    box-sizing: border-box;
-    font-size: 15px;
-    font-family: 'Poppins', sans-serif;
-    transition: border-color 0.2s, box-shadow 0.2s;
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card);
+  color: var(--text-dark);
+  border-radius: 0;
+  box-sizing: border-box;
+  font-size: 15px;
+  font-family: "Poppins", sans-serif;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
 }
 
 .btn {
-    display: inline-block;
-    padding: 11px 20px;
-    background-color: var(--primary-blue);
-    color: var(--white);
-    border: none;
-    border-radius: 0;
-    font-size: 15px;
-    font-weight: 500;
-    text-align: center;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-    appearance: none;
-    -webkit-appearance: none;
+  display: inline-block;
+  padding: 11px 20px;
+  background-color: var(--primary-blue);
+  color: var(--white);
+  border: none;
+  border-radius: 0;
+  font-size: 15px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .btn:hover {
-    background-color: var(--dark-blue);
+  background-color: var(--dark-blue);
 }
 
 .btn:active {
-    transform: translateY(1px);
+  transform: translateY(1px);
 }
 
 .btn-block {
-    width: 100%;
+  width: 100%;
 }
 
-.error-message, .success-message {
-    padding: 10px 15px;
-    border-radius: 0;
-    text-align: center;
-    margin-bottom: 20px;
+.error-message,
+.success-message {
+  padding: 10px 15px;
+  border-radius: 0;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .error-message {
-    color: var(--danger);
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
+  color: var(--danger);
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
 }
 
 .success-message {
-    color: var(--success);
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
+  color: var(--success);
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
 }
 
 /* =================================
    3. MAIN APP LAYOUT
    ================================= */
 .app-container {
-    display: flex;
-    min-height: 100vh;
+  display: flex;
+  min-height: 100vh;
 }
 
 .app-sidebar {
-    width: 240px;
-    background-color: var(--bg-card);
-    border-right: 1px solid var(--border-color);
-    padding: 20px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
+  width: 240px;
+  background-color: var(--bg-card);
+  border-right: 1px solid var(--border-color);
+  padding: 20px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .app-sidebar h3 {
-    margin-top: 0;
-    font-size: 20px;
-    color: var(--text-dark);
-    font-weight: 600;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
+  margin-top: 0;
+  font-size: 20px;
+  color: var(--text-dark);
+  font-weight: 600;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .sidebar-nav {
-    margin-top: 10px;
+  margin-top: 10px;
 }
 
 .sidebar-nav a {
-    display: flex;
-    align-items: center;
-    color: var(--text-light);
-    padding: 12px 15px;
-    margin: 5px -15px;
-    border-radius: 0;
-    font-weight: 500;
-    transition: background-color 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  color: var(--text-light);
+  padding: 12px 15px;
+  margin: 5px -15px;
+  border-radius: 0;
+  font-weight: 500;
+  transition: background-color 0.2s, color 0.2s;
 }
 
-.sidebar-nav a:hover, .sidebar-nav a.active {
-    background-color: var(--primary-blue);
-    color: var(--white);
-    text-decoration: none;
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+  background-color: var(--primary-blue);
+  color: var(--white);
+  text-decoration: none;
 }
 
 .app-main {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .app-header {
-    background-color: var(--bg-card);
-    padding: 15px 30px;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  background-color: var(--bg-card);
+  padding: 15px 30px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .app-header h1 {
-    font-size: 22px;
-    font-weight: 600;
-    margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0;
 }
 
 .app-content {
-    padding: 30px;
-    background-color: var(--bg-main);
-    flex-grow: 1;
+  padding: 30px;
+  background-color: var(--bg-main);
+  flex-grow: 1;
 }
 
 /* =================================
    4. CARDS, TABLES, & COMPONENTS
    ================================= */
 .card {
-    display: flex;
-    flex-direction: column;
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: 0;
-    padding: 25px;
-    box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 0;
+  padding: 25px;
+  box-shadow: var(--shadow);
 }
 
 .card-content {
-    flex-grow: 1; 
+  flex-grow: 1;
 }
 
 .card h3 {
-    margin-top: 0;
-    font-size: 18px;
-    font-weight: 600;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
+  margin-top: 0;
+  font-size: 18px;
+  font-weight: 600;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 table {
-    width: 100%;
-    border-collapse: collapse;
+  width: 100%;
+  border-collapse: collapse;
 }
 
-th, td {
-    padding: 15px;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
+th,
+td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
 }
 
 thead th {
-    background-color: var(--bg-card);
-    border-bottom: 2px solid var(--text-dark);
-    font-weight: 600;
-    color: var(--text-dark);
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  background-color: var(--bg-card);
+  border-bottom: 2px solid var(--text-dark);
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 tbody tr:last-child td {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 tbody tr:hover {
-    background-color: var(--bg-main);
+  background-color: var(--bg-main);
 }
 
 .pagination {
-    margin-top: 25px;
-    text-align: center;
+  margin-top: 25px;
+  text-align: center;
 }
 
 .pagination a {
-    color: var(--primary-blue);
-    padding: 8px 16px;
-    text-decoration: none;
-    border: 1px solid var(--border-color);
-    margin: 0 4px;
-    border-radius: 0;
-    transition: background-color 0.2s, color 0.2s;
+  color: var(--primary-blue);
+  padding: 8px 16px;
+  text-decoration: none;
+  border: 1px solid var(--border-color);
+  margin: 0 4px;
+  border-radius: 0;
+  transition: background-color 0.2s, color 0.2s;
 }
 
-.pagination a:hover, .pagination a.active {
-    background-color: var(--primary-blue);
-    color: var(--white);
-    border-color: var(--primary-blue);
+.pagination a:hover,
+.pagination a.active {
+  background-color: var(--primary-blue);
+  color: var(--white);
+  border-color: var(--primary-blue);
 }
 
 /* =================================
    5. RESPONSIVE STYLES
    ================================= */
 @media (max-width: 768px) {
-    .app-container { flex-direction: column; }
-    .app-sidebar { width: 100%; height: auto; border-right: none; border-bottom: 1px solid var(--border-color); }
-    .app-header h1 { font-size: 20px; }
-    .app-content, .card { padding: 15px; }
-    #calendar { --fc-small-font-size: .8em; }
+  .app-container {
+    flex-direction: column;
+  }
+  .app-sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .app-header h1 {
+    font-size: 20px;
+  }
+  .app-content,
+  .card {
+    padding: 15px;
+  }
+  #calendar {
+    --fc-small-font-size: 0.8em;
+  }
 }
 
 /* =================================
    6. CALENDAR OVERRIDES
    ================================= */
 .fc {
-    --fc-page-bg-color: var(--bg-card);
-    --fc-list-even-row-bg-color: var(--bg-card);
-    --fc-neutral-bg-color: var(--bg-main);
-    --fc-event-bg-color: var(--primary-blue);
-    --fc-event-border-color: var(--primary-blue);
+  --fc-page-bg-color: var(--bg-card);
+  --fc-list-even-row-bg-color: var(--bg-card);
+  --fc-neutral-bg-color: var(--bg-main);
+  --fc-event-bg-color: var(--primary-blue);
+  --fc-event-border-color: var(--primary-blue);
 }
-.fc .fc-toolbar-title { font-size: 1.5em; color: var(--text-dark); }
-.fc .fc-daygrid-day-number { color: var(--text-light); padding: 0.5em; font-size: 0.9em; }
-.fc-daygrid-day:hover { background-color: var(--bg-main); }
-.fc-event { border: 1px solid var(--dark-blue) !important; font-size: 0.8em !important; border-radius: 0 !important; }
-.fc .fc-day-today { background: var(--fc-today-bg-color) !important; }
+.fc .fc-toolbar-title {
+  font-size: 1.5em;
+  color: var(--text-dark);
+}
+.fc .fc-daygrid-day-number {
+  color: var(--text-light);
+  padding: 0.5em;
+  font-size: 0.9em;
+}
+.fc-daygrid-day:hover {
+  background-color: var(--bg-main);
+}
+.fc-event {
+  border: 1px solid var(--dark-blue) !important;
+  font-size: 0.8em !important;
+  border-radius: 0 !important;
+}
+.fc .fc-day-today {
+  background: var(--fc-today-bg-color) !important;
+}
 
 /* =================================
    7. COURSE PAGE LAYOUT
    ================================= */
-.course-page-container { display: grid; grid-template-columns: 350px 1fr; gap: 30px; align-items: start; }
-.upcoming-courses-list h2 { font-size: 24px; color: var(--text-dark); margin-top: 25px; }
-.upcoming-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 0; margin-bottom: 20px; padding: 20px; }
-.card-date-banner { background-color: var(--primary-blue); color: var(--white); padding: 8px 15px; border-radius: 0; font-weight: 600; margin-bottom: 15px; display: inline-block; }
-.upcoming-card h3 { margin-top: 0; margin-bottom: 5px; font-size: 1.2em; }
-.btn-outline { display: inline-block; padding: 10px 18px; border: 2px solid var(--border-color); border-radius: 0; color: var(--text-light); font-weight: 600; text-align: center; margin-top: 10px; }
-.btn-outline:hover { background-color: #e9ecef; color: var(--text-dark); text-decoration: none; }
-.fc .fc-toolbar-title { font-size: 1.2em; }
-@media (max-width: 992px) { .course-page-container { grid-template-columns: 1fr; } }
-
-
-body.dark-mode .btn-outline:hover {
-    color: #212529; /* Use a dark text color on the light hover background */
+.course-page-container {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 30px;
+  align-items: start;
+}
+.upcoming-courses-list h2 {
+  font-size: 24px;
+  color: var(--text-dark);
+  margin-top: 25px;
+}
+.upcoming-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 0;
+  margin-bottom: 20px;
+  padding: 20px;
+}
+.card-date-banner {
+  background-color: var(--primary-blue);
+  color: var(--white);
+  padding: 8px 15px;
+  border-radius: 0;
+  font-weight: 600;
+  margin-bottom: 15px;
+  display: inline-block;
+}
+.upcoming-card h3 {
+  margin-top: 0;
+  margin-bottom: 5px;
+  font-size: 1.2em;
+}
+.btn-outline {
+  display: inline-block;
+  padding: 10px 18px;
+  border: 2px solid var(--border-color);
+  border-radius: 0;
+  color: var(--text-light);
+  font-weight: 600;
+  text-align: center;
+  margin-top: 10px;
+}
+.btn-outline:hover {
+  background-color: #e9ecef;
+  color: var(--text-dark);
+  text-decoration: none;
+}
+.fc .fc-toolbar-title {
+  font-size: 1.2em;
+}
+@media (max-width: 992px) {
+  .course-page-container {
+    grid-template-columns: 1fr;
+  }
 }
 
+body.dark-mode .btn-outline:hover {
+  color: #212529; /* Use a dark text color on the light hover background */
+}
 
 /* =================================
    8. NOTIFICATION MODAL 
    ================================= */
 .notification-modal {
-    position: fixed;
-    bottom: 20px;
-    left: -400px;
-    max-width: 350px;
-    padding: 15px 20px;
-    color: var(--white);
-    font-weight: 500;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    transition: left 0.5s ease-in-out;
-    z-index: 1000;
-    border-radius: 0;
+  position: fixed;
+  bottom: 20px;
+  left: -400px;
+  max-width: 350px;
+  padding: 15px 20px;
+  color: var(--white);
+  font-weight: 500;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transition: left 0.5s ease-in-out;
+  z-index: 1000;
+  border-radius: 0;
 }
 .notification-modal.show {
-    left: 20px;
+  left: 20px;
 }
 .notification-modal.success {
-    background-color: var(--success);
+  background-color: var(--success);
 }
 .notification-modal.error {
-    background-color: var(--danger);
+  background-color: var(--danger);
 }
-
 
 /* =================================
    9. CONFIRMATION MODAL
    ================================= */
 .confirm-modal {
-    display: none;
-    position: fixed;
-    z-index: 1001;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.6);
-    padding-top: 60px;
+  display: none;
+  position: fixed;
+  z-index: 1001;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding-top: 60px;
 }
 .confirm-modal-content {
-    background-color: var(--bg-card);
-    color: var(--text-dark);
-    margin: 5% auto;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: var(--shadow);
-    border-top: 4px solid var(--primary-blue);
-    border-radius: 0;
-    animation: fadeIn 0.3s;
+  background-color: var(--bg-card);
+  color: var(--text-dark);
+  margin: 5% auto;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow);
+  border-top: 4px solid var(--primary-blue);
+  border-radius: 0;
+  animation: fadeIn 0.3s;
 }
 @keyframes fadeIn {
-  from {opacity: 0; transform: translateY(-20px);}
-  to {opacity: 1; transform: translateY(0);}
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .confirm-modal-header {
-    padding: 15px 20px;
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .confirm-modal-header h2 {
-    margin: 0;
-    font-size: 18px;
+  margin: 0;
+  font-size: 18px;
 }
 .confirm-modal-body {
-    padding: 25px 20px;
-    font-size: 16px;
-    line-height: 1.6;
+  padding: 25px 20px;
+  font-size: 16px;
+  line-height: 1.6;
 }
 .confirm-modal-footer {
-    padding: 15px 20px;
-    border-top: 1px solid var(--border-color);
-    background-color: var(--bg-main);
-    
-   
-    display: flex;
-    justify-content: flex-end; /* Aligns buttons to the right */
-    align-items: center;
+  padding: 15px 20px;
+  border-top: 1px solid var(--border-color);
+  background-color: var(--bg-main);
+
+  display: flex;
+  justify-content: flex-end; /* Aligns buttons to the right */
+  align-items: center;
 }
 .confirm-modal-footer .btn {
-    margin-left: 10px;
+  margin-left: 10px;
 }
 .confirm-modal-footer .btn-danger {
-    background-color: var(--danger);
+  background-color: var(--danger);
 }
 .confirm-modal-footer .btn-danger:hover {
-    background-color: #c82333;
+  background-color: #c82333;
 }
 .confirm-modal-footer .btn-secondary {
-    background-color: var(--text-light);
+  background-color: var(--text-light);
 }
 .confirm-modal-footer .btn-secondary:hover {
-    background-color: #5a6268;
+  background-color: #5a6268;
 }
 .close-button {
-    color: var(--text-light);
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
+  color: var(--text-light);
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
 }
 .close-button:hover {
-    color: var(--text-dark);
+  color: var(--text-dark);
 }
