@@ -2,8 +2,8 @@
 require_once '../includes/auth_check.php';
 require_admin();
 
-$logs_dir = __DIR__ . '/../logs';
-$log_file_path = $logs_dir . '/user_activity.log';
+// Initial data load is still done with PHP for the first page view
+$log_file_path = __DIR__ . '/../logs/user_activity.log';
 $log_content = [];
 $permission_error = '';
 
@@ -39,8 +39,6 @@ if (empty($permission_error) && file_exists($log_file_path)) {
                     
                     <?php if ($permission_error): ?>
                         <p class="error-message"><?php echo $permission_error; ?></p>
-                    <?php elseif (empty($log_content)): ?>
-                        <p>No activity has been logged yet.</p>
                     <?php else: ?>
                         <table>
                             <thead>
@@ -50,20 +48,22 @@ if (empty($permission_error) && file_exists($log_file_path)) {
                                     <th>Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <?php foreach ($log_content as $line): ?>
-                                    <?php
-                                    // Use a regular expression to parse the log entry into parts
-                                    $pattern = '/^\[(.*?)\]\s\[User:\s(.*?)\]\s(.*)$/';
-                                    if (preg_match($pattern, $line, $matches)) {
-                                        $timestamp = htmlspecialchars($matches[1]);
-                                        $user_info = htmlspecialchars($matches[2]);
-                                        $message = htmlspecialchars($matches[3]);
-                                        // Display the parts in table cells
-                                        echo "<tr><td>{$timestamp}</td><td>{$user_info}</td><td>{$message}</td></tr>";
-                                    }
-                                    ?>
-                                <?php endforeach; ?>
+                            <tbody id="log-table-body">
+                                <?php if (empty($log_content)): ?>
+                                    <tr><td colspan="3">No activity has been logged yet.</td></tr>
+                                <?php else: ?>
+                                    <?php foreach ($log_content as $line): ?>
+                                        <?php
+                                        $pattern = '/^\[(.*?)\]\s\[User:\s(.*?)\]\s(.*)$/';
+                                        if (preg_match($pattern, $line, $matches)) {
+                                            $timestamp = htmlspecialchars($matches[1]);
+                                            $user_info = htmlspecialchars($matches[2]);
+                                            $message = htmlspecialchars($matches[3]);
+                                            echo "<tr><td>{$timestamp}</td><td>{$user_info}</td><td>{$message}</td></tr>";
+                                        }
+                                        ?>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
                             </tbody>
                         </table>
                     <?php endif; ?>
@@ -71,5 +71,40 @@ if (empty($permission_error) && file_exists($log_file_path)) {
             </div>
         </main>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const logTableBody = document.getElementById('log-table-body');
+
+            // Function to fetch logs and update the table
+            const fetchLogs = async () => {
+                try {
+                    const response = await fetch('/api/get_logs.php');
+                    const logs = await response.json();
+
+                    // Clear the current table body
+                    logTableBody.innerHTML = '';
+
+                    if (logs.length === 0) {
+                        logTableBody.innerHTML = '<tr><td colspan="3">No activity has been logged yet.</td></tr>';
+                    } else {
+                        // Create and append new rows from the fetched data
+                        logs.forEach(log => {
+                            const row = logTableBody.insertRow();
+                            row.insertCell(0).textContent = log.timestamp;
+                            row.insertCell(1).textContent = log.user;
+                            row.insertCell(2).textContent = log.action;
+                        });
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch logs:', error);
+                }
+            };
+
+            // Fetch the logs every 5 seconds (5000 milliseconds)
+            setInterval(fetchLogs, 5000);
+        });
+    </script>
+
 </body>
 </html>
