@@ -43,20 +43,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Add User</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
     <div class="app-container">
         <?php include '../includes/admin_sidebar.php'; ?>
         <main class="app-main">
-            <header class="app-header"><h1>Add New User</h1></header>
+            <header class="app-header">
+                <h1>Add New User</h1>
+            </header>
             <div class="app-content">
                 <div class="card">
                     <?php if ($error): ?><p class="error-message"><?php echo $error; ?></p><?php endif; ?>
-                    <?php if ($success): ?><p class="success-message"><?php echo $success; // You may need to style .success-message ?></p><?php endif; ?>
-                    
+                    <?php if ($success): ?><p class="success-message"><?php echo $success;?></p>
+                        <?php endif; ?>
+
                     <form action="user_add.php" method="post">
                         <div class="form-group"><label for="first_name">First Name</label><input type="text" name="first_name" required></div>
                         <div class="form-group"><label for="last_name">Last Name</label><input type="text" name="last_name" required></div>
@@ -65,8 +70,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div class="form-group"><label for="password">Password</label><input type="password" name="password" required></div>
                         <div class="form-group"><label for="access_level">Access Level</label>
                             <select name="access_level">
-                                <option value="user">User</option>
-                                <option value="admin">Admin</option>
+                                <option value="user" <?php if ($user['access_level'] == 'user') echo 'selected'; ?>>User</option>
+                                <option value="trainer" <?php if ($user['access_level'] == 'trainer') echo 'selected'; ?>>Trainer</option>
+                                <option value="admin" <?php if ($user['access_level'] == 'admin') echo 'selected'; ?>>Admin</option>
                             </select>
                         </div>
                         <button type="submit" class="btn">Create User</button>
@@ -76,4 +82,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </main>
     </div>
 </body>
+
 </html>

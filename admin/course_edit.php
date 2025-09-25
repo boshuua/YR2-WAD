@@ -2,11 +2,20 @@
 require_once '../includes/auth_check.php';
 require_admin();
 require_once '../includes/db_connect.php';
+require_once '../includes/log_function.php';
 
 $course_id = $_GET['id'];
 $error = '';
 $success = '';
 
+// --- FETCH LIST OF TRAINERS ---
+// This query now ONLY selects users with the 'trainer' access level.
+$trainer_stmt = $pdo->prepare("SELECT id, first_name, last_name FROM users WHERE access_level = 'trainer' ORDER BY last_name ASC");
+$trainer_stmt->execute();
+$trainers = $trainer_stmt->fetchAll();
+
+
+// --- HANDLE FORM SUBMISSION ---
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $title = trim($_POST['title']);
     $start_date_str = trim($_POST['start_date']);
@@ -14,15 +23,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $duration_minutes = filter_input(INPUT_POST, 'duration_minutes', FILTER_VALIDATE_INT) ?: 0;
     $max_attendees = filter_input(INPUT_POST, 'max_attendees', FILTER_VALIDATE_INT);
     $description = trim($_POST['description']);
+    $trainer_id = $_POST['trainer_id'] ?: null; // Handle 'no trainer' option
 
     // Calculate the new end date
     $start_date = new DateTime($start_date_str);
     $end_date = clone $start_date;
     $end_date->modify("+$duration_hours hours +$duration_minutes minutes");
 
-    $stmt = $pdo->prepare("UPDATE courses SET title = ?, course_date = ?, end_date = ?, max_attendees = ?, description = ? WHERE id = ?");
-    $stmt->execute([$title, $start_date->format('Y-m-d H:i:s'), $end_date->format('Y-m-d H:i:s'), $max_attendees, $description, $course_id]);
-    $success = "Course updated successfully! <a href='courses.php'>Back to list</a>";
+    // Updated SQL statement to include trainer_id
+    $stmt = $pdo->prepare(
+        "UPDATE courses SET title = ?, course_date = ?, end_date = ?, max_attendees = ?, description = ?, trainer_id = ? WHERE id = ?"
+    );
+    $stmt->execute([$title, $start_date->format('Y-m-d H:i:s'), $end_date->format('Y-m-d H:i:s'), $max_attendees, $description, $trainer_id, $course_id]);
+    
+    log_activity("Edited course: '{$title}' (ID: {$course_id}).");
+    $success = "Course updated successfully! <a href='/admin/courses'>Back to list</a>";
 }
 
 // Fetch current data to pre-fill the form
@@ -57,6 +72,19 @@ $current_minutes = $interval->i;
                         </div>
                         <div class="form-group"><label>Max Attendees</label><input type="number" name="max_attendees" value="<?php echo htmlspecialchars($course['max_attendees']); ?>" required></div>
                         <div class="form-group"><label>Description</label><textarea name="description" rows="5" required><?php echo htmlspecialchars($course['description']); ?></textarea></div>
+                        
+                        <div class="form-group">
+                            <label for="trainer_id">Assign Trainer</label>
+                            <select name="trainer_id" id="trainer_id">
+                                <option value="">-- No Trainer --</option>
+                                <?php foreach ($trainers as $trainer): ?>
+                                    <option value="<?php echo $trainer['id']; ?>" <?php if ($trainer['id'] == $course['trainer_id']) echo 'selected'; ?>>
+                                        <?php echo htmlspecialchars($trainer['first_name'] . ' ' . $trainer['last_name']); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
                         <button type="submit" class="btn">Update Course</button>
                     </form>
                 </div>

@@ -17,6 +17,11 @@ RewriteRule ^profile/?$ /user/profile.php [L]
 RewriteRule ^my-courses/?$ /user/my_courses.php [L]
 RewriteRule ^course/([0-9]+)/?$ /user/course_details.php?id=$1 [L]
 
+
+# Trainer Pages
+RewriteRule ^trainer/dashboard/?$ /trainer/dashboard.php [L]
+
+
 # Admin Pages
 RewriteRule ^admin/dashboard/?$ /admin/dashboard.php [L]
 RewriteRule ^admin/users/?$ /admin/users.php [L]

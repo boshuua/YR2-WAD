@@ -4,7 +4,7 @@ require_admin();
 require_once '../includes/db_connect.php';
 
 // Fetch all users to populate the trainer dropdown
-$user_stmt = $pdo->prepare("SELECT id, first_name, last_name FROM users ORDER BY last_name ASC");
+$user_stmt = $pdo->prepare("SELECT id, first_name, last_name FROM users WHERE access_level = 'trainer' ORDER BY last_name ASC");
 $user_stmt->execute();
 $trainers = $user_stmt->fetchAll();
 

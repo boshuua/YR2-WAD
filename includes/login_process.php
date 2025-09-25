@@ -30,6 +30,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         log_activity($user['id'], "Logged in");
         if ($user['access_level'] == 'admin') {
             header("Location: ../admin/dashboard.php");
+        } elseif ($user['access_level'] == 'trainer') {
+            header("Location: ../trainer/dashboard.php");
         } else {
             header("Location: ../user/dashboard.php");
         }
