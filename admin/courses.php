@@ -5,7 +5,7 @@ require_once '../includes/db_connect.php';
 
 // --- PAGINATION LOGIC FOR UPCOMING COURSES ---
 $records_per_page = 10;
-$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
 $offset = ($page - 1) * $records_per_page;
 
 // Fetch IDs for paginated upcoming courses/series
@@ -59,31 +59,50 @@ $course_history = $stmt_history->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Manage Courses</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
     <div class="app-container">
         <?php include '../includes/admin_sidebar.php'; ?>
         <main class="app-main">
-            <header class="app-header"><h1>Manage Courses</h1></header>
+            <header class="app-header">
+                <h1>Manage Courses</h1>
+            </header>
             <div class="app-content">
                 <a href="course_add.php" class="btn" style="width: auto; margin-bottom: 20px;">Add New Course</a>
                 <div class="card">
                     <h3>Upcoming Courses</h3>
                     <table>
-                        <thead><tr><th>Title</th><th>First Occurrence</th><th>Recurrence</th><th>Actions</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>First Occurrence</th>
+                                <th>Recurrence</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
                         <tbody>
                             <?php foreach ($upcoming_courses as $course): ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($course['title']); ?></td>
                                     <td><?php echo date('d M Y, H:i', strtotime($course['course_date'])); ?></td>
-                                    <td><?php echo ($course['recurrence_count'] > 1) ? 'Yes (' . $course['recurrence_count'] . ' times)' : 'No'; ?></td>
+                                    <td><?php echo ($course['recurrence_count'] > 1) ? 'Yes (' . $course['recurrence_count'] . ' times)' : 'No'; ?>
+                                    </td>
                                     <td>
-                                        <?php if ($course['series_id']): ?><a href="view_series.php?series_id=<?php echo $course['series_id']; ?>">View Series</a> | <?php endif; ?>
+                                        <?php if ($course['series_id']): ?><a
+                                                href="view_series.php?series_id=<?php echo $course['series_id']; ?>">View
+                                                Series</a> | <?php endif; ?>
                                         <a href="course_edit.php?id=<?php echo $course['id']; ?>">Edit First</a> |
-                                        <a href="course_delete.php?id=<?php echo $course['id']; ?>">Delete</a>
+                                        <a href="#" class="open-delete-modal"
+                                            data-title="<?php echo htmlspecialchars($course['title']); ?>"
+                                            data-url-one="/admin/course_delete_process.php?id=<?php echo $course['id']; ?>&type=one"
+                                            <?php if ($course['series_id'] && $course['recurrence_count'] > 1): ?>
+                                                data-url-series="/admin/course_delete_process.php?series_id=<?php echo $course['series_id']; ?>&type=series"
+                                            <?php endif; ?>>Delete</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -91,9 +110,13 @@ $course_history = $stmt_history->fetchAll();
                     </table>
                     <div class="pagination">
                         <?php if ($total_pages > 1): ?>
-                            <?php if ($page > 1): ?><a href="courses.php?page=<?php echo $page - 1; ?>">&laquo; Prev</a><?php endif; ?>
-                            <?php for ($i = 1; $i <= $total_pages; $i++): ?><a href="courses.php?page=<?php echo $i; ?>" class="<?php if ($page == $i) echo 'active'; ?>"><?php echo $i; ?></a><?php endfor; ?>
-                            <?php if ($page < $total_pages): ?><a href="courses.php?page=<?php echo $page + 1; ?>">Next &raquo;</a><?php endif; ?>
+                            <?php if ($page > 1): ?><a href="courses.php?page=<?php echo $page - 1; ?>">&laquo;
+                                    Prev</a><?php endif; ?>
+                            <?php for ($i = 1; $i <= $total_pages; $i++): ?><a href="courses.php?page=<?php echo $i; ?>"
+                                    class="<?php if ($page == $i)
+                                        echo 'active'; ?>"><?php echo $i; ?></a><?php endfor; ?>
+                            <?php if ($page < $total_pages): ?><a href="courses.php?page=<?php echo $page + 1; ?>">Next
+                                    &raquo;</a><?php endif; ?>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -101,14 +124,19 @@ $course_history = $stmt_history->fetchAll();
                 <div class="card" style="margin-top: 30px;">
                     <h3>Course History</h3>
                     <table>
-                        <thead><tr><th>Title</th><th>Date</th></tr></thead>
-                        <tbody>
-                        <?php foreach($course_history as $course): ?>
+                        <thead>
                             <tr>
-                                <td><?php echo htmlspecialchars($course['title']); ?></td>
-                                <td><?php echo date('d M Y, H:i', strtotime($course['course_date'])); ?></td>
+                                <th>Title</th>
+                                <th>Date</th>
                             </tr>
-                        <?php endforeach; ?>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($course_history as $course): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($course['title']); ?></td>
+                                    <td><?php echo date('d M Y, H:i', strtotime($course['course_date'])); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
@@ -116,4 +144,5 @@ $course_history = $stmt_history->fetchAll();
         </main>
     </div>
 </body>
+
 </html>

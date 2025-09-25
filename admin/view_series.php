@@ -27,15 +27,19 @@ $series_title = !empty($courses_in_series) ? $courses_in_series[0]['title'] : 'U
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>View Course Series</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
     <div class="app-container">
         <?php include '../includes/admin_sidebar.php'; ?>
         <main class="app-main">
-            <header class="app-header"><h1>Course Series: <?php echo htmlspecialchars($series_title); ?></h1></header>
+            <header class="app-header">
+                <h1>Course Series: <?php echo htmlspecialchars($series_title); ?></h1>
+            </header>
             <div class="app-content">
                 <a href="courses.php" style="margin-bottom: 20px; display:inline-block;">&larr; Back to Main List</a>
                 <div class="card">
@@ -55,7 +59,10 @@ $series_title = !empty($courses_in_series) ? $courses_in_series[0]['title'] : 'U
                                     <td><?php echo $course['enrolled_count'] . ' / ' . $course['max_attendees']; ?></td>
                                     <td>
                                         <a href="course_edit.php?id=<?php echo $course['id']; ?>">Edit</a> |
-                                        <a href="course_delete.php?id=<?php echo $course['id']; ?>">Delete</a>
+                                        <a href="#" class="open-delete-modal"
+                                            data-title="<?php echo htmlspecialchars($course['title']); ?>"
+                                            data-url-one="/admin/course_delete_process.php?id=<?php echo $course['id']; ?>&type=one"
+                                            data-url-series="/admin/course_delete_process.php?series_id=<?php echo $course['series_id']; ?>&type=series">Delete</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -66,4 +73,5 @@ $series_title = !empty($courses_in_series) ? $courses_in_series[0]['title'] : 'U
         </main>
     </div>
 </body>
+
 </html>

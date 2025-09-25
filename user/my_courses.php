@@ -23,30 +23,38 @@ $past_enrolments = $stmt_history->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>My Enrolments</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
+
 <body>
     <div class="app-container">
         <?php include '../includes/user_sidebar.php'; ?>
         <?php include '../includes/header.php'; ?>
         <main class="app-main">
-            <header class="app-header"><h1>My Enrolments</h1></header>
+            <header class="app-header">
+                <h1>My Enrolments</h1>
+            </header>
             <div class="app-content">
                 <div class="card">
                     <h3>My Upcoming Courses</h3>
                     <table>
                         <tbody>
-                        <?php foreach($upcoming_enrolments as $course): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($course['title']); ?></td>
-                                <td><?php echo date('d M Y', strtotime($course['course_date'])); ?></td>
-                                <td>
-                                    <a href="/user/cancel_enrolment.php?enrolment_id=<?php echo $course['enrolment_id']; ?>" onclick="return confirm('Are you sure?');">Cancel Booking</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
+                            <?php foreach ($upcoming_enrolments as $course): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($course['title']); ?></td>
+                                    <td><?php echo date('d M Y', strtotime($course['course_date'])); ?></td>
+                                    <td>
+                                        <a href="/user/cancel_enrolment.php?enrolment_id=<?php echo $course['enrolment_id']; ?>"
+                                            class="open-confirm-modal"
+                                            data-message="Are you sure you want to cancel your enrolment for '<?php echo htmlspecialchars($course['title']); ?>'?"
+                                            data-title="Cancel Enrolment" data-btn-text="Yes, Cancel Booking"
+                                            data-btn-class="btn-danger">Cancel Booking</a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
@@ -54,12 +62,12 @@ $past_enrolments = $stmt_history->fetchAll();
                     <h3>My Course History</h3>
                     <table>
                         <tbody>
-                        <?php foreach($past_enrolments as $course): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($course['title']); ?></td>
-                                <td><?php echo date('d M Y', strtotime($course['course_date'])); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
+                            <?php foreach ($past_enrolments as $course): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($course['title']); ?></td>
+                                    <td><?php echo date('d M Y', strtotime($course['course_date'])); ?></td>
+                                </tr>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
@@ -67,4 +75,5 @@ $past_enrolments = $stmt_history->fetchAll();
         </main>
     </div>
 </body>
+
 </html>
