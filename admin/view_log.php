@@ -61,7 +61,7 @@ $email_logs_for_page = array_slice($all_email_logs, $email_offset, $records_per_
 
                 <div class="card">
                     <h3>User Activity Feed</h3>
-                    <table>
+                    <table id="activity-log-table">
                         <thead>
                             <tr><th>Date & Time</th><th>User</th><th>Action</th></tr>
                         </thead>
@@ -91,7 +91,7 @@ $email_logs_for_page = array_slice($all_email_logs, $email_offset, $records_per_
 
                 <div class="card" style="margin-top: 30px;">
                     <h3>Sent Email History</h3>
-                    <table>
+                    <table id="email-log-table">
                         <thead>
                             <tr><th>Timestamp</th><th>Recipient</th><th>Subject</th><th>Action</th></tr>
                         </thead>
@@ -125,17 +125,22 @@ $email_logs_for_page = array_slice($all_email_logs, $email_offset, $records_per_
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // --- EMAIL PREVIEW MODAL LOGIC ---
         const modal = document.getElementById('emailPreviewModal');
         const iframe = document.getElementById('preview-iframe');
         const closeBtn = document.querySelector('.close-button');
 
-        document.querySelectorAll('.preview-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const emailBody = this.getAttribute('data-email-body');
-                iframe.srcdoc = emailBody;
-                modal.style.display = 'block';
+        const attachPreviewListeners = () => {
+            document.querySelectorAll('.preview-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const emailBody = this.getAttribute('data-email-body');
+                    iframe.srcdoc = emailBody;
+                    modal.style.display = 'block';
+                });
             });
-        });
+        };
+        
+        attachPreviewListeners(); // Attach to initial buttons
 
         closeBtn.onclick = () => modal.style.display = 'none';
         window.onclick = (event) => {
@@ -143,6 +148,76 @@ $email_logs_for_page = array_slice($all_email_logs, $email_offset, $records_per_
                 modal.style.display = 'none';
             }
         };
+
+        // --- AUTO-UPDATE LOGIC ---
+        const params = new URLSearchParams(window.location.search);
+        const currentActivityPage = parseInt(params.get('activity_page') || '1', 10);
+        const currentEmailPage = parseInt(params.get('email_page') || '1', 10);
+
+        // Function to update the activity log table
+        const fetchActivityLogs = async () => {
+            if (currentActivityPage > 1) return;
+            
+            try {
+                const response = await fetch('/api/get_activity_log.php');
+                const logs = await response.json();
+                const tableBody = document.querySelector('#activity-log-table tbody');
+                tableBody.innerHTML = '';
+
+                if (logs.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="3">No activity has been logged.</td></tr>';
+                } else {
+                    logs.forEach(log => {
+                        const row = tableBody.insertRow();
+                        row.insertCell(0).textContent = log.timestamp;
+                        row.insertCell(1).textContent = log.user;
+                        row.insertCell(2).textContent = log.action;
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to fetch activity logs:', error);
+            }
+        };
+
+        // Function to update the email log table
+        const fetchEmailLogs = async () => {
+            if (currentEmailPage > 1) return;
+
+            try {
+                const response = await fetch('/api/get_email_log.php');
+                const logs = await response.json();
+                const tableBody = document.querySelector('#email-log-table tbody');
+                tableBody.innerHTML = '';
+
+                if (logs.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="4">No emails have been logged.</td></tr>';
+                } else {
+                    logs.forEach(log => {
+                        const row = tableBody.insertRow();
+                        row.insertCell(0).textContent = log.timestamp;
+                        row.insertCell(1).textContent = log.recipient;
+                        row.insertCell(2).textContent = log.subject;
+                        const actionCell = row.insertCell(3);
+                        const button = document.createElement('button');
+                        button.className = 'btn btn-sm preview-btn';
+                        button.textContent = 'Preview';
+                        button.dataset.emailBody = log.body;
+                        actionCell.appendChild(button);
+                    });
+                    attachPreviewListeners(); // Re-attach listeners to new buttons
+                }
+            } catch (error) {
+                console.error('Failed to fetch email logs:', error);
+            }
+        };
+
+        // Set intervals if on the first page of the respective log
+        if (currentActivityPage === 1) {
+            setInterval(fetchActivityLogs, 5000);
+        }
+        if (currentEmailPage === 1) {
+            setInterval(fetchEmailLogs, 5500);
+        }
     });
     </script>
 </body>

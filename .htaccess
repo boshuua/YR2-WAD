@@ -23,6 +23,11 @@ RewriteRule ^admin/users/?$ /admin/users.php [L]
 RewriteRule ^admin/courses/?$ /admin/courses.php [L]
 RewriteRule ^admin/logs/?$ /admin/view_log.php [L]
 
+# --- API Rules ---
+RewriteRule ^api/get_activity_log/?$ /api/get_activity_log.php [L]
+RewriteRule ^api/get_email_log/?$ /api/get_email_log.php [L]
+
+
 # --- Error and Cache Rules ---
 ErrorDocument 404 /404_handler.php
 
