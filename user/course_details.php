@@ -51,6 +51,7 @@ $duration_formatted = rtrim($duration_formatted, ', ');
 <body>
     <div class="app-container">
         <?php include '../includes/user_sidebar.php'; ?>
+        <?php include '../includes/header.php'; ?>
         <main class="app-main">
             <header class="app-header"><h1><?php echo htmlspecialchars($course['title']); ?></h1></header>
             <div class="app-content">
