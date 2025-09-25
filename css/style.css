@@ -8,7 +8,7 @@
     --dark-blue: #0056b3;
     --success: #28a745;
     --danger: #dc3545;
-    --white: #ffffff; /* <<< FIX: Added the missing --white variable */
+    --white: #ffffff;
     
     /* Light Mode Colors (Default) */
     --bg-main: #f8f9fa;
@@ -28,6 +28,7 @@ body.dark-mode {
     --border-color: #495057;
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
+
 
 body {
     margin: 0;
@@ -387,7 +388,7 @@ body.dark-mode .btn-outline:hover {
 .confirm-modal {
     display: none;
     position: fixed;
-    z-index: 1001; /* Higher than other elements */
+    z-index: 1001;
     left: 0;
     top: 0;
     width: 100%;
@@ -429,9 +430,13 @@ body.dark-mode .btn-outline:hover {
 }
 .confirm-modal-footer {
     padding: 15px 20px;
-    text-align: right;
     border-top: 1px solid var(--border-color);
     background-color: var(--bg-main);
+    
+    /* --- THIS IS THE FIX --- */
+    display: flex;
+    justify-content: flex-end; /* Aligns buttons to the right */
+    align-items: center;
 }
 .confirm-modal-footer .btn {
     margin-left: 10px;
