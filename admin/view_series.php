@@ -58,6 +58,7 @@ $series_title = !empty($courses_in_series) ? $courses_in_series[0]['title'] : 'U
                                     <td><?php echo date('d M Y, H:i', strtotime($course['course_date'])); ?></td>
                                     <td><?php echo $course['enrolled_count'] . ' / ' . $course['max_attendees']; ?></td>
                                     <td>
+                                        <a href="/admin/enrolments/<?php echo $course['id']; ?>">View Enrolments</a> |
                                         <a href="course_edit.php?id=<?php echo $course['id']; ?>">Edit</a> |
                                         <a href="#" class="open-delete-modal"
                                             data-title="<?php echo htmlspecialchars($course['title']); ?>"

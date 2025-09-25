@@ -27,6 +27,7 @@ RewriteRule ^admin/dashboard/?$ /admin/dashboard.php [L]
 RewriteRule ^admin/users/?$ /admin/users.php [L]
 RewriteRule ^admin/courses/?$ /admin/courses.php [L]
 RewriteRule ^admin/logs/?$ /admin/view_log.php [L]
+RewriteRule ^admin/enrolments/([0-9]+)/?$ /admin/view_enrolments.php?course_id=$1 [L]
 
 # --- API Rules ---
 RewriteRule ^api/get_activity_log/?$ /api/get_activity_log.php [L]
