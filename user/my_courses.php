@@ -42,7 +42,9 @@ $past_enrolments = $stmt_history->fetchAll();
                             <tr>
                                 <td><?php echo htmlspecialchars($course['title']); ?></td>
                                 <td><?php echo date('d M Y', strtotime($course['course_date'])); ?></td>
-                                <td><a href="cancel_enrolment.php?enrolment_id=<?php echo $course['enrolment_id']; ?>" onclick="return confirm('Are you sure?');">Cancel Booking</a></td>
+                                <td>
+                                    <a href="/user/cancel_enrolment.php?enrolment_id=<?php echo $course['enrolment_id']; ?>" onclick="return confirm('Are you sure?');">Cancel Booking</a>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
