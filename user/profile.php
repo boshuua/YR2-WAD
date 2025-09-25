@@ -2,19 +2,16 @@
 require_once '../includes/auth_check.php';
 require_once '../includes/db_connect.php';
 
-// Fetch the current user's data
 $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $user = $stmt->fetch();
+
+// --- START OF CHANGES ---
+$page_title = 'My Profile'; // Set a title for the page
+require_once '../includes/header.php'; // Include the new header
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>My Profile</title>
-    <link rel="stylesheet" href="../css/style.css">
-</head>
-<body class="<?php if (isset($_SESSION['theme']) && $_SESSION['theme'] === 'dark') echo 'dark-mode'; ?>">
-    <div class="app-container">
+<title><?php echo $page_title; ?></title>
+<div class="app-container">
         <?php include '../includes/user_sidebar.php'; ?>
         <main class="app-main">
             <header class="app-header"><h1>My Profile</h1></header>
@@ -58,5 +55,5 @@ $user = $stmt->fetch();
             </div>
         </main>
     </div>
-    </body>
+</body>
 </html>
