@@ -27,15 +27,29 @@ $series_title = !empty($courses_in_series) ? $courses_in_series[0]['title'] : 'U
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<head>
+    <title>View Course Series</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
 <body>
     <div class="app-container">
         <?php include '../includes/admin_sidebar.php'; ?>
         <main class="app-main">
+            <header class="app-header">
+                <h1>Course Series: <?php echo htmlspecialchars($series_title); ?></h1>
+            </header>
             <div class="app-content">
                 <a href="/admin/courses" style="margin-bottom: 20px; display:inline-block;">&larr; Back to Main List</a>
                 <div class="card">
                     <h3>All Occurrences</h3>
                     <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Attendees</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
                         <tbody>
                             <?php foreach ($courses_in_series as $course): ?>
                                 <tr>
