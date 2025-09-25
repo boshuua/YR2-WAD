@@ -39,7 +39,6 @@ $upcoming_courses = $stmt_upcoming->fetchAll();
                         <div class="upcoming-card">
                             <div class="card-date-banner">
                                 <?php
-                                    // --- CORRECTED DATE FORMATTING LOGIC ---
                                     $start = new DateTime($course['course_date']);
                                     $end = new DateTime($course['end_date']);
 
@@ -51,11 +50,11 @@ $upcoming_courses = $stmt_upcoming->fetchAll();
                                         // Spans multiple days
                                         echo $start->format('d') . ' - ' . $end->format('d F Y');
                                     }
-                                    // --- END OF FIX ---
+                                    
                                 ?>
                             </div>
                             <h3><?php echo htmlspecialchars($course['title']); ?></h3>
-                            <a href="course_details.php?id=<?php echo $course['id']; ?>" class="btn-outline">View Detail</a>
+                            <a href="/user/course_details.php?id=<?php echo $course['id']; ?>" class="btn-outline">View Detail</a>
                         </div>
                         <?php endforeach; ?>
                     </div>
