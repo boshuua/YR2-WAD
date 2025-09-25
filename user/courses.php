@@ -1,9 +1,14 @@
 <?php
 require_once '../includes/auth_check.php';
 require_once '../includes/db_connect.php';
-$stmt_upcoming = $pdo->prepare("SELECT * FROM courses WHERE course_date >= CURDATE() ORDER BY course_date ASC LIMIT 2");
+
+// Fetch the next 2 upcoming courses for the list on the left
+$stmt_upcoming = $pdo->prepare(
+    "SELECT * FROM courses WHERE course_date >= CURDATE() ORDER BY course_date ASC LIMIT 2"
+);
 $stmt_upcoming->execute();
 $upcoming_courses = $stmt_upcoming->fetchAll();
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -14,7 +19,6 @@ $upcoming_courses = $stmt_upcoming->fetchAll();
     <style>
         :root { --fc-border-color: var(--border-grey); --fc-today-bg-color: rgba(52, 152, 219, 0.15); }
         .fc-event { cursor: pointer; }
-        /* Style for the description tooltip */
         #tooltip { position: absolute; z-index: 100; background: #333; color: white; padding: 10px 15px; border-radius: 5px; font-size: 14px; max-width: 300px; display: none; }
     </style>
 </head>
@@ -29,8 +33,29 @@ $upcoming_courses = $stmt_upcoming->fetchAll();
                     <div class="upcoming-courses-list">
                         <p>We have training courses running throughout the year. Please see below for our upcoming courses and register with us to join a course here.</p>
                         <h2>Upcoming courses</h2>
+                        
                         <?php foreach($upcoming_courses as $course): ?>
-                        <div class="upcoming-card"><div class="card-date-banner"><?php echo date('d - m F Y', strtotime($course['course_date'])); ?></div><h3><?php echo htmlspecialchars($course['title']); ?></h3><a href="course_details.php?id=<?php echo $course['id']; ?>" class="btn-outline">View Detail</a></div>
+                        <div class="upcoming-card">
+                            <div class="card-date-banner">
+                                <?php
+                                    // --- CORRECTED DATE FORMATTING LOGIC ---
+                                    $start = new DateTime($course['course_date']);
+                                    $end = new DateTime($course['end_date']);
+
+                                    // Check if the course is on the same day or spans multiple days
+                                    if ($start->format('Y-m-d') === $end->format('Y-m-d')) {
+                                        // Same day
+                                        echo $start->format('d F Y');
+                                    } else {
+                                        // Spans multiple days
+                                        echo $start->format('d') . ' - ' . $end->format('d F Y');
+                                    }
+                                    // --- END OF FIX ---
+                                ?>
+                            </div>
+                            <h3><?php echo htmlspecialchars($course['title']); ?></h3>
+                            <a href="course_details.php?id=<?php echo $course['id']; ?>" class="btn-outline">View Detail</a>
+                        </div>
                         <?php endforeach; ?>
                     </div>
                     <div class="calendar-container card"><div id='calendar'></div></div>
@@ -43,29 +68,22 @@ $upcoming_courses = $stmt_upcoming->fetchAll();
       document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
         var tooltipEl = document.getElementById('tooltip');
-
         var calendar = new FullCalendar.Calendar(calendarEl, {
           initialView: 'dayGridMonth',
           headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek' },
           height: 'auto', 
           events: '/api/get_courses.php',
-
-         
-          displayEventTime: true, // This will show the start/end times on events
+          displayEventTime: true,
           eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
-          
           eventMouseEnter: function(info) {
             tooltipEl.innerHTML = info.event.extendedProps.description;
             tooltipEl.style.display = 'block';
             tooltipEl.style.left = info.jsEvent.pageX + 10 + 'px';
             tooltipEl.style.top = info.jsEvent.pageY + 10 + 'px';
           },
-
           eventMouseLeave: function(info) {
             tooltipEl.style.display = 'none';
           },
-          // --- END NEW OPTIONS ---
-
           eventClick: function(info) {
             window.location.href = `course_details.php?id=${info.event.id}`;
           }
