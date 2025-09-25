@@ -4,7 +4,7 @@ require_once '../includes/db_connect.php';
 
 // Check if an ID was passed in the URL
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    header('Location: courses.php');
+    header('Location: /courses'); // Corrected redirect
     exit();
 }
 
@@ -25,7 +25,7 @@ $course = $stmt->fetch();
 
 // If no course was found with that ID, redirect away
 if (!$course) {
-    header('Location: courses.php');
+    header('Location: /courses'); // Corrected redirect
     exit();
 }
 
@@ -55,7 +55,7 @@ $duration_formatted = rtrim($duration_formatted, ', ');
         <main class="app-main">
             <header class="app-header"><h1><?php echo htmlspecialchars($course['title']); ?></h1></header>
             <div class="app-content">
-                <a href="courses.php" style="margin-bottom: 20px; display:inline-block;">&larr; Back to Calendar</a>
+                <a href="/courses" style="margin-bottom: 20px; display:inline-block;">&larr; Back to Calendar</a>
                 <div class="card">
                     <div class="card-content">
                         <p><strong>Start Time:</strong> <?php echo $start->format('l, jS F Y \a\t H:i'); ?></p>
@@ -76,7 +76,8 @@ $duration_formatted = rtrim($duration_formatted, ', ');
                         } elseif ($is_full) {
                             echo '<button class="btn" disabled>Course Full</button>';
                         } else {
-                            echo '<a href="enrol.php?course_id=' . $course['id'] . '" class="btn">Enrol Now</a>';
+                            // *** THIS IS THE MAIN FIX ***
+                            echo '<a href="/user/enrol.php?course_id=' . $course['id'] . '" class="btn">Enrol Now</a>';
                         }
                     ?>
                 </div>
