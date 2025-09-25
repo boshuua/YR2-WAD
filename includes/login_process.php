@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['user_email'] = $user['email'];
         $_SESSION['theme'] = $user['theme']; // Load theme preference
 
-        log_action($user['id'], "Logged in");
+        log_activity($user['id'], "Logged in");
         if ($user['access_level'] == 'admin') {
             header("Location: ../admin/dashboard.php");
         } else {
