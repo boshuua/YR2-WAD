@@ -17,7 +17,6 @@ if (!isset($_GET['course_id'])) {
 $course_id = $_GET['course_id'];
 $user_id = $_SESSION['user_id'];
 
-// --- UPDATED QUERY to fetch trainer details and other info ---
 $stmt = $pdo->prepare("
     SELECT c.*, u.first_name as trainer_first_name, u.last_name as trainer_last_name,
     (SELECT COUNT(*) FROM enrolments WHERE course_id = c.id) AS enrolled_count,

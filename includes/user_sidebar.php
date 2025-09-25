@@ -3,7 +3,7 @@
     <nav class="sidebar-nav">
         <a href="/dashboard">Dashboard</a>
         <a href="/courses">Available Courses</a>
-        <a href="/my-courses">My Enrolments</a>
+        <a href="/user/my-courses">My Enrolments</a>
         <a href="/profile">My Profile</a>
         <a href="/logout.php">Logout</a>
     </nav>
