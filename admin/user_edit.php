@@ -2,6 +2,7 @@
 require_once '../includes/auth_check.php';
 require_admin();
 require_once '../includes/db_connect.php';
+require_once '../includes/log_function.php';
 
 $user_id_to_edit = $_GET['id'];
 $error = '';
@@ -29,6 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt = $pdo->prepare("UPDATE users SET first_name = ?, last_name = ?, job_title = ?, access_level = ? WHERE id = ?");
             $stmt->execute([$first_name, $last_name, $job_title, $access_level, $user_id_to_edit]);
         }
+        log_activity("Edited user: '{$first_name} {$last_name}' (ID: {$user_id_to_edit}).");
         $success = "User updated successfully! <a href='users.php'>Back to list</a>";
     }
 }

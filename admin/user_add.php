@@ -2,6 +2,7 @@
 require_once '../includes/auth_check.php';
 require_admin();
 require_once '../includes/db_connect.php';
+require_once '../includes/log_function.php';
 
 $error = '';
 $success = '';
@@ -30,6 +31,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $insert_stmt = $pdo->prepare("INSERT INTO users (email, password, first_name, last_name, job_title, access_level) VALUES (?, ?, ?, ?, ?, ?)");
             if ($insert_stmt->execute([$email, $hashed_password, $first_name, $last_name, $job_title, $access_level])) {
+                $new_user_id = $pdo->lastInsertId(); // Get the ID of the new user
+                log_activity("Created new user: '{$first_name} {$last_name}' (ID: {$new_user_id}).");
                 $success = "User created successfully! <a href='users.php'>View Users</a>";
             } else {
                 $error = "Failed to create user. Please try again.";
