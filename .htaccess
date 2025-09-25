@@ -1,14 +1,32 @@
-# --- Custom Error Document for 404 Not Found ---
-ErrorDocument 404 /404_handler.php
+# Turn on the URL rewriting engine
+RewriteEngine On
 
+# Ensure the following rules are not applied to existing files or directories
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# --- URL Rewriting Rules ---
+
+# User Pages
+RewriteRule ^dashboard/?$ /user/dashboard.php [L]
+RewriteRule ^courses/?$ /user/courses.php [L]
+RewriteRule ^profile/?$ /user/profile.php [L]
+RewriteRule ^my-courses/?$ /user/my_courses.php [L]
+RewriteRule ^course/([0-9]+)/?$ /user/course_details.php?id=$1 [L]
+
+# Admin Pages
+RewriteRule ^admin/dashboard/?$ /admin/dashboard.php [L]
+RewriteRule ^admin/users/?$ /admin/users.php [L]
+RewriteRule ^admin/courses/?$ /admin/courses.php [L]
+RewriteRule ^admin/logs/?$ /admin/view_log.php [L]
+
+# --- Error and Cache Rules ---
+ErrorDocument 404 /404_handler.php
 
 <IfModule mod_expires.c>
   ExpiresActive On
-  # Cache CSS and JavaScript files for 1 month
   ExpiresByType text/css "access plus 1 month"
   ExpiresByType application/javascript "access plus 1 month"
-  # Cache images for 1 month
   ExpiresByType image/jpeg "access plus 1 month"
   ExpiresByType image/png "access plus 1 month"
-  ExpiresByType image/gif "access plus 1 month"
 </IfModule>

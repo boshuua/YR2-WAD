@@ -86,7 +86,7 @@ $upcoming_courses = $stmt_upcoming->fetchAll();
             tooltipEl.style.display = 'none';
           },
           eventClick: function(info) {
-            window.location.href = `course_details.php?id=${info.event.id}`;
+            window.location.href = `/course/${info.event.id}`;
           }
         });
         calendar.render();

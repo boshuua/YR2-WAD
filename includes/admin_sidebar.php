@@ -1,11 +1,11 @@
 <aside class="app-sidebar">
     <h3>CPD Admin</h3>
     <nav class="sidebar-nav">
-        <a href="dashboard.php">Dashboard</a>
-        <a href="courses.php">Manage Courses</a>
-        <a href="users.php">Manage Users</a>
-        <a href="view_log.php">Activity Log</a>
-        <a href="../logout.php">Logout</a>
+        <a href="/admin/dashboard">Dashboard</a>
+        <a href="/admin/courses">Manage Courses</a>
+        <a href="/admin/users">Manage Users</a>
+        <a href="/admin/logs">Activity Log</a>
+        <a href="/logout.php">Logout</a>
     </nav>
 </aside>
 
