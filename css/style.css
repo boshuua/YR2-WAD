@@ -546,3 +546,35 @@ body.dark-mode .btn-outline:hover {
 .close-button:hover {
   color: var(--text-dark);
 }
+
+/* =================================
+   10. BREADCRUMB NAVIGATION
+   ================================= */
+.breadcrumb {
+    padding: 10px 0;
+    margin-bottom: 20px;
+    list-style: none;
+    background-color: transparent;
+    border-radius: 0;
+    font-size: 14px;
+}
+.breadcrumb li {
+    display: inline;
+    color: var(--text-light);
+}
+.breadcrumb li+li:before {
+    padding: 0 8px;
+    color: var(--text-light);
+    content: "/\00a0";
+}
+.breadcrumb li a {
+    color: var(--primary-blue);
+    text-decoration: none;
+}
+.breadcrumb li a:hover {
+    text-decoration: underline;
+}
+.breadcrumb li.active {
+    color: var(--text-dark);
+    font-weight: 500;
+}

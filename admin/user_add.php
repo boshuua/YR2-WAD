@@ -3,6 +3,7 @@ require_once '../includes/auth_check.php';
 require_admin();
 require_once '../includes/db_connect.php';
 require_once '../includes/log_function.php';
+require_once '../includes/breadcrumb.php';
 
 $error = '';
 $success = '';
@@ -13,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $first_name = trim($_POST['first_name']);
     $last_name = trim($_POST['last_name']);
     $job_title = trim($_POST['job_title']);
-    $access_level = $_POST['access_level']; // This correctly gets the selected role
+    $access_level = $_POST['access_level'];
 
     if (empty($email) || empty($password) || empty($first_name) || empty($last_name)) {
         $error = "Name, email, and password are required.";
@@ -27,7 +28,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-            // The INSERT statement is correct and does not need to change
             $insert_stmt = $pdo->prepare(
                 "INSERT INTO users (email, password, first_name, last_name, job_title, access_level) 
                  VALUES (?, ?, ?, ?, ?, ?)"
@@ -47,7 +47,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <html lang="en">
 <head>
     <title>Add User</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <div class="app-container">
@@ -55,6 +55,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <main class="app-main">
             <header class="app-header"><h1>Add New User</h1></header>
             <div class="app-content">
+                <?php display_breadcrumbs([
+                    '/admin/dashboard' => 'Dashboard',
+                    '/admin/users' => 'Manage Users',
+                    '#' => 'Add User'
+                ]); ?>
                 <div class="card">
                     <?php if ($error): ?><p class="error-message"><?php echo $error; ?></p><?php endif; ?>
                     <?php if ($success): ?><p class="success-message"><?php echo $success; ?></p><?php endif; ?>
@@ -65,7 +70,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <div class="form-group"><label>Email</label><input type="email" name="email" required></div>
                         <div class="form-group"><label>Job Title</label><input type="text" name="job_title"></div>
                         <div class="form-group"><label>Password</label><input type="password" name="password" required></div>
-                        
                         <div class="form-group"><label>Access Level</label>
                             <select name="access_level">
                                 <option value="user">User</option>
@@ -73,7 +77,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                 <option value="admin">Admin</option>
                             </select>
                         </div>
-
                         <button type="submit" class="btn">Create User</button>
                     </form>
                 </div>
