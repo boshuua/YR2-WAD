@@ -8,9 +8,9 @@ $log_content = [];
 $permission_error = '';
 
 // --- PERMISSION CHECK ---
-if (!is_dir($logs_dir)) {
+if (!is_dir(dirname($log_file_path))) {
     $permission_error = "The 'logs' directory does not exist. Please create it in the root of your project.";
-} elseif (!is_writable($logs_dir)) {
+} elseif (!is_writable(dirname($log_file_path))) {
     $permission_error = "The 'logs' directory is not writable. Please check the server permissions (try setting to 755).";
 } elseif (file_exists($log_file_path) && !is_writable($log_file_path)) {
     $permission_error = "The log file 'user_activity.log' exists but is not writable. Please check its permissions.";
