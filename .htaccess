@@ -7,6 +7,9 @@ RewriteCond %{REQUEST_FILENAME} !-d
 
 # --- URL Rewriting Rules ---
 
+# Login Page
+RewriteRule ^login/?$ /login.php [L]
+
 # User Pages
 RewriteRule ^dashboard/?$ /user/dashboard.php [L]
 RewriteRule ^courses/?$ /user/courses.php [L]
