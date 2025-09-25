@@ -23,6 +23,7 @@ $stmt = $pdo->prepare(
 $stmt->execute([$series_id]);
 $courses_in_series = $stmt->fetchAll();
 
+// Get the title from the first course for the header
 $series_title = !empty($courses_in_series) ? $courses_in_series[0]['title'] : 'Unknown Series';
 ?>
 <!DOCTYPE html>
@@ -61,9 +62,9 @@ $series_title = !empty($courses_in_series) ? $courses_in_series[0]['title'] : 'U
                                         <a href="/admin/enrolments/<?php echo $course['id']; ?>?series_id=<?php echo $series_id; ?>">View Enrolments</a> |
                                         <a href="/admin/course_edit.php?id=<?php echo $course['id']; ?>">Edit</a> |
                                         <a href="#" class="open-delete-modal"
-                                           data-title="<?php echo htmlspecialchars($course['title']); ?>"
-                                           data-url-one="/admin/course_delete_process.php?id=<?php echo $course['id']; ?>&type=one"
-                                           data-url-series="/admin/course_delete_process.php?series_id=<?php echo $course['series_id']; ?>&type=series">Delete</a>
+                                            data-title="<?php echo htmlspecialchars($course['title']); ?>"
+                                            data-url-one="/admin/course_delete_process.php?id=<?php echo $course['id']; ?>&type=one"
+                                            data-url-series="/admin/course_delete_process.php?series_id=<?php echo $course['series_id']; ?>&type=series">Delete</a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

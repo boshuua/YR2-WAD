@@ -4,17 +4,16 @@ require_admin();
 require_once '../includes/db_connect.php';
 require_once '../includes/log_function.php';
 
-// Check if an enrolment ID was passed
 if (!isset($_GET['enrolment_id']) || !is_numeric($_GET['enrolment_id'])) {
     header("Location: /admin/courses?error=removefailed");
     exit();
 }
 
 $enrolment_id = $_GET['enrolment_id'];
-$course_id = $_GET['course_id'] ?? null; // For redirecting back
-$series_id = $_GET['series_id'] ?? null; // For redirecting back
+$course_id = $_GET['course_id'] ?? null;
+$series_id = $_GET['series_id'] ?? null; // Get the series_id
 
-// Fetch details for logging before deleting
+// Fetch details for logging
 $stmt_log = $pdo->prepare(
     "SELECT u.first_name, u.last_name, c.title
      FROM enrolments e
@@ -34,10 +33,13 @@ if ($log_info) {
     log_activity("Admin removed user '{$user_name}' from course '{$log_info['title']}'.");
 }
 
+// Smart redirect logic
 if ($series_id) {
+    // If we have a series_id, go back to that series page
     $redirect_url = "/admin/view_series.php?series_id={$series_id}&status=deleted";
 } else {
-    $redirect_url = $course_id ? "/admin/enrolments/{$course_id}?status=deleted" : "/admin/courses?status=deleted";
+    // Otherwise, fall back to the main courses list
+    $redirect_url = "/admin/courses?status=deleted";
 }
 
 header("Location: " . $redirect_url);
