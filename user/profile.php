@@ -13,7 +13,7 @@ $user = $stmt->fetch();
     <title>My Profile</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
+<body class="<?php if (isset($_SESSION['theme']) && $_SESSION['theme'] === 'dark') echo 'dark-mode'; ?>">
     <div class="app-container">
         <?php include '../includes/user_sidebar.php'; ?>
         <main class="app-main">
@@ -58,6 +58,5 @@ $user = $stmt->fetch();
             </div>
         </main>
     </div>
-    <?php include '../includes/notification.php'; ?>
-</body>
+    </body>
 </html>
