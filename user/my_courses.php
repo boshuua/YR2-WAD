@@ -30,6 +30,7 @@ $past_enrolments = $stmt_history->fetchAll();
 <body>
     <div class="app-container">
         <?php include '../includes/user_sidebar.php'; ?>
+        <?php include '../includes/header.php'; ?>
         <main class="app-main">
             <header class="app-header"><h1>My Enrolments</h1></header>
             <div class="app-content">
