@@ -35,7 +35,7 @@ $enrolled_users = $enrolment_stmt->fetchAll();
 <html lang="en">
 <head>
     <title>View Enrolments</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
     <div class="app-container">
@@ -43,10 +43,10 @@ $enrolled_users = $enrolment_stmt->fetchAll();
         <main class="app-main">
             <header class="app-header">
                 <h1>Enrolments for: <?php echo htmlspecialchars($course['title']); ?></h1>
-                <p style="margin: 5px 0 0;">Date: <?php echo date('d M Y, H:i', strtotime($course['course_date'])); ?></p>
+                <p style="margin-top: 5px; margin-bottom: 0;">Date: <?php echo date('d M Y, H:i', strtotime($course['course_date'])); ?></p>
             </header>
             <div class="app-content">
-                <a href="/admin/courses" style="margin-bottom: 20px; display:inline-block;">&larr; Back to Courses</a>
+                <a href="/admin/view_series.php?series_id=<?php echo htmlspecialchars($_GET['series_id'] ?? ''); ?>" style="margin-bottom: 20px; display:inline-block;">&larr; Back to Series</a>
                 <div class="card">
                     <h3>Enrolled Staff</h3>
                     <table>
