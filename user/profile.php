@@ -41,7 +41,7 @@ require_once '../includes/header.php'; // Include the new header
 
                 <div class="card" style="margin-top: 30px;">
                     <h3>Preferences</h3>
-                    <form action="profile_process.php" method="post">
+                    <form action="/user/profile_process.php" method="post">
                         <input type="hidden" name="action" value="update_theme">
                         <div class="form-group"><label>Site Theme</label>
                             <select name="theme">

@@ -15,7 +15,7 @@ if ($action === 'update_details') {
     $stmt->execute([$first_name, $last_name, $job_title, $user_id]);
     
     $_SESSION['user_name'] = $first_name; // Update session name immediately
-    header("Location: /profile?status=details_updated");
+    header("Location: profile?status=details_updated");
     exit();
 }
 

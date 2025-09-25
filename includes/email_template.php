@@ -34,11 +34,6 @@
                             </table>
                         </td>
                     </tr>
-                    <tr>
-                        <td align="center" style="background-color: #f8f9fa; padding: 20px 30px;">
-                            <p style="margin: 0; color: #6c757d; font-size: 12px;">© <?php echo date('Y'); ?> Logical View Solutions LTD. All rights reserved.</p>
-                        </td>
-                    </tr>
                 </table>
             </td>
         </tr>
