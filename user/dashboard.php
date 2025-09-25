@@ -26,7 +26,7 @@ $upcoming_count = $stmt->fetchColumn();
     <title>User Dashboard</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
+<body class="<?php if (isset($_SESSION['theme']) && $_SESSION['theme'] === 'dark') echo 'dark-mode'; ?>">
     <div class="app-container">
         <?php include '../includes/user_sidebar.php'; ?>
 

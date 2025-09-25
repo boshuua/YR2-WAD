@@ -4,6 +4,7 @@
         <a href="dashboard.php">Dashboard</a>
         <a href="courses.php">Available Courses</a>
         <a href="my_courses.php">My Enrolments</a>
+        <a href="profile.php">My Profile</a>
         <a href="../logout.php">Logout</a>
     </nav>
 </aside>

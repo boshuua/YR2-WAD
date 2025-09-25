@@ -10,7 +10,7 @@ require_admin();
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
+<body class="<?php if (isset($_SESSION['theme']) && $_SESSION['theme'] === 'dark') echo 'dark-mode'; ?>">
     <div class="app-container">
         <?php include '../includes/admin_sidebar.php'; ?>
         <main class="app-main">

@@ -26,6 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") { //
         $_SESSION['user_name'] = $user['first_name']; //
         $_SESSION['access_level'] = $user['access_level']; //
         $_SESSION['user_email'] = $user['email']; 
+        $_SESSION['theme'] = $user['theme'];
         // Redirect based on access level
         if ($user['access_level'] == 'admin') { //
             header("Location: ../admin/dashboard.php"); //
