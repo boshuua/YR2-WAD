@@ -1,10 +1,10 @@
 <aside class="app-sidebar">
     <h3>CPD Portal</h3>
     <nav class="sidebar-nav">
-        <a href="/dashboard">Dashboard</a>
-        <a href="/courses">Available Courses</a>
-        <a href="/user/my-courses">My Enrolments</a>
-        <a href="/profile">My Profile</a>
+        <a href="/user/dashboard">Dashboard</a>
+        <a href="/user/courses">Available Courses</a>
+        <a href="/user/my_courses">My Enrolments</a>
+        <a href="/user/profile">My Profile</a>
         <a href="/logout.php">Logout</a>
     </nav>
 </aside>

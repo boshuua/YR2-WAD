@@ -53,7 +53,7 @@ $upcoming_count = $stmt->fetchColumn();
                             <h3>My Upcoming Courses</h3>
                             <p>You are currently enrolled in <strong><?php echo $upcoming_count; ?></strong> upcoming course(s).</p>
                         </div>
-                        <a href="my_courses.php" class="btn">View My Enrolments</a>
+                        <a href="/user/my_courses.php" class="btn">View My Enrolments</a>
                     </div>
 
                     <div class="card">
@@ -61,7 +61,7 @@ $upcoming_count = $stmt->fetchColumn();
                             <h3>Browse & Enrol</h3>
                             <p>View all available courses and enrol in new training sessions to enhance your skills.</p>
                         </div>
-                        <a href="courses.php" class="btn">Browse Available Courses</a>
+                        <a href="/user/courses.php" class="btn">Browse Available Courses</a>
                     </div>
 
                 </div>
