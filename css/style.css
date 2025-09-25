@@ -8,17 +8,17 @@
     --dark-blue: #0056b3;
     --light-grey: #f8f9fa;
     --border-grey: #dee2e6;
-    --text-dark: #343a40;
+    --text-dark: #212529;
     --text-light: #6c757d;
     --white: #ffffff;
-    --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     --success: #28a745;
     --danger: #dc3545;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* Softer shadow */
 }
 
 body {
     margin: 0;
-    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     background-color: var(--light-grey);
     color: var(--text-dark);
     font-size: 15px;
@@ -26,221 +26,62 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-    color: var(--primary-blue);
-    text-decoration: none;
-    transition: color 0.2s ease-in-out;
-}
-
-a:hover {
-    color: var(--dark-blue);
-    text-decoration: none;
-}
-
 /* =================================
-   2. LOGIN PAGE
+   2. LOGIN & FORMS
    ================================= */
-.login-page-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
 .login-container {
-    background-color: var(--white);
     padding: 40px;
-    border-radius: 8px;
+    background: var(--white);
     box-shadow: var(--shadow);
-    width: 100%;
-    max-width: 400px;
     border-top: 4px solid var(--primary-blue);
-}
-
-.login-container h2 {
-    text-align: center;
-    color: var(--text-dark);
-    margin-top: 0;
-    margin-bottom: 30px;
-    font-size: 24px;
-    font-weight: 600;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text-dark);
-    font-size: 14px;
-    font-weight: 500;
+    border-radius: 0; /* No curved edges */
 }
 
 .form-group input, .form-group select, .form-group textarea {
-    width: 100%;
-    padding: 10px 15px;
-    border: 1px solid var(--border-grey);
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-size: 15px;
-    font-family: 'Poppins', sans-serif;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+    border-radius: 0; /* No curved edges */
+    /* ... other styles remain the same ... */
+    width: 100%; padding: 10px 15px; border: 1px solid var(--border-grey); box-sizing: border-box; font-size: 15px; font-family: 'Poppins', sans-serif; transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .btn {
-    display: inline-block;
-    padding: 11px 20px;
-    background-color: var(--primary-blue);
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 15px;
-    font-weight: 500;
-    text-align: center;
-    cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
-    appearance: none;
-    -webkit-appearance: none;
-}
-
-.btn:hover {
-    background-color: var(--dark-blue);
-}
-
-.btn:active {
-    transform: translateY(1px);
-}
-
-.btn-block {
-    width: 100%;
-}
-
-.error-message {
-    color: var(--danger);
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    padding: 10px 15px;
-    border-radius: 4px;
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-.success-message {
-    color: var(--success);
-    background-color: #d4edda;
-    border: 1px solid #c3e6cb;
-    padding: 10px 15px;
-    border-radius: 4px;
-    margin-bottom: 20px;
+    border-radius: 0; /* No curved edges */
+    /* ... other styles remain the same ... */
+    display: inline-block; padding: 11px 20px; background-color: var(--primary-blue); color: white; border: none; font-size: 15px; font-weight: 500; text-align: center; cursor: pointer; transition: background-color 0.2s, transform 0.1s;
 }
 
 /* =================================
    3. MAIN APP LAYOUT
    ================================= */
-.app-container {
-    display: flex;
-    min-height: 100vh;
-}
-
 .app-sidebar {
-    width: 240px;
     background-color: var(--white);
     border-right: 1px solid var(--border-grey);
-    padding: 20px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-}
-
-.app-sidebar h3 {
-    margin-top: 0;
-    font-size: 20px;
-    color: var(--text-dark);
-    font-weight: 600;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--border-grey);
-}
-
-.sidebar-nav {
-    margin-top: 10px;
+    /* ... other styles ... */
+    width: 240px; padding: 20px; flex-shrink: 0; display: flex; flex-direction: column;
 }
 
 .sidebar-nav a {
-    display: flex;
-    align-items: center;
-    color: var(--text-light);
-    padding: 12px 15px;
-    margin: 5px -15px;
-    border-radius: 5px;
-    font-weight: 500;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.sidebar-nav a:hover, .sidebar-nav a.active {
-    background-color: var(--primary-blue);
-    color: var(--white);
-    text-decoration: none;
-}
-
-.app-main {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
+    border-radius: 0; /* No curved edges */
+    /* ... other styles ... */
+    display: flex; align-items: center; color: var(--text-light); padding: 12px 15px; margin: 5px -15px; font-weight: 500; transition: background-color 0.2s, color 0.2s;
 }
 
 .app-header {
     background-color: var(--white);
-    padding: 15px 30px;
     border-bottom: 1px solid var(--border-grey);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.app-header h1 {
-    font-size: 22px;
-    font-weight: 600;
-    margin: 0;
-}
-
-.app-content {
-    padding: 30px;
-    background-color: var(--light-grey);
-    flex-grow: 1;
+    /* ... other styles ... */
+    padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
 }
 
 /* =================================
    4. CARDS, TABLES, & COMPONENTS
    ================================= */
 .card {
-    display: flex;
-    flex-direction: column;
     background: var(--white);
     border: 1px solid var(--border-grey);
-    border-radius: 8px;
-    padding: 25px;
     box-shadow: var(--shadow);
-}
-
-.card-content {
-    flex-grow: 1; 
-}
-
-.card h3 {
-    margin-top: 0;
-    font-size: 18px;
-    font-weight: 600;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--border-grey);
+    border-radius: 0; /* No curved edges */
+    /* ... other styles ... */
+    display: flex; flex-direction: column; padding: 25px;
 }
 
 table {
@@ -249,47 +90,22 @@ table {
 }
 
 th, td {
-    padding: 12px 15px;
+    padding: 15px; /* Increased padding for more space */
     text-align: left;
     border-bottom: 1px solid var(--border-grey);
 }
 
 thead th {
-    background-color: var(--light-grey);
+    background-color: var(--white); /* Cleaner header background */
+    border-bottom: 2px solid var(--text-dark); /* Stronger header underline */
     font-weight: 600;
-    color: var(--text-light);
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-tbody tr:last-child td {
-    border-bottom: none;
-}
-
-tbody tr:hover {
-    background-color: #fdfdfd;
-}
-
-.pagination {
-    margin-top: 25px;
-    text-align: center;
+    color: var(--text-dark);
 }
 
 .pagination a {
-    color: var(--primary-blue);
-    padding: 8px 16px;
-    text-decoration: none;
-    border: 1px solid var(--border-grey);
-    margin: 0 4px;
-    border-radius: 4px;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.pagination a:hover, .pagination a.active {
-    background-color: var(--primary-blue);
-    color: var(--white);
-    border-color: var(--primary-blue);
+    border-radius: 0; /* No curved edges */
+    /* ... other styles ... */
+    color: var(--primary-blue); padding: 8px 16px; text-decoration: none; border: 1px solid var(--border-grey); margin: 0 4px; transition: background-color 0.2s, color 0.2s;
 }
 
 /* =================================
@@ -324,3 +140,30 @@ tbody tr:hover {
 .btn-outline:hover { background-color: #e9ecef; color: var(--text-dark); text-decoration: none; }
 .fc .fc-toolbar-title { font-size: 1.2em; }
 @media (max-width: 992px) { .course-page-container { grid-template-columns: 1fr; } }
+
+
+
+/* =================================
+   8. NOTIFICATION MODAL (NEW)
+   ================================= */
+.notification-modal {
+    position: fixed;
+    bottom: 20px;
+    left: -400px; /* Start off-screen */
+    max-width: 350px;
+    padding: 15px 20px;
+    color: var(--white);
+    font-weight: 500;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    transition: left 0.5s ease-in-out;
+    z-index: 1000;
+}
+.notification-modal.show {
+    left: 20px; /* Slide in */
+}
+.notification-modal.success {
+    background-color: var(--success);
+}
+.notification-modal.error {
+    background-color: var(--danger);
+}
