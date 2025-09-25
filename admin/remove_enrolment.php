@@ -12,6 +12,7 @@ if (!isset($_GET['enrolment_id']) || !is_numeric($_GET['enrolment_id'])) {
 
 $enrolment_id = $_GET['enrolment_id'];
 $course_id = $_GET['course_id'] ?? null; // For redirecting back
+$series_id = $_GET['series_id'] ?? null; // For redirecting back
 
 // Fetch details for logging before deleting
 $stmt_log = $pdo->prepare(
@@ -33,7 +34,11 @@ if ($log_info) {
     log_activity("Admin removed user '{$user_name}' from course '{$log_info['title']}'.");
 }
 
-// Redirect back to the enrolments page with a success message
-$redirect_url = $course_id ? "/admin/enrolments/{$course_id}?status=deleted" : "/admin/courses?status=deleted";
+if ($series_id) {
+    $redirect_url = "/admin/view_series.php?series_id={$series_id}&status=deleted";
+} else {
+    $redirect_url = $course_id ? "/admin/enrolments/{$course_id}?status=deleted" : "/admin/courses?status=deleted";
+}
+
 header("Location: " . $redirect_url);
 exit();
