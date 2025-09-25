@@ -141,10 +141,8 @@ thead th {
 .fc .fc-toolbar-title { font-size: 1.2em; }
 @media (max-width: 992px) { .course-page-container { grid-template-columns: 1fr; } }
 
-
-
 /* =================================
-   8. NOTIFICATION MODAL (NEW)
+   8. NOTIFICATION MODAL 
    ================================= */
 .notification-modal {
     position: fixed;
