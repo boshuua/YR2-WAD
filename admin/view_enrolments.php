@@ -3,13 +3,14 @@ require_once '../includes/auth_check.php';
 require_admin();
 require_once '../includes/db_connect.php';
 
+// Check if a course ID was passed
 if (!isset($_GET['course_id']) || !is_numeric($_GET['course_id'])) {
     header("Location: /admin/courses");
     exit();
 }
 
 $course_id = $_GET['course_id'];
-$series_id_for_back_link = $_GET['series_id'] ?? null; 
+$series_id_for_back_link = $_GET['series_id'] ?? null;
 
 // Fetch the course details
 $course_stmt = $pdo->prepare("SELECT title, course_date FROM courses WHERE id = ?");
@@ -30,7 +31,6 @@ $enrolment_stmt = $pdo->prepare(
 );
 $enrolment_stmt->execute([$course_id]);
 $enrolled_users = $enrolment_stmt->fetchAll();
-$series_id_for_back_link = $_GET['series_id'] ?? null;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -55,8 +55,37 @@ $series_id_for_back_link = $_GET['series_id'] ?? null;
                 <?php endif; ?>
 
                 <div class="card">
-                    </div>
-            </div>
+                    <h3>Enrolled Staff</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (empty($enrolled_users)): ?>
+                                <tr><td colspan="3">No users are currently enrolled in this course.</td></tr>
+                            <?php else: ?>
+                                <?php foreach ($enrolled_users as $user): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></td>
+                                        <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                        <td>
+                                            <a href="/admin/remove_enrolment.php?enrolment_id=<?php echo $user['enrolment_id']; ?>&course_id=<?php echo $course_id; ?>&series_id=<?php echo $series_id_for_back_link; ?>"
+                                               class="open-confirm-modal"
+                                               data-message="Are you sure you want to remove <?php echo htmlspecialchars($user['first_name']); ?> from this course?"
+                                               data-title="Confirm Removal"
+                                               data-btn-text="Yes, Remove"
+                                               data-btn-class="btn-danger">Remove</a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div> </div>
         </main>
     </div>
 </body>
