@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once 'db_connect.php';
-require_once '../includes/log_function.php';
+require_once 'log_function.php'; 
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST['email']);
@@ -25,9 +25,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['user_name'] = $user['first_name'];
         $_SESSION['access_level'] = $user['access_level'];
         $_SESSION['user_email'] = $user['email'];
-        $_SESSION['theme'] = $user['theme']; // Load theme preference
+        $_SESSION['theme'] = $user['theme'];
 
-        log_activity($user['id'], "Logged in");
+     
+        // The log_activity function gets user info from the session, so only pass the message.
+        log_activity("Logged in.");
+
         if ($user['access_level'] == 'admin') {
             header("Location: ../admin/dashboard.php");
         } elseif ($user['access_level'] == 'trainer') {
