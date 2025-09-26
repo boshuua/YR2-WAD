@@ -38,6 +38,10 @@ $upcoming_courses = $stmt_upcoming->fetchAll();
             max-width: 300px;
             display: none;
         }
+        .fc-event-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
     </style>
 </head>
 
