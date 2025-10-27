@@ -1,0 +1,138 @@
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 0;
+}
+
+.dashboard-panel {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--box-shadow);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dashboard-panel h3 {
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-list-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem 0; /* Add margin below list */
+  flex-grow: 1; /* Allow list to take available space */
+}
+
+.user-list-panel li {
+  padding: 0.625rem 0;
+  border-bottom: 1px solid var(--border-color-light);
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+}
+.user-list-panel li:last-child {
+  border-bottom: none;
+}
+
+.calendar-panel p,
+.activity-log-panel p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    flex-grow: 1; /* Allow paragraph to take space */
+    margin-bottom: 1rem;
+}
+
+.activity-log-panel b {
+    color: var(--warning-color); /* Or another color */
+}
+
+.panel-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 2px solid var(--border-color);
+  text-align: right;
+}
+
+.panel-footer a {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  transition: color var(--transition-base);
+}
+
+.panel-footer a:hover {
+  color: var(--primary-hover);
+}
+
+.error-message {
+  color: var(--danger-color);
+  font-weight: 500;
+  padding: 0.5rem 0;
+}
+
+/* Styles for Activity Log Panel */
+.activity-log-panel ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem;
+  flex-grow: 1;
+}
+
+.activity-log-panel li {
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--gray-50);
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+  border-left: 3px solid var(--border-color);
+}
+
+.activity-log-panel li:last-child {
+  margin-bottom: 0;
+}
+
+.log-timestamp {
+  color: var(--text-muted);
+  margin-right: 0.5em;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.log-user {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-right: 0.5em;
+}
+
+.log-action {
+  color: var(--text-primary);
+  font-weight: 500;
+  margin-right: 0.5em;
+}
+
+.log-details {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+
+/* Make grid single column on smaller screens */
+@media (max-width: 600px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}

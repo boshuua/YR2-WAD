@@ -1,0 +1,37 @@
+<div class="form-panel">
+  <h2>Edit User: {{ userData.first_name }} {{ userData.last_name }}</h2>
+
+  <div *ngIf="isLoading">Loading user data...</div>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <form *ngIf="!isLoading && !errorMessage" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input id="firstName" type="text" [(ngModel)]="userData.first_name" name="firstName" required>
+      </div>
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input id="lastName" type="text" [(ngModel)]="userData.last_name" name="lastName"> </div>
+    </div>
+    <div class="form-group">
+      <label for="jobTitle">Job Title</label>
+      <input id="jobTitle" type="text" [(ngModel)]="userData.job_title" name="jobTitle">
+    </div>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input id="email" type="email" [(ngModel)]="userData.email" name="email" required>
+    </div>
+    <div class="form-group">
+      <label for="accessLevel">Access Level</label>
+      <select id="accessLevel" [(ngModel)]="userData.access_level" name="accessLevel" required>
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
+      <button type="submit" class="btn-primary">Update User</button>
+    </div>
+  </form>
+</div>

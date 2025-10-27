@@ -1,0 +1,53 @@
+<div class="user-management-panel">
+
+  <div class="panel-header">
+    <h2>User Management</h2>
+    <a routerLink="/admin/users/new" class="add-user-btn">+ Add User</a>
+  </div>
+
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Job Title</th>
+          <th>Access Level</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.first_name }} {{ user.last_name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.job_title }}</td>
+          <td>
+            <span class="badge" [ngClass]="{
+              'badge-admin': user.access_level === 'admin',
+              'badge-user': user.access_level === 'user'
+            }">
+              {{ user.access_level }}
+            </span>
+          </td>
+          <td>
+            <button class="edit-btn" [routerLink]="['/admin/users/edit', user.id]">Edit</button>
+            <button
+              class="delete-btn"
+              (click)="promptDeleteUser(user.id, user.first_name + ' ' + user.last_name)">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+<app-confirm-modal
+  [isVisible]="showDeleteConfirmModal"
+  title="Confirm Deletion"
+  [message]="'Are you sure you want to delete the user \'' + userToDeleteName + '\'?'"
+  confirmButtonText="Delete User"
+  cancelButtonText="Cancel"
+  (confirmed)="confirmDelete()"
+  (cancelled)="cancelDelete()">
+</app-confirm-modal>

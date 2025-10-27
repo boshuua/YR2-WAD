@@ -1,0 +1,6 @@
+<nav class="breadcrumb">
+  <a routerLink="/admin/overview">Admin</a>
+  <span *ngFor="let crumb of (breadcrumbs$ | async)">
+    / <a [routerLink]="crumb.url">{{ crumb.label }}</a>
+  </span>
+</nav>

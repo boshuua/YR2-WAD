@@ -1,0 +1,38 @@
+<div class="form-panel">
+  <h2>Add New User</h2>
+  <form (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input id="firstName" type="text" [(ngModel)]="userData.first_name" name="firstName" required>
+      </div>
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input id="lastName" type="text" [(ngModel)]="userData.last_name" name="lastName" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="jobTitle">Job Title</label>
+      <input id="jobTitle" type="text" [(ngModel)]="userData.job_title" name="jobTitle">
+    </div>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input id="email" type="email" [(ngModel)]="userData.email" name="email" required>
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input id="password" type="password" [(ngModel)]="userData.password" name="password" required>
+    </div>
+    <div class="form-group">
+      <label for="accessLevel">Access Level</label>
+      <select id="accessLevel" [(ngModel)]="userData.access_level" name="accessLevel">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
+      <button type="submit" class="btn-primary">Create User</button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,59 @@
+.form-panel {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  margin: 0 auto;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.form-group { margin-bottom: 1rem; }
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+button { padding: 0.75rem 1.5rem; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; }
+.btn-primary { background-color: var(--primary-color); color: white; } /* Use CSS var */
+.btn-secondary { background-color: var(--secondary-color); color: white; } /* Use CSS var */
+/* General form styling */
+input, select { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; box-sizing: border-box; } /* Use CSS var */
+label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-secondary); } /* Use CSS var */
+
+.error-message {
+  color: var(--danger-color); /* Use CSS var */
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+
+@media only screen and (max-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr; /* Stack grid items */
+    gap: 0; /* Remove gap or adjust as needed */
+  }
+
+  /* Add margin-bottom back to stacked items if gap is removed */
+  .form-grid .form-group {
+     margin-bottom: 1rem;
+  }
+
+  .form-panel {
+    padding: 1rem; /* Reduce padding */
+  }
+
+  .form-actions {
+    flex-direction: column; /* Stack buttons */
+    gap: 0.5rem;
+  }
+
+  .form-actions button {
+    width: 100%; /* Make buttons full width */
+  }
+}

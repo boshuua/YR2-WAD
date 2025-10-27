@@ -1,0 +1,108 @@
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: var(--gray-100);
+}
+
+.login-box {
+  width: 100%;
+  max-width: 420px;
+  padding: 2.5rem;
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--box-shadow-md);
+  border: 1px solid var(--border-color);
+}
+
+h2 {
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 2rem;
+  letter-spacing: -0.025em;
+}
+
+h2 + p {
+  text-align: center;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+  font-size: 0.9375rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.625rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+}
+
+input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: all var(--transition-base);
+  background: var(--background-color);
+}
+
+input:hover {
+  border-color: var(--medium-gray);
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  background: var(--white);
+}
+
+button {
+  width: 100%;
+  padding: 0.875rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--primary-color);
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition-base);
+  margin-top: 0.5rem;
+}
+
+button:hover {
+  background: var(--primary-hover);
+}
+
+.error-message {
+  color: var(--danger-color);
+  text-align: center;
+  margin-top: 1.5rem;
+  font-weight: 500;
+  background: var(--danger-light);
+  padding: 0.875rem 1rem;
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--danger-color);
+}
+@media only screen and (max-width: 480px) {
+  .login-box {
+    padding: 1.5rem; /* Reduce padding on very small screens */
+    margin: 0 1rem; /* Add some horizontal margin */
+    max-width: calc(100% - 2rem); /* Ensure it doesn't touch edges */
+  }
+
+  h2 {
+    font-size: 1.5rem; /* Slightly smaller heading */
+    margin-bottom: 1.5rem;
+  }
+}

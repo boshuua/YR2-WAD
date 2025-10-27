@@ -1,0 +1,79 @@
+<div class="admin-layout" [class.sidebar-collapsed]="isSidebarCollapsed">
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-container">
+        <span class="sidebar-logo">CPD Portal</span>
+      </div>
+      <button class="sidebar-toggle" (click)="toggleSidebar()" [attr.aria-label]="isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+        <span class="icon">{{ isSidebarCollapsed ? '☰' : '×' }}</span>
+      </button>
+    </div>
+
+    <div class="sidebar-content">
+      <div class="menu-section">
+        <span class="section-label">Main</span>
+        <ul>
+          <li>
+            <a routerLink="/admin/overview" routerLinkActive="active">
+              <span class="link-text">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/admin/users" routerLinkActive="active">
+              <span class="link-text">User Management</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/admin/courses" routerLinkActive="active">
+              <span class="link-text">Course Management</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="menu-section">
+        <span class="section-label">System</span>
+        <ul>
+          <li>
+            <a routerLink="/admin/activity" routerLinkActive="active">
+              <span class="link-text">Activity Logs</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/admin/settings" routerLinkActive="active">
+              <span class="link-text">Settings</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="user-avatar">
+          <span class="avatar-text">AU</span>
+        </div>
+        <div class="user-info">
+          <span class="user-name">Admin User</span>
+          <span class="user-role">Administrator</span>
+        </div>
+        <button class="logout-btn" (click)="logout()" title="Logout">
+          <span class="logout-text">Logout</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <header class="main-header">
+      <div class="header-content">
+        <span class="header-title">CPD Admin</span>
+        <app-breadcrumb></app-breadcrumb>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

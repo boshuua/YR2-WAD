@@ -1,0 +1,49 @@
+<h2>Dashboard Overview</h2>
+<p>Welcome to the admin control panel.</p>
+
+<div class="dashboard-grid">
+
+  <div class="dashboard-panel user-list-panel">
+    <h3>Recent Users</h3>
+    <div *ngIf="isLoadingUsers">Loading users...</div>
+    <div *ngIf="userLoadError" class="error-message">{{ userLoadError }}</div>
+    <ul *ngIf="!isLoadingUsers && !userLoadError && recentUsers.length > 0">
+      <li *ngFor="let user of recentUsers">
+        {{ user.first_name }} {{ user.last_name }} ({{ user.email }}) - {{ user.access_level }}
+      </li>
+    </ul>
+     <p *ngIf="!isLoadingUsers && !userLoadError && recentUsers.length === 0">No users found.</p>
+    <div class="panel-footer">
+      <a routerLink="/admin/users">View All Users</a>
+    </div>
+  </div>
+
+  <div class="dashboard-panel calendar-panel">
+    <h3>Calendar</h3>
+    <p><i>Calendar component will be displayed here.</i></p>
+    <div class="panel-footer">
+        <a href="#">View Full Calendar</a> </div>
+  </div>
+
+  <div class="dashboard-panel activity-log-panel">
+    <h3>Activity Log</h3>
+     <div *ngIf="isLoadingLog">Loading activity log...</div>
+     <div *ngIf="logLoadError" class="error-message">{{ logLoadError }}</div>
+
+     <ul *ngIf="!isLoadingLog && !logLoadError && activityLog.length > 0">
+       <li *ngFor="let entry of activityLog">
+         <span class="log-timestamp">{{ datePipe.transform(entry.timestamp, 'medium') }}:</span>
+         <span class="log-user">{{ entry.user_email || 'System/Unknown' }}</span>
+         <span class="log-action">{{ entry.action }}</span>
+         <span *ngIf="entry.details" class="log-details"> ({{ entry.details }})</span>
+       </li>
+     </ul>
+
+     <p *ngIf="!isLoadingLog && !logLoadError && activityLog.length === 0">No recent activity found.</p>
+
+     <div class="panel-footer">
+         <a href="#">View Full Log</a>
+     </div>
+   </div>
+
+  </div>
