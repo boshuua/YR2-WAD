@@ -45,10 +45,9 @@ export class CourseListComponent implements OnInit {
         }
       },
       error: (err) => {
-        console.error('Failed to load courses', err);
-        if (err.status === 404 && err.error?.message === 'No courses found.') {
+        if (err.status === 404) {
           this.noCoursesFound = true;
-          this.errorMessage = ''; // Clear error message for this specific case
+          this.courses = [];
         } else {
           this.errorMessage = 'Error loading courses: ' + (err.error?.message || err.message);
           this.toastService.error(this.errorMessage);

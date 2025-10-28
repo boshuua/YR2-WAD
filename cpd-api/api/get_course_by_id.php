@@ -2,12 +2,6 @@
 session_start();
 include_once '../config/database.php';
 
-if (!isset($_SESSION['access_level']) || $_SESSION['access_level'] !== 'admin') {
-    http_response_code(403);
-    echo json_encode(["message" => "Access Denied: Admin privileges required."]);
-    exit();
-}
-
 $courseId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
 if ($courseId <= 0) {
