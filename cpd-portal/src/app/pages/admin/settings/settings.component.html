@@ -1,0 +1,35 @@
+<div class="form-panel">
+  <h2>Change Password</h2>
+  <form [formGroup]="passwordForm" (ngSubmit)="onSubmitPasswordChange()">
+    <div class="form-group">
+      <label for="currentPassword">Current Password</label>
+      <input id="currentPassword" type="password" formControlName="current_password" required>
+      <div *ngIf="passwordForm.get('current_password')?.invalid && (passwordForm.get('current_password')?.dirty || passwordForm.get('current_password')?.touched)" class="error-message">
+        <div *ngIf="passwordForm.get('current_password')?.errors?.['required']">Current Password is required.</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="newPassword">New Password</label>
+      <input id="newPassword" type="password" formControlName="new_password" required>
+      <div *ngIf="passwordForm.get('new_password')?.invalid && (passwordForm.get('new_password')?.dirty || passwordForm.get('new_password')?.touched)" class="error-message">
+        <div *ngIf="passwordForm.get('new_password')?.errors?.['required']">New Password is required.</div>
+        <div *ngIf="passwordForm.get('new_password')?.errors?.['minlength']">New Password must be at least 6 characters long.</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="confirmPassword">Confirm New Password</label>
+      <input id="confirmPassword" type="password" formControlName="confirm_password" required>
+      <div *ngIf="passwordForm.get('confirm_password')?.invalid && (passwordForm.get('confirm_password')?.dirty || passwordForm.get('confirm_password')?.touched)" class="error-message">
+        <div *ngIf="passwordForm.get('confirm_password')?.errors?.['required']">Confirm New Password is required.</div>
+        <div *ngIf="passwordForm.get('confirm_password')?.errors?.['passwordMatch']">Passwords do not match.</div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
+      <button type="submit" class="btn-primary">Change Password</button>
+    </div>
+  </form>
+</div>

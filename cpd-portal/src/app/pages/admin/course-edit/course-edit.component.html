@@ -1,0 +1,70 @@
+<div class="form-panel">
+  <h2>Edit Course: {{ courseForm.get('title')?.value }}</h2>
+
+  <div *ngIf="isLoading">Loading course data...</div>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <form *ngIf="!isLoading && !errorMessage" [formGroup]="courseForm" (ngSubmit)="onSubmit()">
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="title">Course Title</label>
+        <input id="title" type="text" formControlName="title" required>
+        <div *ngIf="courseForm.get('title')?.invalid && (courseForm.get('title')?.dirty || courseForm.get('title')?.touched)" class="error-message">
+          <div *ngIf="courseForm.get('title')?.errors?.['required']">Course Title is required.</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="code">Course Code (Optional)</label>
+        <input id="code" type="text" formControlName="code">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" formControlName="description" rows="5" required></textarea>
+      <div *ngIf="courseForm.get('description')?.invalid && (courseForm.get('description')?.dirty || courseForm.get('description')?.touched)" class="error-message">
+        <div *ngIf="courseForm.get('description')?.errors?.['required']">Description is required.</div>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="duration">Duration (in hours, optional)</label>
+        <input id="duration" type="number" formControlName="duration">
+        <div *ngIf="courseForm.get('duration')?.invalid && (courseForm.get('duration')?.dirty || courseForm.get('duration')?.touched)" class="error-message">
+          <div *ngIf="courseForm.get('duration')?.errors?.['min']">Duration must be a positive number.</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="category">Category</label>
+        <input id="category" type="text" formControlName="category" required>
+        <div *ngIf="courseForm.get('category')?.invalid && (courseForm.get('category')?.dirty || courseForm.get('category')?.touched)" class="error-message">
+          <div *ngIf="courseForm.get('category')?.errors?.['required']">Category is required.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="instructorId">Instructor ID (Optional)</label>
+        <input id="instructorId" type="number" formControlName="instructor_id">
+      </div>
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status" formControlName="status" required>
+          <option value="draft">Draft</option>
+          <option value="published">Published</option>
+          <option value="archived">Archived</option>
+        </select>
+        <div *ngIf="courseForm.get('status')?.invalid && (courseForm.get('status')?.dirty || courseForm.get('status')?.touched)" class="error-message">
+          <div *ngIf="courseForm.get('status')?.errors?.['required']">Status is required.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
+      <button type="submit" class="btn-primary">Update Course</button>
+    </div>
+  </form>
+</div>

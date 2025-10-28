@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../service/auth.service';
 import { RouterLink } from '@angular/router';
 import { ConfirmModalComponent } from '../../../components/confirm-modal/confirm-modal.component';
+import { ToastService } from '../../../service/toast.service';
 
 @Component({
   selector: 'app-user-list',
@@ -18,7 +19,7 @@ export class UserListComponent implements OnInit {
   userToDeleteId: number | null = null;
   userToDeleteName: string = '';
 
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService, private toastService: ToastService) { }
 
   ngOnInit(): void {
     this.loadUsers();
@@ -26,13 +27,13 @@ export class UserListComponent implements OnInit {
 
   loadUsers(): void {
     // *** Corrected: Call getUsers ***
-    this.authService.getUsers().subscribe({ // <--- Changed method name
+    this.authService.getUsers().subscribe({
       next: (data) => {
         this.users = data;
       },
       error: (err) => {
         console.error('Failed to load users', err);
-        alert('Error loading users: ' + (err.error?.message || err.message));
+        this.toastService.error('Error loading users: ' + (err.error?.message || err.message));
       }
     });
   }
@@ -42,21 +43,21 @@ export class UserListComponent implements OnInit {
     this.userToDeleteName = userName;
     // Try this:
     setTimeout(() => {
-      this.showDeleteConfirmModal = true; // Show the modal
+      this.showDeleteConfirmModal = true;
     }, 0);
   }
   confirmDelete(): void {
     if (this.userToDeleteId !== null) {
       this.authService.adminDeleteUser(this.userToDeleteId).subscribe({
         next: (response) => {
-          alert(response.message || 'User deleted successfully!');
+          this.toastService.success(response.message || 'User deleted successfully!');
           this.users = this.users.filter(user => user.id !== this.userToDeleteId);
-          this.closeDeleteModal(); // Close modal on success
+          this.closeDeleteModal();
         },
         error: (err) => {
           console.error('Failed to delete user', err);
-          alert('Error deleting user: ' + (err.error?.message || err.message));
-          this.closeDeleteModal(); // Close modal on error too
+          this.toastService.error('Error deleting user: ' + (err.error?.message || err.message));
+          this.closeDeleteModal();
         }
       });
     } else {

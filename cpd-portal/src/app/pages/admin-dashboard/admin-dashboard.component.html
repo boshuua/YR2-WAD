@@ -16,16 +16,19 @@
           <li>
             <a routerLink="/admin/overview" routerLinkActive="active">
               <span class="link-text">Dashboard</span>
+              <span class="collapsed-link-text">D</span>
             </a>
           </li>
           <li>
             <a routerLink="/admin/users" routerLinkActive="active">
               <span class="link-text">User Management</span>
+              <span class="collapsed-link-text">U</span>
             </a>
           </li>
           <li>
             <a routerLink="/admin/courses" routerLinkActive="active">
               <span class="link-text">Course Management</span>
+              <span class="collapsed-link-text">C</span>
             </a>
           </li>
         </ul>
@@ -34,14 +37,15 @@
       <div class="menu-section">
         <span class="section-label">System</span>
         <ul>
-          <li>
+          <!-- <li>
             <a routerLink="/admin/activity" routerLinkActive="active">
               <span class="link-text">Activity Logs</span>
             </a>
-          </li>
+          </li> -->
           <li>
             <a routerLink="/admin/settings" routerLinkActive="active">
               <span class="link-text">Settings</span>
+              <span class="collapsed-link-text">S</span>
             </a>
           </li>
         </ul>
@@ -51,13 +55,14 @@
     <div class="sidebar-footer">
       <div class="user-profile">
         <div class="user-avatar">
-          <span class="avatar-text">AU</span>
+          <span class="avatar-text">{{ userInitials }}</span>
         </div>
         <div class="user-info">
-          <span class="user-name">Admin User</span>
-          <span class="user-role">Administrator</span>
+          <span class="user-name">{{ userName }}</span>
+          <span class="user-role">{{ userRole }}</span>
         </div>
         <button class="logout-btn" (click)="logout()" title="Logout">
+          <span class="icon">&#x21AA;</span>
           <span class="logout-text">Logout</span>
         </button>
       </div>
@@ -76,4 +81,12 @@
       <router-outlet></router-outlet>
     </div>
   </main>
+
+  <app-toast-notification
+    *ngIf="currentToast"
+    [message]="currentToast.message"
+    [type]="currentToast.type"
+    [duration]="currentToast.duration || 3000"
+    (closed)="onToastClosed()">
+  </app-toast-notification>
 </div>

@@ -27,9 +27,10 @@ input, select { width: 100%; padding: 0.75rem; border: 1px solid var(--border-co
 label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text-secondary); } /* Use CSS var */
 
 .error-message {
-  color: var(--danger-color); /* Use CSS var */
-  margin-bottom: 1rem;
+  color: var(--danger-color);
   font-weight: 500;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
 }
 
 

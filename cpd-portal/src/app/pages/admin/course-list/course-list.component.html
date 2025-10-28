@@ -1,0 +1,61 @@
+<div class="user-management-panel">
+
+  <div class="panel-header">
+    <h2>Course Management</h2>
+    <button class="add-user-btn" (click)="addCourse()">+ Add Course</button>
+  </div>
+
+  <div class="table-responsive">
+    <div *ngIf="isLoading">Loading courses...</div>
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <table *ngIf="!isLoading && !errorMessage && courses.length > 0">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Code</th>
+          <th>Category</th>
+          <th>Status</th>
+          <th>Duration</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let course of courses">
+          <td>{{ course.title }}</td>
+          <td>{{ course.code || 'N/A' }}</td>
+          <td>{{ course.category }}</td>
+          <td>
+            <span class="badge"
+              [ngClass]="{
+                'badge-info': course.status === 'draft',
+                'badge-success': course.status === 'published',
+                'badge-secondary': course.status === 'archived'
+              }">
+              {{ course.status }}
+            </span>
+          </td>
+          <td>{{ course.duration || 'N/A' }}</td>
+          <td>
+            <button class="edit-btn" [routerLink]="['/admin/courses/edit', course.id]">Edit</button>
+            <button class="delete-btn" (click)="promptDeleteCourse(course.id, course.title)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!isLoading && noCoursesFound" class="no-data-message">
+      No courses found. Click 'Add Course' to create one.
+    </div>
+  </div>
+</div>
+
+<app-confirm-modal
+  [isVisible]="showDeleteConfirmModal"
+  title="Confirm Deletion"
+  [message]="'Are you sure you want to delete the course \'' + courseToDeleteTitle + '\'?'"
+  confirmButtonText="Delete Course"
+  cancelButtonText="Cancel"
+  (confirmed)="confirmDelete()"
+  (cancelled)="cancelDelete()">
+</app-confirm-modal>

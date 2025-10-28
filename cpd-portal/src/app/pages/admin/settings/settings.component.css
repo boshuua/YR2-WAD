@@ -64,7 +64,7 @@ label {
   font-size: 0.9375rem;
 }
 
-input, select {
+input, select, textarea {
   width: 100%;
   padding: 0.875rem 1rem;
   border: 2px solid var(--border-color);
@@ -76,11 +76,11 @@ input, select {
   font-family: inherit;
 }
 
-input:hover, select:hover {
+input:hover, select:hover, textarea:hover {
   border-color: var(--medium-gray);
 }
 
-input:focus, select:focus {
+input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);

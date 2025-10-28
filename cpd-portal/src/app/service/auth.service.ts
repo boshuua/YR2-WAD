@@ -41,6 +41,35 @@ export class AuthService {
       withCredentials: true
     });
   }
+
+  adminCreateCourse(courseData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin_create_course.php`, courseData, { withCredentials: true });
+  }
+
+  getCourses(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_courses.php`, { withCredentials: true });
+  }
+
+  adminUpdateCourse(courseId: number, courseData: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin_update_course.php?id=${courseId}`, courseData, {
+      withCredentials: true
+    });
+  }
+
+  adminDeleteCourse(courseId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/admin_delete_course.php?id=${courseId}`, {
+      withCredentials: true
+    });
+  }
+
+  getCourseById(courseId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_course_by_id.php?id=${courseId}`, { withCredentials: true });
+  }
+
+  adminUpdatePassword(passwordData: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin_update_password.php`, passwordData, { withCredentials: true });
+  }
+
   getActivityLog(limit: number = 20): Observable<any> { // Default limit
     return this.http.get(`${this.apiUrl}/get_activity_log.php?limit=${limit}`, { withCredentials: true });
   }

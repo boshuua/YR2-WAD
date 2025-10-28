@@ -1,0 +1,7 @@
+<div class="toast-notification" [ngClass]="toastClass">
+  <div class="toast-content">
+    <span class="toast-message">{{ message }}</span>
+    <button class="toast-close-btn" (click)="close()">×</button>
+  </div>
+  <div class="toast-progress-bar" [style.width.%]="progress"></div>
+</div>

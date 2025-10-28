@@ -1,35 +1,48 @@
 <div class="form-panel">
-  <h2>Edit User: {{ userData.first_name }} {{ userData.last_name }}</h2>
+  <h2>Edit User: {{ userForm.get('first_name')?.value }} {{ userForm.get('last_name')?.value }}</h2>
 
   <div *ngIf="isLoading">Loading user data...</div>
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-  <form *ngIf="!isLoading && !errorMessage" (ngSubmit)="onSubmit()">
+  <form *ngIf="!isLoading && !errorMessage" [formGroup]="userForm" (ngSubmit)="onSubmit()">
     <div class="form-grid">
       <div class="form-group">
         <label for="firstName">First Name</label>
-        <input id="firstName" type="text" [(ngModel)]="userData.first_name" name="firstName" required>
+        <input id="firstName" type="text" formControlName="first_name" required>
+        <div *ngIf="userForm.get('first_name')?.invalid && (userForm.get('first_name')?.dirty || userForm.get('first_name')?.touched)" class="error-message">
+          <div *ngIf="userForm.get('first_name')?.errors?.['required']">First Name is required.</div>
+        </div>
       </div>
       <div class="form-group">
         <label for="lastName">Last Name</label>
-        <input id="lastName" type="text" [(ngModel)]="userData.last_name" name="lastName"> </div>
-    </div>
+        <input id="lastName" type="text" formControlName="last_name">
+        <div *ngIf="userForm.get('last_name')?.invalid && (userForm.get('last_name')?.dirty || userForm.get('last_name')?.touched)" class="error-message">
+          <div *ngIf="userForm.get('last_name')?.errors?.['required']">Last Name is required.</div>
+        </div>
+      </div>
     <div class="form-group">
       <label for="jobTitle">Job Title</label>
-      <input id="jobTitle" type="text" [(ngModel)]="userData.job_title" name="jobTitle">
+      <input id="jobTitle" type="text" formControlName="job_title">
     </div>
     <div class="form-group">
       <label for="email">Email</label>
-      <input id="email" type="email" [(ngModel)]="userData.email" name="email" required>
+      <input id="email" type="email" formControlName="email" required>
+      <div *ngIf="userForm.get('email')?.invalid && (userForm.get('email')?.dirty || userForm.get('email')?.touched)" class="error-message">
+        <div *ngIf="userForm.get('email')?.errors?.['required']">Email is required.</div>
+        <div *ngIf="userForm.get('email')?.errors?.['email']">Please enter a valid email address.</div>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="accessLevel">Access Level</label>
-      <select id="accessLevel" [(ngModel)]="userData.access_level" name="accessLevel" required>
-        <option value="user">User</option>
-        <option value="admin">Admin</option>
-      </select>
-    </div>
-    <div class="form-actions">
+          <div class="form-group">
+            <label for="accessLevel">Access Level</label>
+            <select id="accessLevel" formControlName="access_level" required>
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+            <div *ngIf="userForm.get('access_level')?.invalid && (userForm.get('access_level')?.dirty || userForm.get('access_level')?.touched)" class="error-message">
+              <div *ngIf="userForm.get('access_level')?.errors?.['required']">Access Level is required.</div>
+            </div>
+          </div>
+        </div>    <div class="form-actions">
       <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
       <button type="submit" class="btn-primary">Update User</button>
     </div>
