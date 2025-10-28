@@ -13,7 +13,7 @@ if ($courseId <= 0) {
 $database = new Database();
 $db = $database->getConn();
 
-$query = "SELECT id, title, description, content FROM courses WHERE id = :id LIMIT 1 OFFSET 0";
+$query = "SELECT id, title, description, content, duration, category, status, instructor_id, start_date, end_date FROM courses WHERE id = :id LIMIT 1 OFFSET 0";
 
 $stmt = $db->prepare($query);
 $stmt->bindParam(':id', $courseId, PDO::PARAM_INT);
@@ -29,7 +29,13 @@ if ($num > 0) {
         "id" => $id,
         "title" => $title,
         "description" => html_entity_decode($description),
-        "content" => html_entity_decode($content)
+        "content" => html_entity_decode($content),
+        "duration" => $duration,
+        "category" => $category,
+        "status" => $status,
+        "instructor_id" => $instructor_id,
+        "start_date" => $start_date,
+        "end_date" => $end_date
     );
 
     http_response_code(200);

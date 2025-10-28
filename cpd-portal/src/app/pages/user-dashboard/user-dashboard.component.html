@@ -1,31 +1,65 @@
-<div class="user-dashboard-container">
-  <h1>My Courses</h1>
-
-  <div *ngIf="isLoading" class="loading-message">Loading courses...</div>
-  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
-
-  <div *ngIf="!isLoading && !errorMessage && courses.length > 0" class="course-list">
-    <div *ngFor="let course of courses" class="course-card">
-      <h3>{{ course.title }}</h3>
-      <p class="course-description">{{ course.description | slice:0:150 }}{{ course.description.length > 150 ? '...' : '' }}</p>
-      <div class="course-meta">
-        <span class="badge"
-          [ngClass]="{
-            'badge-info': course.user_progress_status === 'not_started',
-            'badge-warning': course.user_progress_status === 'in_progress',
-            'badge-success': course.user_progress_status === 'completed'
-          }">
-          {{ course.user_progress_status | titlecase }}
-        </span>
-        <span *ngIf="course.score !== null" class="course-score">Score: {{ course.score }}%</span>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-container">
+        <span class="sidebar-logo">CPD Portal</span>
       </div>
-      <button class="btn-primary" (click)="viewCourse(course.id)">
-        View Content
-      </button>
     </div>
-  </div>
 
-  <div *ngIf="!isLoading && !errorMessage && courses.length === 0" class="no-courses-message">
-    No courses available yet. Check back later!
-  </div>
+    <div class="sidebar-content">
+      <div class="menu-section">
+        <span class="section-label">Main</span>
+        <ul>
+          <li>
+            <a routerLink="/dashboard/my-courses" routerLinkActive="active">
+              <span class="link-text">My Courses</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/dashboard/calendar" routerLinkActive="active">
+              <span class="link-text">Calendar</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="menu-section">
+        <span class="section-label">Account</span>
+        <ul>
+          <li>
+            <a routerLink="/dashboard/settings" routerLinkActive="active">
+              <span class="link-text">Settings</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="user-avatar">
+          <span class="avatar-text">{{ userInitials }}</span>
+        </div>
+        <div class="user-info">
+          <span class="user-name">{{ userName }}</span>
+          <span class="user-role">{{ userRole }}</span>
+        </div>
+        <button class="logout-btn" (click)="logout()" title="Logout">
+          <span class="icon">&#x21AA;</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <header class="main-header">
+      <div class="header-content">
+        <span class="header-title">CPD Portal</span>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
 </div>

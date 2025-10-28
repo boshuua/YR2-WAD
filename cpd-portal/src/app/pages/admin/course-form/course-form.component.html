@@ -22,6 +22,43 @@
       <textarea id="content" formControlName="content" rows="15"></textarea>
     </div>
 
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="duration">Duration (in hours)</label>
+            <input id="duration" type="number" formControlName="duration">
+        </div>
+        <div class="form-group">
+            <label for="category">Category</label>
+            <input id="category" type="text" formControlName="category">
+        </div>
+    </div>
+
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" formControlName="status">
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+                <option value="archived">Archived</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="instructor_id">Instructor ID</label>
+            <input id="instructor_id" type="number" formControlName="instructor_id">
+        </div>
+    </div>
+
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="start_date">Start Date</label>
+            <input id="start_date" type="datetime-local" formControlName="start_date">
+        </div>
+        <div class="form-group">
+            <label for="end_date">End Date</label>
+            <input id="end_date" type="datetime-local" formControlName="end_date">
+        </div>
+    </div>
+
     <div class="form-actions">
       <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
       <button type="submit" class="btn-primary" [disabled]="courseForm.invalid">{{ isEditMode ? 'Update' : 'Create' }} Course</button>

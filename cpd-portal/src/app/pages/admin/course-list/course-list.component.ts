@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../service/auth.service';
 import { ToastService } from '../../../service/toast.service';
 import { ConfirmModalComponent } from '../../../components/confirm-modal/confirm-modal.component';
@@ -8,7 +8,7 @@ import { ConfirmModalComponent } from '../../../components/confirm-modal/confirm
 @Component({
   selector: 'app-course-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, ConfirmModalComponent],
+  imports: [CommonModule, ConfirmModalComponent],
   templateUrl: './course-list.component.html',
   styleUrls: ['./course-list.component.css']
 })

@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $database = new Database();
 $db = $database->getConn();
 
-$query = "SELECT id, title, description FROM courses ORDER BY created_at DESC";
+$query = "SELECT id, title, description, duration, category, status, instructor_id, start_date, end_date FROM courses ORDER BY created_at DESC";
 $stmt = $db->prepare($query);
 $stmt->execute();
 
@@ -38,7 +38,13 @@ if ($num > 0) {
         $course_item = array(
             "id" => $id,
             "title" => $title,
-            "description" => html_entity_decode($description)
+            "description" => html_entity_decode($description),
+            "duration" => $duration,
+            "category" => $category,
+            "status" => $status,
+            "instructor_id" => $instructor_id,
+            "start_date" => $start_date,
+            "end_date" => $end_date
         );
         array_push($courses_arr, $course_item);
     }

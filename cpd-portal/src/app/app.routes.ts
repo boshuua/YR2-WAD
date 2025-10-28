@@ -11,8 +11,11 @@ import { UserCreateComponent } from './pages/admin/user-create/user-create.compo
 import { UserEditComponent } from './pages/admin/user-edit/user-edit.component';
 import { CourseListComponent } from './pages/admin/course-list/course-list.component';
 import { CourseFormComponent } from './pages/admin/course-form/course-form.component';
-import { SettingsComponent } from './pages/admin/settings/settings.component';
+import { SettingsComponent as AdminSettingsComponent } from './pages/admin/settings/settings.component';
 import { CourseContentComponent } from './pages/course-content/course-content.component';
+import { MyCoursesComponent } from './pages/user/my-courses/my-courses.component';
+import { UserCalendarComponent } from './pages/user/calendar/user-calendar.component';
+import { UserSettingsComponent } from './pages/user/settings/user-settings.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -30,12 +33,23 @@ export const routes: Routes = [
       { path: 'courses', component: CourseListComponent, data: { breadcrumb: 'Course Management' } },
       { path: 'courses/new', component: CourseFormComponent, data: { breadcrumb: 'Create Course' } },
       { path: 'courses/edit/:id', component: CourseFormComponent, data: { breadcrumb: 'Edit Course' } },
-      { path: 'settings', component: SettingsComponent, data: { breadcrumb: 'Settings' } },
+      { path: 'settings', component: AdminSettingsComponent, data: { breadcrumb: 'Settings' } },
       { path: '', redirectTo: 'overview', pathMatch: 'full' } // Default admin page
     ]
   },
 
-  { path: 'dashboard', component: UserDashboardComponent },
+  // User Dashboard Layout Route
+  {
+    path: 'dashboard',
+    component: UserDashboardComponent,
+    children: [
+      { path: 'my-courses', component: MyCoursesComponent, data: { breadcrumb: 'My Courses' } },
+      { path: 'calendar', component: UserCalendarComponent, data: { breadcrumb: 'Calendar' } },
+      { path: 'settings', component: UserSettingsComponent, data: { breadcrumb: 'Settings' } },
+      { path: '', redirectTo: 'my-courses', pathMatch: 'full' }
+    ]
+  },
+
   { path: 'courses/:id', component: CourseContentComponent, data: { breadcrumb: 'Course Content' } },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }

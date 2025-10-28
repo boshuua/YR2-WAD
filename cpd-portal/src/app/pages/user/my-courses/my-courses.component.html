@@ -1,0 +1,33 @@
+<div class="user-dashboard-container">
+  <h1>My Courses</h1>
+
+  <div *ngIf="isLoading" class="loading-message">Loading courses...</div>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <div *ngIf="!isLoading && !errorMessage && courses.length > 0" class="course-list">
+    <div *ngFor="let course of courses" class="course-card">
+      <h3>{{ course.title }}</h3>
+      <p class="course-description">{{ course.description | slice:0:150 }}{{ course.description.length > 150 ? '...' : '' }}</p>
+      <div class="course-meta">
+        <span class="badge"
+          [ngClass]="{
+            'badge-info': course.user_progress_status === 'not_started',
+            'badge-warning': course.user_progress_status === 'in_progress',
+            'badge-success': course.user_progress_status === 'completed'
+          }">
+          {{ course.user_progress_status | titlecase }}
+        </span>
+        <span *ngIf="course.score !== null" class="course-score">Score: {{ course.score }}%</span>
+      </div>
+      <div class="course-actions">
+        <button class="btn-primary" (click)="viewCourse(course.id)">View Content</button>
+        <button class="btn-secondary" *ngIf="course.user_progress_status === 'not_started'" (click)="updateCourseStatus(course.id, 'in_progress')">Start Course</button>
+        <button class="btn-secondary" *ngIf="course.user_progress_status === 'in_progress'" (click)="updateCourseStatus(course.id, 'completed')">Mark as Completed</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage && courses.length === 0" class="no-courses-message">
+    No courses available yet. Check back later!
+  </div>
+</div>

@@ -1,0 +1,9 @@
+.calendar-panel {
+  background: var(--white);
+  padding: 2.5rem;
+  border-radius: var(--radius-lg);
+  width: 100%;
+  box-shadow: var(--box-shadow);
+  border: 1px solid var(--border-color);
+  margin: 0 auto;
+}

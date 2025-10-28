@@ -1,21 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../service/auth.service';
 import { ToastService } from '../../service/toast.service';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-user-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './user-dashboard.component.html',
   styleUrls: ['./user-dashboard.component.css']
 })
 export class UserDashboardComponent implements OnInit {
-  courses: any[] = [];
-  isLoading = true;
-  errorMessage = '';
+  userName: string = 'User';
+  userRole: string = 'User';
+  userInitials: string = 'U';
 
   constructor(
     private authService: AuthService,
@@ -24,32 +23,26 @@ export class UserDashboardComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.loadUserCourses();
+    if (typeof localStorage !== 'undefined') {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      this.userName = user.name || 'User';
+      this.userRole = user.role || 'User';
+      this.userInitials = this.getInitials(this.userName);
+    }
   }
 
-  loadUserCourses(): void {
-    this.isLoading = true;
-    this.errorMessage = '';
-    this.authService.getUserCourses().subscribe({
-      next: (data: any) => {
-        this.courses = data;
-        this.isLoading = false;
-      },
-      error: (err: HttpErrorResponse) => {
-        console.error('Failed to load user courses', err);
-        if (err.status === 404 && err.error?.message === 'No published courses found.') {
-          this.courses = [];
-          this.errorMessage = '';
-        } else {
-          this.errorMessage = 'Error loading courses: ' + (err.error?.message || err.message);
-          this.toastService.error(this.errorMessage);
-        }
-        this.isLoading = false;
-      }
-    });
+  getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('');
   }
 
-  viewCourse(courseId: number): void {
-    this.router.navigate(['/courses', courseId]);
+  logout(): void {
+    sessionStorage.clear();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    this.router.navigate(['/login']);
+    this.toastService.info('You have been logged out.');
   }
 }

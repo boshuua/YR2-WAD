@@ -54,12 +54,13 @@ try {
         // Update existing progress
         $updateQuery = "UPDATE user_course_progress
                         SET status = :status,
-                            completion_date = CASE WHEN :status = 'completed' THEN CURRENT_TIMESTAMP ELSE NULL END,
+                            completion_date = CASE WHEN :status_case = 'completed' THEN CURRENT_TIMESTAMP ELSE NULL END,
                             score = :score,
                             updated_at = CURRENT_TIMESTAMP
                         WHERE user_id = :user_id AND course_id = :course_id";
         $updateStmt = $db->prepare($updateQuery);
         $updateStmt->bindParam(':status', $status, PDO::PARAM_STR);
+        $updateStmt->bindParam(':status_case', $status, PDO::PARAM_STR);
         $updateStmt->bindParam(':score', $score, $score === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
         $updateStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
         $updateStmt->bindParam(':course_id', $courseId, PDO::PARAM_INT);
@@ -76,13 +77,14 @@ try {
                             :user_id, 
                             :course_id, 
                             :status,
-                            CASE WHEN :status = 'completed' THEN CURRENT_TIMESTAMP ELSE NULL END,
+                            CASE WHEN :status_case = 'completed' THEN CURRENT_TIMESTAMP ELSE NULL END,
                             :score
                         )";
         $insertStmt = $db->prepare($insertQuery);
         $insertStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
         $insertStmt->bindParam(':course_id', $courseId, PDO::PARAM_INT);
         $insertStmt->bindParam(':status', $status, PDO::PARAM_STR);
+        $insertStmt->bindParam(':status_case', $status, PDO::PARAM_STR);
         $insertStmt->bindParam(':score', $score, $score === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
         $insertStmt->execute();
     }
