@@ -110,6 +110,26 @@ export class AuthService {
     return this.http.get(`${this.apiUrl}/get_questions_by_lesson.php?lesson_id=${lessonId}&id=${questionId}`, { withCredentials: true });
   }
 
+  getUserCourses(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_user_courses.php`, { withCredentials: true });
+  }
+
+  getCourseContentForUser(courseId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_course_content_for_user.php?course_id=${courseId}`, { withCredentials: true });
+  }
+
+  submitAnswer(answerData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/submit_answer.php`, answerData, { withCredentials: true });
+  }
+
+  updateLessonProgress(progressData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/update_lesson_progress.php`, progressData, { withCredentials: true });
+  }
+
+  updateCourseProgress(progressData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/update_course_progress.php`, progressData, { withCredentials: true });
+  }
+
   getActivityLog(limit: number = 20): Observable<any> { // Default limit
     return this.http.get(`${this.apiUrl}/get_activity_log.php?limit=${limit}`, { withCredentials: true });
   }

@@ -15,6 +15,7 @@ import { CourseEditComponent } from './pages/admin/course-edit/course-edit.compo
 import { SettingsComponent } from './pages/admin/settings/settings.component';
 import { LessonManagementComponent } from './pages/admin/lesson-management/lesson-management.component';
 import { QuestionManagementComponent } from './pages/admin/question-management/question-management.component';
+import { CoursePlayerComponent } from './pages/course-player/course-player.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -40,6 +41,7 @@ export const routes: Routes = [
   },
 
   { path: 'dashboard', component: UserDashboardComponent },
+  { path: 'courses/:id/play', component: CoursePlayerComponent, data: { breadcrumb: 'Course Player' } },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }
 ];
