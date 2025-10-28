@@ -1,0 +1,12 @@
+<div class="course-content-container">
+  <div *ngIf="isLoading" class="loading-message">Loading course content...</div>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <div *ngIf="!isLoading && !errorMessage && course">
+    <div class="course-header">
+      <h1>{{ course.title }}</h1>
+      <p class="course-description">{{ course.description }}</p>
+    </div>
+    <div class="course-content" [innerHTML]="course.content | safeHtml"></div>
+  </div>
+</div>

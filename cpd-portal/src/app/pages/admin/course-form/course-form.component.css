@@ -3,15 +3,10 @@
   padding: 2.5rem;
   border-radius: var(--radius-lg);
   width: 100%;
-  max-width: 700px;
+  max-width: 800px;
   box-shadow: var(--box-shadow);
   border: 1px solid var(--border-color);
   margin: 0 auto;
-}
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
 }
 .form-group {
   margin-bottom: 1.5rem;
@@ -55,7 +50,7 @@ button {
 .btn-secondary:hover {
   background: var(--secondary-hover);
 }
-/* General form styling */
+
 label {
   display: block;
   margin-bottom: 0.625rem;
@@ -64,7 +59,7 @@ label {
   font-size: 0.9375rem;
 }
 
-input, select, textarea {
+input, textarea {
   width: 100%;
   padding: 0.875rem 1rem;
   border: 2px solid var(--border-color);
@@ -76,41 +71,19 @@ input, select, textarea {
   font-family: inherit;
 }
 
-input:hover, select:hover, textarea:hover {
+textarea {
+  min-height: 200px;
+}
+
+input:hover, textarea:hover {
   border-color: var(--medium-gray);
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus, textarea:focus {
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
   background: var(--white);
-}
-
-
-@media only screen and (max-width: 600px) {
-  .form-grid {
-    grid-template-columns: 1fr; /* Stack grid items */
-    gap: 0; /* Remove gap or adjust as needed */
-  }
-
-  /* Add margin-bottom back to stacked items if gap is removed */
-  .form-grid .form-group {
-     margin-bottom: 1rem;
-  }
-
-  .form-panel {
-    padding: 1rem; /* Reduce padding */
-  }
-
-  .form-actions {
-    flex-direction: column; /* Stack buttons */
-    gap: 0.5rem;
-  }
-
-  .form-actions button {
-    width: 100%; /* Make buttons full width */
-  }
 }
 
 .error-message {
@@ -118,32 +91,4 @@ input:focus, select:focus, textarea:focus {
   font-weight: 500;
   margin-top: 0.25rem;
   font-size: 0.875rem;
-}
-
-.tab-navigation {
-  display: flex;
-  margin-bottom: 1.5rem;
-  border-bottom: 2px solid var(--border-color);
-}
-
-.tab-button {
-  background: none;
-  border: none;
-  padding: 0.75rem 1.25rem;
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all var(--transition-base);
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px; /* Counteract border-bottom */
-}
-
-.tab-button:hover {
-  color: var(--primary-color);
-}
-
-.tab-button.active {
-  color: var(--primary-color);
-  border-bottom-color: var(--primary-color);
 }

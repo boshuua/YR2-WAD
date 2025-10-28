@@ -8,14 +8,11 @@ import { adminGuard } from './auth/admin-guard';
 import { OverviewComponent } from './pages/admin/overview/overview.component';
 import { UserListComponent } from './pages/admin/user-list/user-list.component';
 import { UserCreateComponent } from './pages/admin/user-create/user-create.component';
-import { UserEditComponent } from './pages/admin/user-edit/user-edit.component'; 
-import { CourseCreateComponent } from './pages/admin/course-create/course-create.component';
+import { UserEditComponent } from './pages/admin/user-edit/user-edit.component';
 import { CourseListComponent } from './pages/admin/course-list/course-list.component';
-import { CourseEditComponent } from './pages/admin/course-edit/course-edit.component';
+import { CourseFormComponent } from './pages/admin/course-form/course-form.component';
 import { SettingsComponent } from './pages/admin/settings/settings.component';
-import { LessonManagementComponent } from './pages/admin/lesson-management/lesson-management.component';
-import { QuestionManagementComponent } from './pages/admin/question-management/question-management.component';
-import { CoursePlayerComponent } from './pages/course-player/course-player.component';
+import { CourseContentComponent } from './pages/course-content/course-content.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -31,17 +28,15 @@ export const routes: Routes = [
       { path: 'users/new', component: UserCreateComponent, data: { breadcrumb: 'Create User' } },
       { path: 'users/edit/:id', component: UserEditComponent, data: { breadcrumb: 'Edit User' } },
       { path: 'courses', component: CourseListComponent, data: { breadcrumb: 'Course Management' } },
-      { path: 'courses/new', component: CourseCreateComponent, data: { breadcrumb: 'Create Course' } },
-      { path: 'courses/edit/:id', component: CourseEditComponent, data: { breadcrumb: 'Edit Course' } },
-      { path: 'courses/:id/lessons', component: LessonManagementComponent, data: { breadcrumb: 'Manage Lessons' } },
-      { path: 'courses/:courseId/lessons/:lessonId/questions', component: QuestionManagementComponent, data: { breadcrumb: 'Manage Questions' } },
+      { path: 'courses/new', component: CourseFormComponent, data: { breadcrumb: 'Create Course' } },
+      { path: 'courses/edit/:id', component: CourseFormComponent, data: { breadcrumb: 'Edit Course' } },
       { path: 'settings', component: SettingsComponent, data: { breadcrumb: 'Settings' } },
       { path: '', redirectTo: 'overview', pathMatch: 'full' } // Default admin page
     ]
   },
 
   { path: 'dashboard', component: UserDashboardComponent },
-  { path: 'courses/:id/play', component: CoursePlayerComponent, data: { breadcrumb: 'Course Player' } },
+  { path: 'courses/:id', component: CourseContentComponent, data: { breadcrumb: 'Course Content' } },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }
 ];

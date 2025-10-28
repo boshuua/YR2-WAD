@@ -2,32 +2,24 @@
 session_start();
 include_once '../config/database.php';
 
-// --- Security Check ---
 if (!isset($_SESSION['access_level']) || $_SESSION['access_level'] !== 'admin') {
-    http_response_code(403); // Forbidden
+    http_response_code(403);
     echo json_encode(["message" => "Access Denied: Admin privileges required."]);
     exit();
 }
 
-// --- Get Input Data ---
 $courseId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-// --- Validate Input ---
 if ($courseId <= 0) {
     http_response_code(400);
     echo json_encode(["message" => "Invalid course ID provided."]);
     exit();
 }
 
-// --- Database Connection ---
 $database = new Database();
 $db = $database->getConn();
 
-// --- Prepare SELECT Query ---
-$query = "SELECT id, title, description, code, duration, category, instructor_id, status, created_at, updated_at
-          FROM courses
-          WHERE id = :id
-          LIMIT 1 OFFSET 0";
+$query = "SELECT id, title, description, content FROM courses WHERE id = :id LIMIT 1 OFFSET 0";
 
 $stmt = $db->prepare($query);
 $stmt->bindParam(':id', $courseId, PDO::PARAM_INT);
@@ -43,13 +35,7 @@ if ($num > 0) {
         "id" => $id,
         "title" => $title,
         "description" => html_entity_decode($description),
-        "code" => $code,
-        "duration" => $duration,
-        "category" => $category,
-        "instructor_id" => $instructor_id,
-        "status" => $status,
-        "created_at" => $created_at,
-        "updated_at" => $updated_at
+        "content" => html_entity_decode($content)
     );
 
     http_response_code(200);

@@ -19,8 +19,8 @@
         </span>
         <span *ngIf="course.score !== null" class="course-score">Score: {{ course.score }}%</span>
       </div>
-      <button class="btn-primary" (click)="startCourse(course.id)">
-        {{ course.user_progress_status === 'not_started' ? 'Start Course' : 'Continue Course' }}
+      <button class="btn-primary" (click)="viewCourse(course.id)">
+        View Content
       </button>
     </div>
   </div>

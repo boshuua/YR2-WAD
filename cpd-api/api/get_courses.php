@@ -6,7 +6,6 @@ header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
-// Handle preflight OPTIONS request for CORS
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -15,7 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 include_once '../config/database.php';
 include_once '../helpers/log_helper.php';
 
-// Ensure it's a GET request
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);
     echo json_encode(["message" => "Method Not Allowed."]);
@@ -25,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 $database = new Database();
 $db = $database->getConn();
 
-$query = "SELECT id, title, description, code, duration, category, instructor_id, status, created_at, updated_at FROM courses ORDER BY created_at DESC";
+$query = "SELECT id, title, description FROM courses ORDER BY created_at DESC";
 $stmt = $db->prepare($query);
 $stmt->execute();
 
@@ -40,14 +38,7 @@ if ($num > 0) {
         $course_item = array(
             "id" => $id,
             "title" => $title,
-            "description" => html_entity_decode($description),
-            "code" => $code,
-            "duration" => $duration,
-            "category" => $category,
-            "instructor_id" => $instructor_id,
-            "status" => $status,
-            "created_at" => $created_at,
-            "updated_at" => $updated_at
+            "description" => html_entity_decode($description)
         );
         array_push($courses_arr, $course_item);
     }

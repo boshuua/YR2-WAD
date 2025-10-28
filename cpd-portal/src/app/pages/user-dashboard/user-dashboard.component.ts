@@ -49,7 +49,7 @@ export class UserDashboardComponent implements OnInit {
     });
   }
 
-  startCourse(courseId: number): void {
-    this.router.navigate(['/courses', courseId, 'play']);
+  viewCourse(courseId: number): void {
+    this.router.navigate(['/courses', courseId]);
   }
 }

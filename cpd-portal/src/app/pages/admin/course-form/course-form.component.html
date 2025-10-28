@@ -1,0 +1,30 @@
+<div class="form-panel">
+  <h2>{{ isEditMode ? 'Edit Course' : 'Create New Course' }}</h2>
+  <form [formGroup]="courseForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="title">Course Title</label>
+      <input id="title" type="text" formControlName="title" required>
+      <div *ngIf="courseForm.get('title')?.invalid && courseForm.get('title')?.touched" class="error-message">
+        Title is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" formControlName="description" rows="4" required></textarea>
+      <div *ngIf="courseForm.get('description')?.invalid && courseForm.get('description')?.touched" class="error-message">
+        Description is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="content">Course Content (Markdown supported)</label>
+      <textarea id="content" formControlName="content" rows="15"></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
+      <button type="submit" class="btn-primary" [disabled]="courseForm.invalid">{{ isEditMode ? 'Update' : 'Create' }} Course</button>
+    </div>
+  </form>
+</div>
