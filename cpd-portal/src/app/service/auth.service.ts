@@ -70,6 +70,46 @@ export class AuthService {
     return this.http.put(`${this.apiUrl}/admin_update_password.php`, passwordData, { withCredentials: true });
   }
 
+  adminCreateLesson(lessonData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin_create_lesson.php`, lessonData, { withCredentials: true });
+  }
+
+  adminUpdateLesson(lessonId: number, lessonData: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin_update_lesson.php?id=${lessonId}`, lessonData, { withCredentials: true });
+  }
+
+  adminDeleteLesson(lessonId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/admin_delete_lesson.php?id=${lessonId}`, { withCredentials: true });
+  }
+
+  getLessonsByCourse(courseId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_lessons_by_course.php?course_id=${courseId}`, { withCredentials: true });
+  }
+
+  getLessonById(courseId: number, lessonId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_lessons_by_course.php?course_id=${courseId}&id=${lessonId}`, { withCredentials: true });
+  }
+
+  adminCreateQuestion(questionData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin_create_question.php`, questionData, { withCredentials: true });
+  }
+
+  adminUpdateQuestion(questionId: number, questionData: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/admin_update_question.php?id=${questionId}`, questionData, { withCredentials: true });
+  }
+
+  adminDeleteQuestion(questionId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/admin_delete_question.php?id=${questionId}`, { withCredentials: true });
+  }
+
+  getQuestionsByLesson(lessonId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_questions_by_lesson.php?lesson_id=${lessonId}`, { withCredentials: true });
+  }
+
+  getQuestionById(lessonId: number, questionId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_questions_by_lesson.php?lesson_id=${lessonId}&id=${questionId}`, { withCredentials: true });
+  }
+
   getActivityLog(limit: number = 20): Observable<any> { // Default limit
     return this.http.get(`${this.apiUrl}/get_activity_log.php?limit=${limit}`, { withCredentials: true });
   }

@@ -1,0 +1,74 @@
+<div class="user-management-panel">
+  <div class="panel-header">
+    <h2>Lessons for Course ID: {{ courseId }}</h2>
+    <button class="add-item-btn" (click)="openAddLessonModal()">+ Add Lesson</button>
+  </div>
+
+  <div class="table-responsive">
+    <div *ngIf="isLoading">Loading lessons...</div>
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <table *ngIf="!isLoading && !errorMessage && lessons.length > 0">
+      <thead>
+        <tr>
+          <th>Order</th>
+          <th>Title</th>
+          <th>Description</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let lesson of lessons">
+          <td>{{ lesson.order_index }}</td>
+          <td>{{ lesson.title }}</td>
+          <td>{{ lesson.description | slice:0:100 }}{{ lesson.description.length > 100 ? '...' : '' }}</td>
+          <td>
+            <button class="edit-btn" (click)="openEditLessonModal(lesson)">Edit</button>
+            <button class="delete-btn" (click)="promptDeleteLesson(lesson.id, lesson.title)">Delete</button>
+            <button class="btn-primary" [routerLink]="['/admin/courses', courseId, 'lessons', lesson.id, 'questions']">Manage Questions</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!isLoading && !errorMessage && lessons.length === 0" class="no-data-message">
+      No lessons found for this course. Click 'Add Lesson' to create one.
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Lesson Modal -->
+<div class="modal-overlay" *ngIf="showAddEditLessonModal">
+  <div class="modal-content form-panel">
+    <h3>{{ currentLesson ? 'Edit Lesson' : 'Add New Lesson' }}</h3>
+    <form (ngSubmit)="saveLesson()">
+      <div class="form-group">
+        <label for="lessonTitle">Title</label>
+        <input id="lessonTitle" type="text" [(ngModel)]="lessonFormTitle" name="lessonTitle" required>
+      </div>
+      <div class="form-group">
+        <label for="lessonDescription">Description</label>
+        <textarea id="lessonDescription" [(ngModel)]="lessonFormDescription" name="lessonDescription" rows="4"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="lessonOrderIndex">Order Index</label>
+        <input id="lessonOrderIndex" type="number" [(ngModel)]="lessonFormOrderIndex" name="lessonOrderIndex">
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="closeAddEditLessonModal()">Cancel</button>
+        <button type="submit" class="btn-primary">{{ currentLesson ? 'Update Lesson' : 'Create Lesson' }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<app-confirm-modal
+  [isVisible]="showDeleteConfirmModal"
+  title="Confirm Deletion"
+  [message]="'Are you sure you want to delete the lesson \'' + lessonToDeleteTitle + '\'? This will also delete all associated questions and options.'"
+  confirmButtonText="Delete Lesson"
+  cancelButtonText="Cancel"
+  (confirmed)="confirmDeleteLesson()"
+  (cancelled)="cancelDeleteLesson()">
+</app-confirm-modal>

@@ -4,12 +4,13 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../../service/auth.service';
 import { ToastService } from '../../../service/toast.service';
+import { LessonManagementComponent } from '../lesson-management/lesson-management.component';
 import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-course-edit',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, LessonManagementComponent],
   templateUrl: './course-edit.component.html',
   styleUrls: ['./course-edit.component.css']
 })
@@ -18,6 +19,8 @@ export class CourseEditComponent implements OnInit {
   courseForm!: FormGroup;
   isLoading = true;
   errorMessage = '';
+
+  activeTab: 'details' | 'lessons' | 'questions' = 'details'; // Add activeTab property
 
   constructor(
     private fb: FormBuilder,
@@ -65,6 +68,10 @@ export class CourseEditComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  setActiveTab(tab: 'details' | 'lessons' | 'questions'): void {
+    this.activeTab = tab;
   }
 
   onSubmit(): void {

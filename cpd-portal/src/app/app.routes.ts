@@ -13,6 +13,8 @@ import { CourseCreateComponent } from './pages/admin/course-create/course-create
 import { CourseListComponent } from './pages/admin/course-list/course-list.component';
 import { CourseEditComponent } from './pages/admin/course-edit/course-edit.component';
 import { SettingsComponent } from './pages/admin/settings/settings.component';
+import { LessonManagementComponent } from './pages/admin/lesson-management/lesson-management.component';
+import { QuestionManagementComponent } from './pages/admin/question-management/question-management.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -30,6 +32,8 @@ export const routes: Routes = [
       { path: 'courses', component: CourseListComponent, data: { breadcrumb: 'Course Management' } },
       { path: 'courses/new', component: CourseCreateComponent, data: { breadcrumb: 'Create Course' } },
       { path: 'courses/edit/:id', component: CourseEditComponent, data: { breadcrumb: 'Edit Course' } },
+      { path: 'courses/:id/lessons', component: LessonManagementComponent, data: { breadcrumb: 'Manage Lessons' } },
+      { path: 'courses/:courseId/lessons/:lessonId/questions', component: QuestionManagementComponent, data: { breadcrumb: 'Manage Questions' } },
       { path: 'settings', component: SettingsComponent, data: { breadcrumb: 'Settings' } },
       { path: '', redirectTo: 'overview', pathMatch: 'full' } // Default admin page
     ]
