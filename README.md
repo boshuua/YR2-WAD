@@ -1,4 +1,4 @@
-# 🎓 CPD Portal (Continuing Professional Development)
+# 🎓 CPD Portal 
 
 A full-stack web application for managing and tracking Continuing Professional Development (CPD). This platform provides a secure admin dashboard for managing users and courses, and a user-facing portal for employees to complete training and track their progress.
 
