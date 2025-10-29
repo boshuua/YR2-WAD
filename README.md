@@ -13,7 +13,7 @@ This project is built using Angular, PHP, and PostgreSQL.
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 
-### Language Breakdown (by File Count)
+### Language Breakdown 
 
 This is a snapshot of the repository's language distribution.
 
