@@ -1,41 +1,32 @@
 <?php
-session_start();
+// Load configuration and helpers
 include_once '../config/database.php';
+include_once '../helpers/auth_helper.php';
+include_once '../helpers/response_helper.php';
+include_once '../helpers/validation_helper.php';
 include_once '../helpers/log_helper.php';
 
-// --- Security Check ---
-if (!isset($_SESSION['access_level']) || $_SESSION['access_level'] !== 'admin') {
-    http_response_code(403); // Forbidden
-    echo json_encode(["message" => "Access Denied: Admin privileges required."]);
-    exit();
-}
+// Handle CORS preflight
+handleCorsPrelight();
 
-// --- Method Check ---
-if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {
-    http_response_code(405);
-    echo json_encode(["message" => "Method Not Allowed. Use DELETE."]);
-    exit();
-}
+// Require DELETE method
+requireMethod('DELETE');
 
-// --- Get Input Data ---
-$courseId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+// Require admin authentication
+requireAdmin();
 
-// --- Validate Input ---
+// Get course ID from query string
+$courseId = isset($_GET['id']) ? getInt($_GET['id']) : 0;
+
 if ($courseId <= 0) {
-    http_response_code(400);
-    echo json_encode(["message" => "Invalid course ID provided."]);
-    exit();
+    sendBadRequest("Invalid course ID provided.");
 }
 
-// --- Database Connection ---
+// Get database connection
 $database = new Database();
 $db = $database->getConn();
 
-// Get admin details from session for logging
-$adminUserId = $_SESSION['user_id'] ?? null;
-$adminUserEmail = $_SESSION['user_email'] ?? 'Unknown Admin';
-
-// Fetch course title for better logging
+// Fetch course title for logging
 $courseTitleToLog = 'Unknown (Course not found)';
 try {
     $fetchTitleQuery = "SELECT title FROM courses WHERE id = :id";
@@ -49,7 +40,7 @@ try {
     error_log("Failed to fetch course title before delete: " . $e->getMessage());
 }
 
-// --- Prepare and Execute Delete Query ---
+// Execute deletion
 try {
     $query = "DELETE FROM courses WHERE id = :id";
     $stmt = $db->prepare($query);
@@ -57,24 +48,19 @@ try {
 
     if ($stmt->execute()) {
         if ($stmt->rowCount() > 0) {
-            http_response_code(200);
-            echo json_encode(["message" => "Course deleted successfully."]);
-            log_activity($db, $adminUserId, $adminUserEmail, 'Course Deleted', "Course ID: {$courseId}, Title: {$courseTitleToLog}");
+            log_activity($db, getCurrentUserId(), getCurrentUserEmail(), 'Course Deleted', "Course ID: {$courseId}, Title: {$courseTitleToLog}");
+            sendOk(["message" => "Course deleted successfully."]);
         } else {
-            http_response_code(404);
-            echo json_encode(["message" => "Course not found or already deleted."]);
-            log_activity($db, $adminUserId, $adminUserEmail, 'Course Deletion Failed', "Course ID: {$courseId} not found.");
+            log_activity($db, getCurrentUserId(), getCurrentUserEmail(), 'Course Deletion Failed', "Course ID: {$courseId} not found.");
+            sendNotFound("Course not found or already deleted.");
         }
     } else {
-        http_response_code(503);
-        echo json_encode(["message" => "Unable to delete course."]);
-        log_activity($db, $adminUserId, $adminUserEmail, 'Course Deletion Failed', "Course ID: {$courseId}, DB execution error.");
+        log_activity($db, getCurrentUserId(), getCurrentUserEmail(), 'Course Deletion Failed', "Course ID: {$courseId}, DB execution error.");
+        sendServiceUnavailable("Unable to delete course.");
     }
 } catch (PDOException $e) {
-    http_response_code(503);
     error_log("Database error during course delete: " . $e->getMessage());
-    echo json_encode(["message" => "Database error occurred during deletion."]);
-    log_activity($db, $adminUserId, $adminUserEmail, 'Course Deletion Failed', "Course ID: {$courseId}, Error: " . $e->getMessage());
+    log_activity($db, getCurrentUserId(), getCurrentUserEmail(), 'Course Deletion Failed', "Course ID: {$courseId}, Error: " . $e->getMessage());
+    sendServiceUnavailable("Database error occurred during deletion.");
 }
-
 ?>

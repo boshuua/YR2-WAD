@@ -1,52 +1,42 @@
 <?php
-session_start();
+// Load configuration and helpers
 include_once '../config/database.php';
+include_once '../helpers/auth_helper.php';
+include_once '../helpers/response_helper.php';
+include_once '../helpers/validation_helper.php';
 include_once '../helpers/log_helper.php';
 
-// --- Security Check ---
-if (!isset($_SESSION['access_level']) || $_SESSION['access_level'] !== 'admin') {
-    http_response_code(403); // Forbidden
-    echo json_encode(["message" => "Access Denied: Admin privileges required."]);
-    exit();
-}
+// Handle CORS preflight
+handleCorsPrelight();
 
-// --- Method Check ---
-if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
-    http_response_code(405);
-    echo json_encode(["message" => "Method Not Allowed. Use PUT."]);
-    exit();
-}
+// Require PUT method
+requireMethod('PUT');
 
-// --- Get Input Data ---
-$data = json_decode(file_get_contents("php://input"));
+// Require admin authentication
+requireAdmin();
 
-// --- Validate Input ---
-if (empty($data->current_password) || empty($data->new_password)) {
-    http_response_code(400);
-    echo json_encode(["message" => "Current password and new password are required."]);
-    exit();
-}
+// Get and validate input
+$data = getJsonInput();
+requireFields($data, ['current_password', 'new_password']);
 
+// Validate password length
 if (strlen($data->new_password) < 6) {
-    http_response_code(400);
-    echo json_encode(["message" => "New password must be at least 6 characters long."]);
-    exit();
+    sendBadRequest("New password must be at least 6 characters long.");
 }
 
-$userId = $_SESSION['user_id'] ?? null;
-$userEmail = $_SESSION['user_email'] ?? 'Unknown Admin';
+// Get current user from session
+$userId = getCurrentUserId();
+$userEmail = getCurrentUserEmail();
 
 if (!$userId) {
-    http_response_code(401);
-    echo json_encode(["message" => "Unauthorized: User ID not found in session."]);
-    exit();
+    sendUnauthorized("Unauthorized: User ID not found in session.");
 }
 
-// --- Database Connection ---
+// Get database connection
 $database = new Database();
 $db = $database->getConn();
 
-// --- Verify Current Password ---
+// Verify current password
 try {
     $query = "SELECT password FROM users WHERE id = :id";
     $stmt = $db->prepare($query);
@@ -54,10 +44,8 @@ try {
     $stmt->execute();
 
     if ($stmt->rowCount() === 0) {
-        http_response_code(404);
-        echo json_encode(["message" => "User not found."]);
         log_activity($db, $userId, $userEmail, 'Password Change Failed', "User ID {$userId} not found during password change.");
-        exit();
+        sendNotFound("User not found.");
     }
 
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -65,14 +53,12 @@ try {
 
     // Verify current password using crypt
     if (crypt($data->current_password, $stored_password_hash) !== $stored_password_hash) {
-        http_response_code(401);
-        echo json_encode(["message" => "Invalid current password."]);
         log_activity($db, $userId, $userEmail, 'Password Change Failed', "Invalid current password provided.");
-        exit();
+        sendUnauthorized("Invalid current password.");
     }
 
-    // --- Hash New Password and Update ---
-    $new_password_hash = crypt($data->new_password, '$2a$10$' . bin2hex(random_bytes(22))); // Generate new salt
+    // Hash new password and update
+    $new_password_hash = crypt($data->new_password, '$2a$10$' . bin2hex(random_bytes(22)));
 
     $updateQuery = "UPDATE users SET password = :password WHERE id = :id";
     $updateStmt = $db->prepare($updateQuery);
@@ -80,20 +66,15 @@ try {
     $updateStmt->bindParam(':id', $userId, PDO::PARAM_INT);
 
     if ($updateStmt->execute()) {
-        http_response_code(200);
-        echo json_encode(["message" => "Password updated successfully."]);
         log_activity($db, $userId, $userEmail, 'Password Changed', "Admin user ID {$userId} changed password.");
+        sendOk(["message" => "Password updated successfully."]);
     } else {
-        http_response_code(503);
-        echo json_encode(["message" => "Unable to update password."]);
         log_activity($db, $userId, $userEmail, 'Password Change Failed', "DB execution error for user ID {$userId}.");
+        sendServiceUnavailable("Unable to update password.");
     }
-
 } catch (PDOException $e) {
-    http_response_code(503);
     error_log("Database error during password update: " . $e->getMessage());
-    echo json_encode(["message" => "Database error occurred during password update."]);
     log_activity($db, $userId, $userEmail, 'Password Change Failed', "DB exception for user ID {$userId}: " . $e->getMessage());
+    sendServiceUnavailable("Database error occurred during password update.");
 }
-
 ?>

@@ -1,40 +1,38 @@
 <?php
-session_start();
+// Load configuration and helpers
 include_once '../config/database.php';
+include_once '../helpers/auth_helper.php';
+include_once '../helpers/response_helper.php';
+include_once '../helpers/validation_helper.php';
 include_once '../helpers/log_helper.php';
 
+// Handle CORS preflight
+handleCorsPrelight();
 
-// --- Security Check ---
-if (!isset($_SESSION['access_level']) || $_SESSION['access_level'] !== 'admin') {
-    http_response_code(403); // Forbidden
-    echo json_encode(["message" => "Access Denied: Admin privileges required."]);
-    exit();
-}
+// Require PUT method
+requireMethod('PUT');
 
-// --- Get Input Data ---
-// Expecting ID in query string like ?id=123
-// Expecting user data in JSON body for PUT request
-$userId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$data = json_decode(file_get_contents("php://input"));
+// Require admin authentication
+requireAdmin();
 
-// --- Validate Input ---
+// Get user ID from query string
+$userId = isset($_GET['id']) ? getInt($_GET['id']) : 0;
+
 if ($userId <= 0) {
-    http_response_code(400);
-    echo json_encode(["message" => "Invalid user ID provided."]);
-    exit();
+    sendBadRequest("Invalid user ID provided.");
 }
 
-if (!isset($data->first_name) || !isset($data->email) || !isset($data->access_level)) {
-    http_response_code(400);
-    echo json_encode(["message" => "Incomplete data. First name, email, and access level are required."]);
-    exit();
-}
+// Get and validate input
+$data = getJsonInput();
+requireFields($data, ['first_name', 'email', 'access_level']);
+requireValidEmail($data->email);
+requireInList($data->access_level, ['admin', 'user'], 'access_level');
 
-// --- Database Connection ---
+// Get database connection
 $database = new Database();
 $db = $database->getConn();
 
-// --- Prepare Update Query (excluding password for now) ---
+// Prepare update query
 $query = "UPDATE users
           SET first_name = :first_name,
               last_name = :last_name,
@@ -45,9 +43,9 @@ $query = "UPDATE users
 
 $stmt = $db->prepare($query);
 
-// Handle optional fields safely
-$last_name = $data->last_name ?? '';
-$job_title = $data->job_title ?? '';
+// Handle optional fields
+$last_name = getValue($data, 'last_name', '');
+$job_title = getValue($data, 'job_title', '');
 
 // Bind parameters
 $stmt->bindParam(':first_name', $data->first_name);
@@ -57,33 +55,30 @@ $stmt->bindParam(':job_title', $job_title);
 $stmt->bindParam(':access_level', $data->access_level);
 $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
 
-// --- Execute and Respond ---
+// Execute and respond
 try {
     if ($stmt->execute()) {
         if ($stmt->rowCount() > 0) {
-            http_response_code(200);
-            echo json_encode(["message" => "User updated successfully."]);
+            log_activity($db, getCurrentUserId(), getCurrentUserEmail(), "Updated User", "User ID: {$userId}");
+            sendOk(["message" => "User updated successfully."]);
         } else {
-            // Check if user exists but no changes were made or user not found
+            // Check if user exists but no changes were made
             $checkQuery = "SELECT COUNT(*) FROM users WHERE id = :id";
             $checkStmt = $db->prepare($checkQuery);
             $checkStmt->bindParam(':id', $userId, PDO::PARAM_INT);
             $checkStmt->execute();
+
             if ($checkStmt->fetchColumn() > 0) {
-                http_response_code(200); // OK, but no changes needed
-                echo json_encode(["message" => "No changes detected for the user."]);
+                sendOk(["message" => "No changes detected for the user."]);
             } else {
-                http_response_code(404); // Not Found
-                echo json_encode(["message" => "User not found."]);
+                sendNotFound("User not found.");
             }
         }
     } else {
-        http_response_code(503); // Service Unavailable
-        echo json_encode(["message" => "Unable to update user."]);
+        sendServiceUnavailable("Unable to update user.");
     }
 } catch (PDOException $e) {
-    http_response_code(503);
-    // Be careful about echoing raw error messages in production
-    error_log("Database error: " . $e->getMessage()); // Log error instead
-    echo json_encode(["message" => "Database error occurred during update."]);
+    error_log("Database error: " . $e->getMessage());
+    sendServiceUnavailable("Database error occurred during update.");
 }
+?>

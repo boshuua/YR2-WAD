@@ -1,21 +1,30 @@
 <?php
-session_start(); // Start the session at the very top
+// Load configuration and helpers
 include_once '../config/database.php';
-include_once '../helpers/log_helper.php'; // Include the helper
+include_once '../helpers/auth_helper.php';
+include_once '../helpers/response_helper.php';
+include_once '../helpers/validation_helper.php';
+include_once '../helpers/log_helper.php';
 
-$data = json_decode(file_get_contents("php://input"));
+// Handle CORS preflight
+handleCorsPrelight();
 
-if (!isset($data->email) || !isset($data->password)) {
-    http_response_code(400);
-    echo json_encode(["message" => "Email and password are required."]);
-    exit();
-}
+// Require POST method
+requireMethod('POST');
 
+// Get and validate input
+$data = getJsonInput();
+requireFields($data, ['email', 'password']);
+requireValidEmail($data->email);
+
+// Get database connection
 $database = new Database();
 $db = $database->getConn();
 
-// pgcrypto query - Select email as well
-$query = "SELECT id, first_name, last_name, email, password, access_level FROM users WHERE email = :email AND password = crypt(:password, password)";
+// Check credentials using pgcrypto
+$query = "SELECT id, first_name, last_name, email, password, access_level
+          FROM users
+          WHERE email = :email AND password = crypt(:password, password)";
 $stmt = $db->prepare($query);
 $stmt->bindParam(':email', $data->email);
 $stmt->bindParam(':password', $data->password);
@@ -24,22 +33,20 @@ $stmt->execute();
 if ($stmt->rowCount() > 0) {
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Store user info in the session
-    $_SESSION['user_id'] = $row['id'];
-    $_SESSION['access_level'] = $row['access_level'];
-    $_SESSION['user_email'] = $row['email']; // *** Store email in session ***
+    // Set user session
+    setUserSession(
+        $row['id'],
+        $row['email'],
+        $row['first_name'],
+        $row['last_name'],
+        $row['access_level']
+    );
 
-    // *** Log successful login ***
-    if ($db instanceof PDO) {
-        error_log("DB connection object seems valid before calling log_activity.");
-    } else {
-        error_log("!!! DB connection object is INVALID before calling log_activity. !!!");
-    }
+    // Log successful login
     log_activity($db, $row['id'], $row['email'], 'login_success');
-    // *** End log ***
 
-    http_response_code(200);
-    echo json_encode([
+    // Send response
+    sendOk([
         "message" => "Login successful.",
         "user" => [
             "id" => $row['id'],
@@ -48,11 +55,9 @@ if ($stmt->rowCount() > 0) {
         ]
     ]);
 } else {
-    // *** Log failed login attempt ***
-    error_log("--- Calling log_activity for login_failed ---"); // Debug log
+    // Log failed login attempt
     log_activity($db, null, $data->email, 'login_failed', 'Invalid credentials');
-    // *** End log ***
 
-    http_response_code(401);
-    echo json_encode(["message" => "Login failed. Invalid credentials."]);
+    sendUnauthorized("Login failed. Invalid credentials.");
 }
+?>

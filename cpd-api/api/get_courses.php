@@ -1,60 +1,51 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:4200");
-header("Access-Control-Allow-Credentials: true");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
+// Load configuration and helpers
 include_once '../config/database.php';
+include_once '../helpers/response_helper.php';
 include_once '../helpers/log_helper.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    echo json_encode(["message" => "Method Not Allowed."]);
-    exit();
-}
+// Handle CORS preflight
+handleCorsPrelight();
 
+// Require GET method
+requireMethod('GET');
+
+// Get database connection
 $database = new Database();
 $db = $database->getConn();
 
-$query = "SELECT id, title, description, duration, category, status, instructor_id, start_date, end_date FROM courses ORDER BY created_at DESC";
+// Prepare and execute query
+$query = "SELECT id, title, description, duration, category, status, instructor_id, start_date, end_date
+          FROM courses
+          ORDER BY created_at DESC";
 $stmt = $db->prepare($query);
 $stmt->execute();
 
-$num = $stmt->rowCount();
-
+// Fetch results
 $courses_arr = array();
 
-if ($num > 0) {
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        extract($row);
-
-        $course_item = array(
-            "id" => $id,
-            "title" => $title,
-            "description" => html_entity_decode($description),
-            "duration" => $duration,
-            "category" => $category,
-            "status" => $status,
-            "instructor_id" => $instructor_id,
-            "start_date" => $start_date,
-            "end_date" => $end_date
-        );
-        array_push($courses_arr, $course_item);
-    }
-    http_response_code(200);
-    echo json_encode($courses_arr);
-} else {
-    http_response_code(404);
-    echo json_encode(array("message" => "No courses found."));
+while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $course_item = array(
+        "id" => $row['id'],
+        "title" => $row['title'],
+        "description" => html_entity_decode($row['description']),
+        "duration" => $row['duration'],
+        "category" => $row['category'],
+        "status" => $row['status'],
+        "instructor_id" => $row['instructor_id'],
+        "start_date" => $row['start_date'],
+        "end_date" => $row['end_date']
+    );
+    array_push($courses_arr, $course_item);
 }
 
+// Log activity
 log_activity($db, null, null, "Viewed Courses", "All courses listed.");
 
+// Send response
+if (!empty($courses_arr)) {
+    sendOk($courses_arr);
+} else {
+    sendNotFound("No courses found.");
+}
 ?>

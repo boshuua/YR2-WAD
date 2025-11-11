@@ -1,46 +1,68 @@
 <?php
-session_start();
+// Load configuration and helpers
 include_once '../config/database.php';
+include_once '../helpers/auth_helper.php';
+include_once '../helpers/response_helper.php';
+include_once '../helpers/validation_helper.php';
 include_once '../helpers/log_helper.php';
 
-if (!isset($_SESSION['access_level']) || $_SESSION['access_level'] !== 'admin') {
-    http_response_code(403);
-    echo json_encode(["message" => "Access Denied: Admin privileges required."]);
-    exit();
-}
+// Handle CORS preflight
+handleCorsPrelight();
 
-$courseId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$data = json_decode(file_get_contents("php://input"));
+// Require PUT method
+requireMethod('PUT');
+
+// Require admin authentication
+requireAdmin();
+
+// Get course ID from query string
+$courseId = isset($_GET['id']) ? getInt($_GET['id']) : 0;
 
 if ($courseId <= 0) {
-    http_response_code(400);
-    echo json_encode(["message" => "Invalid course ID provided."]);
-    exit();
+    sendBadRequest("Invalid course ID provided.");
 }
 
-if (!isset($data->title) || !isset($data->description)) {
-    http_response_code(400);
-    echo json_encode(["message" => "Incomplete data. Title and description are required."]);
-    exit();
-}
+// Get and validate input
+$data = getJsonInput();
+requireFields($data, ['title', 'description']);
 
+// Get database connection
 $database = new Database();
 $db = $database->getConn();
 
-$query = "UPDATE courses SET title = :title, description = :description, content = :content, duration = :duration, category = :category, status = :status, instructor_id = :instructor_id, start_date = :start_date, end_date = :end_date, updated_at = CURRENT_TIMESTAMP WHERE id = :id";
+// Prepare update query
+$query = "UPDATE courses
+          SET title = :title,
+              description = :description,
+              content = :content,
+              duration = :duration,
+              category = :category,
+              status = :status,
+              instructor_id = :instructor_id,
+              start_date = :start_date,
+              end_date = :end_date,
+              updated_at = CURRENT_TIMESTAMP
+          WHERE id = :id";
 
 $stmt = $db->prepare($query);
 
-$title = htmlspecialchars(strip_tags($data->title));
-$description = htmlspecialchars(strip_tags($data->description));
-$content = isset($data->content) ? htmlspecialchars($data->content) : '';
-$duration = isset($data->duration) ? (int)$data->duration : null;
-$category = isset($data->category) ? htmlspecialchars(strip_tags($data->category)) : null;
-$status = isset($data->status) ? htmlspecialchars(strip_tags($data->status)) : 'draft';
-$instructor_id = isset($data->instructor_id) ? (int)$data->instructor_id : null;
-$start_date = isset($data->start_date) ? $data->start_date : null;
-$end_date = isset($data->end_date) ? $data->end_date : null;
+// Sanitize and prepare data
+$title = sanitizeString($data->title);
+$description = sanitizeString($data->description);
+$content = getValue($data, 'content', '');
+$duration = getValue($data, 'duration');
+$category = getValue($data, 'category');
+$status = getValue($data, 'status', 'draft');
+$instructor_id = getValue($data, 'instructor_id');
+$start_date = getValue($data, 'start_date');
+$end_date = getValue($data, 'end_date');
 
+// Validate status if provided
+if ($status && !isInList($status, ['draft', 'published'])) {
+    sendBadRequest("Invalid status. Must be 'draft' or 'published'.");
+}
+
+// Bind parameters
 $stmt->bindParam(':title', $title);
 $stmt->bindParam(':description', $description);
 $stmt->bindParam(':content', $content);
@@ -52,35 +74,32 @@ $stmt->bindParam(':start_date', $start_date);
 $stmt->bindParam(':end_date', $end_date);
 $stmt->bindParam(':id', $courseId, PDO::PARAM_INT);
 
+// Execute and respond
 try {
     if ($stmt->execute()) {
         if ($stmt->rowCount() > 0) {
-            http_response_code(200);
-            echo json_encode(["message" => "Course updated successfully."]);
-            log_activity($db, null, null, "Course Updated", "Course ID: {$courseId}, Title: {$data->title}");
+            log_activity($db, getCurrentUserId(), getCurrentUserEmail(), "Course Updated", "Course ID: {$courseId}, Title: {$title}");
+            sendOk(["message" => "Course updated successfully."]);
         } else {
+            // Check if course exists but no changes were made
             $checkQuery = "SELECT COUNT(*) FROM courses WHERE id = :id";
             $checkStmt = $db->prepare($checkQuery);
             $checkStmt->bindParam(':id', $courseId, PDO::PARAM_INT);
             $checkStmt->execute();
+
             if ($checkStmt->fetchColumn() > 0) {
-                http_response_code(200);
-                echo json_encode(["message" => "No changes detected for the course."]);
+                sendOk(["message" => "No changes detected for the course."]);
             } else {
-                http_response_code(404);
-                echo json_encode(["message" => "Course not found."]);
+                sendNotFound("Course not found.");
             }
         }
     } else {
-        http_response_code(503);
-        echo json_encode(["message" => "Unable to update course."]);
-        log_activity($db, null, null, "Course Update Failed", "Course ID: {$courseId}, Title: {$data->title}");
+        log_activity($db, getCurrentUserId(), getCurrentUserEmail(), "Course Update Failed", "Course ID: {$courseId}");
+        sendServiceUnavailable("Unable to update course.");
     }
 } catch (PDOException $e) {
-    http_response_code(503);
     error_log("Database error during course update: " . $e->getMessage());
-    echo json_encode(["message" => "Database error occurred during update."]);
-    log_activity($db, null, null, "Course Update Failed", "Course ID: {$courseId}, Error: " . $e->getMessage());
+    log_activity($db, getCurrentUserId(), getCurrentUserEmail(), "Course Update Failed", "Course ID: {$courseId}, Error: " . $e->getMessage());
+    sendServiceUnavailable("Database error occurred during update.");
 }
-
 ?>

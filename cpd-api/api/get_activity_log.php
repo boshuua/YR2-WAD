@@ -1,36 +1,30 @@
 <?php
-
-header("Access-Control-Allow-Origin: http://localhost:4200");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, OPTIONS"); 
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-header("Access-Control-Max-Age: 3600");
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-header("Content-Type: application/json; charset=UTF-8");
-
-
-session_start();
+// Load configuration and helpers
 include_once '../config/database.php';
+include_once '../helpers/auth_helper.php';
+include_once '../helpers/response_helper.php';
+include_once '../helpers/validation_helper.php';
 
-// SESSION SECURITY CHECK - Ensure only admins can view the full log
-if (!isset($_SESSION['access_level']) || $_SESSION['access_level'] !== 'admin') {
-    http_response_code(403); // Forbidden
-    echo json_encode(["message" => "Access Denied: Admin privileges required."]);
-    exit();
-}
+// Handle CORS preflight
+handleCorsPrelight();
 
+// Require GET method
+requireMethod('GET');
+
+// Require admin authentication
+requireAdmin();
+
+// Get database connection
 $database = new Database();
-$db = $database->getConn(); 
+$db = $database->getConn();
 
-// Optional: Add limit for pagination or just showing recent logs
-$limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 50; // Default to last 50 entries
+// Get limit parameter (default to 50 entries)
+$limit = isset($_GET['limit']) ? getInt($_GET['limit'], 50) : 50;
 if ($limit <= 0) {
     $limit = 50;
 }
 
+// Fetch activity log
 try {
     $query = "SELECT id, user_id, user_email, action, details, ip_address, timestamp
               FROM activity_log
@@ -42,12 +36,9 @@ try {
 
     $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    http_response_code(200);
-    echo json_encode($logs);
-
+    sendOk($logs);
 } catch (PDOException $e) {
-    http_response_code(503); // Service Unavailable
     error_log("Database error fetching activity log: " . $e->getMessage());
-    echo json_encode(["message" => "Database error occurred while fetching activity log."]);
+    sendServiceUnavailable("Database error occurred while fetching activity log.");
 }
 ?>

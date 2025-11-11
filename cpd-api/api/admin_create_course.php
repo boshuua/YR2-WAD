@@ -1,51 +1,51 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:4200");
-header("Access-Control-Allow-Credentials: true");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
+// Load configuration and helpers
 include_once '../config/database.php';
+include_once '../helpers/auth_helper.php';
+include_once '../helpers/response_helper.php';
+include_once '../helpers/validation_helper.php';
 include_once '../helpers/log_helper.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(["message" => "Method Not Allowed."]);
-    exit();
-}
+// Handle CORS preflight
+handleCorsPrelight();
 
+// Require POST method
+requireMethod('POST');
+
+// Require admin authentication
+requireAdmin();
+
+// Get and validate input
+$data = getJsonInput();
+requireFields($data, ['title', 'description']);
+
+// Get database connection
 $database = new Database();
 $db = $database->getConn();
 
-$data = json_decode(file_get_contents("php://input"));
-
-if (empty($data->title) || empty($data->description)) {
-    http_response_code(400);
-    echo json_encode(["message" => "Unable to create course. Data is incomplete."]);
-    log_activity($db, null, null, "Course Creation Failed", "Incomplete data provided.");
-    exit();
-}
-
-$query = "INSERT INTO courses (title, description, content, duration, category, status, instructor_id, start_date, end_date) VALUES (:title, :description, :content, :duration, :category, :status, :instructor_id, :start_date, :end_date)";
+// Prepare insert query
+$query = "INSERT INTO courses (title, description, content, duration, category, status, instructor_id, start_date, end_date)
+          VALUES (:title, :description, :content, :duration, :category, :status, :instructor_id, :start_date, :end_date)";
 
 $stmt = $db->prepare($query);
 
-$title = htmlspecialchars(strip_tags($data->title));
-$description = htmlspecialchars(strip_tags($data->description));
-$content = isset($data->content) ? htmlspecialchars($data->content) : '';
-$duration = isset($data->duration) ? (int)$data->duration : null;
-$category = isset($data->category) ? htmlspecialchars(strip_tags($data->category)) : null;
-$status = isset($data->status) ? htmlspecialchars(strip_tags($data->status)) : 'draft';
-$instructor_id = isset($data->instructor_id) ? (int)$data->instructor_id : null;
-$start_date = isset($data->start_date) ? $data->start_date : null;
-$end_date = isset($data->end_date) ? $data->end_date : null;
+// Sanitize and prepare data
+$title = sanitizeString($data->title);
+$description = sanitizeString($data->description);
+$content = getValue($data, 'content', '');
+$duration = getValue($data, 'duration');
+$category = getValue($data, 'category');
+$status = getValue($data, 'status', 'draft');
+$instructor_id = getValue($data, 'instructor_id');
+$start_date = getValue($data, 'start_date');
+$end_date = getValue($data, 'end_date');
 
+// Validate status if provided
+if ($status && !isInList($status, ['draft', 'published'])) {
+    sendBadRequest("Invalid status. Must be 'draft' or 'published'.");
+}
+
+// Bind parameters
 $stmt->bindParam(':title', $title);
 $stmt->bindParam(':description', $description);
 $stmt->bindParam(':content', $content);
@@ -56,13 +56,12 @@ $stmt->bindParam(':instructor_id', $instructor_id, PDO::PARAM_INT);
 $stmt->bindParam(':start_date', $start_date);
 $stmt->bindParam(':end_date', $end_date);
 
+// Execute and respond
 if ($stmt->execute()) {
-    http_response_code(201);
-    echo json_encode(["message" => "Course was created."]);
-    log_activity($db, null, null, "Course Created", "Course: {$title}");
+    log_activity($db, getCurrentUserId(), getCurrentUserEmail(), "Course Created", "Course: {$title}");
+    sendCreated(["message" => "Course was created."]);
 } else {
-    http_response_code(500);
-    echo json_encode(["message" => "Unable to create course."]);
-    log_activity($db, null, null, "Course Creation Failed", "Course: {$title}");
+    log_activity($db, getCurrentUserId(), getCurrentUserEmail(), "Course Creation Failed", "Course: {$title}");
+    sendServerError("Unable to create course.");
 }
 ?>

@@ -1,40 +1,40 @@
 <?php
-session_start();
+// Load configuration and helpers
 include_once '../config/database.php';
+include_once '../helpers/auth_helper.php';
+include_once '../helpers/response_helper.php';
+include_once '../helpers/validation_helper.php';
 include_once '../helpers/log_helper.php';
 
-// --- Security Check ---
-if (!isset($_SESSION['user_id'])) {
-    http_response_code(401); // Unauthorized
-    echo json_encode(["message" => "Access Denied: User not logged in."]);
-    exit();
+// Handle CORS preflight
+handleCorsPrelight();
+
+// Require POST method
+requireMethod('POST');
+
+// Require authentication
+requireAuth();
+
+// Get user ID from session
+$userId = getCurrentUserId();
+
+// Get and validate input
+$data = getJsonInput();
+
+// Validate numeric fields
+if (!isset($data->question_id) || !is_numeric($data->question_id) ||
+    !isset($data->selected_option_id) || !is_numeric($data->selected_option_id)) {
+    sendBadRequest("Question ID and selected option ID must be provided as numbers.");
 }
 
-// --- Method Check ---
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(["message" => "Method Not Allowed."]);
-    exit();
-}
+$questionId = getInt($data->question_id);
+$selectedOptionId = getInt($data->selected_option_id);
 
+// Get database connection
 $database = new Database();
 $db = $database->getConn();
 
-$data = json_decode(file_get_contents("php://input"));
-
-// --- Validate Input ---
-if (!isset($data->question_id) || !is_numeric($data->question_id) || !isset($data->selected_option_id) || !is_numeric($data->selected_option_id)) {
-    http_response_code(400);
-    echo json_encode(["message" => "Question ID and selected option ID must be provided as numbers."]);
-    exit();
-}
-
-$userId = $_SESSION['user_id'];
-$questionId = (int)$data->question_id;
-$selectedOptionId = (int)$data->selected_option_id;
-
-// 1. Check if the selected option is correct
-$isCorrect = false;
+// Check if the selected option is correct
 try {
     $checkOptionQuery = "SELECT is_correct FROM question_options WHERE id = :selected_option_id AND question_id = :question_id";
     $checkOptionStmt = $db->prepare($checkOptionQuery);
@@ -42,22 +42,18 @@ try {
     $checkOptionStmt->bindParam(':question_id', $questionId, PDO::PARAM_INT);
     $checkOptionStmt->execute();
 
-    if ($checkOptionStmt->rowCount() > 0) {
-        $option = $checkOptionStmt->fetch(PDO::FETCH_ASSOC);
-        $isCorrect = (bool)$option['is_correct'];
-    } else {
-        http_response_code(404);
-        echo json_encode(["message" => "Selected option not found for this question."]);
-        exit();
+    if ($checkOptionStmt->rowCount() === 0) {
+        sendNotFound("Selected option not found for this question.");
     }
+
+    $option = $checkOptionStmt->fetch(PDO::FETCH_ASSOC);
+    $isCorrect = (bool)$option['is_correct'];
 } catch (PDOException $e) {
-    http_response_code(503);
     error_log("Database error checking option correctness: " . $e->getMessage());
-    echo json_encode(["message" => "Database error occurred."]);
-    exit();
+    sendServiceUnavailable("Database error occurred.");
 }
 
-// 2. Store/Update user's answer
+// Store or update user's answer
 try {
     // Check if user has already answered this question
     $existingAnswerQuery = "SELECT id FROM user_question_answers WHERE user_id = :user_id AND question_id = :question_id";
@@ -82,14 +78,14 @@ try {
     } else {
         // Insert new answer
         $insertAnswerQuery = "INSERT INTO user_question_answers (
-                                user_id, 
-                                question_id, 
-                                selected_option_id, 
+                                user_id,
+                                question_id,
+                                selected_option_id,
                                 is_correct
                               ) VALUES (
-                                :user_id, 
-                                :question_id, 
-                                :selected_option_id, 
+                                :user_id,
+                                :question_id,
+                                :selected_option_id,
                                 :is_correct
                               )";
         $insertAnswerStmt = $db->prepare($insertAnswerQuery);
@@ -100,15 +96,11 @@ try {
         $insertAnswerStmt->execute();
     }
 
-    http_response_code(200);
-    echo json_encode(["message" => "Answer submitted successfully.", "is_correct" => $isCorrect]);
-    log_activity($db, $userId, $_SESSION['user_email'], 'Answer Submitted', "Question ID: {$questionId}, Correct: " . ($isCorrect ? 'Yes' : 'No'));
-
+    log_activity($db, $userId, getCurrentUserEmail(), 'Answer Submitted', "Question ID: {$questionId}, Correct: " . ($isCorrect ? 'Yes' : 'No'));
+    sendOk(["message" => "Answer submitted successfully.", "is_correct" => $isCorrect]);
 } catch (PDOException $e) {
-    http_response_code(503);
     error_log("Database error submitting answer: " . $e->getMessage());
-    echo json_encode(["message" => "Database error occurred while submitting answer."]);
-    log_activity($db, $userId, $_SESSION['user_email'], 'Answer Submission Failed', "Question ID: {$questionId}, Error: " . $e->getMessage());
+    log_activity($db, $userId, getCurrentUserEmail(), 'Answer Submission Failed', "Question ID: {$questionId}, Error: " . $e->getMessage());
+    sendServiceUnavailable("Database error occurred while submitting answer.");
 }
-
 ?>
