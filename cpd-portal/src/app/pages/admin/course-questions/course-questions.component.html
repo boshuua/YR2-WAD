@@ -1,0 +1,101 @@
+<div class="questions-panel">
+  <div class="panel-header">
+    <div>
+      <button class="back-btn" (click)="goBack()">← Back to Courses</button>
+      <h2>Manage Questions: {{ courseName }}</h2>
+    </div>
+    <button class="add-btn" (click)="toggleAddForm()">
+      {{ showAddForm ? 'Cancel' : '+ Add Question' }}
+    </button>
+  </div>
+
+  <!-- Add Question Form -->
+  <div *ngIf="showAddForm" class="form-panel">
+    <h3>Create New Question</h3>
+    <form [formGroup]="questionForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="question_text">Question Text *</label>
+        <textarea
+          id="question_text"
+          formControlName="question_text"
+          rows="3"
+          placeholder="Enter your question here..."
+          required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="question_type">Question Type *</label>
+        <select id="question_type" formControlName="question_type">
+          <option value="multiple_choice">Multiple Choice</option>
+          <option value="true_false">True/False</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Answer Options *</label>
+        <div formArrayName="options" class="options-list">
+          <div *ngFor="let option of options.controls; let i = index" [formGroupName]="i" class="option-item">
+            <input
+              type="text"
+              formControlName="option_text"
+              placeholder="Option {{ i + 1 }}"
+              [readonly]="isTrueFalse()"
+              required>
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="is_correct">
+              Correct
+            </label>
+            <button type="button" class="remove-option-btn" (click)="removeOption(i)" *ngIf="options.length > 2 && !isTrueFalse()">
+              ×
+            </button>
+          </div>
+        </div>
+        <button type="button" class="add-option-btn" (click)="addOption()" *ngIf="options.length < 6 && !isTrueFalse()">
+          + Add Option
+        </button>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="toggleAddForm()">Cancel</button>
+        <button type="submit" class="btn-primary" [disabled]="questionForm.invalid">Create Question</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Questions List -->
+  <div class="questions-list">
+    <div *ngIf="isLoading" class="loading-state">Loading questions...</div>
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <div *ngIf="!isLoading && !errorMessage && questions.length === 0" class="no-data-message">
+      No questions found. Click 'Add Question' to create one.
+    </div>
+
+    <div *ngIf="!isLoading && questions.length > 0" class="questions-grid">
+      <div *ngFor="let question of questions; let i = index" class="question-card">
+        <div class="question-header">
+          <h4>Question {{ i + 1 }}</h4>
+          <button class="delete-btn" (click)="promptDeleteQuestion(question.id)">Delete</button>
+        </div>
+        <p class="question-text">{{ question.question_text }}</p>
+        <div class="question-type-badge">{{ question.question_type === 'multiple_choice' ? 'Multiple Choice' : 'True/False' }}</div>
+        <div class="options-display">
+          <div *ngFor="let option of question.options" class="option-display" [class.correct]="option.is_correct">
+            <span class="option-icon">{{ option.is_correct ? '✓' : '○' }}</span>
+            {{ option.option_text }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-confirm-modal
+  [isVisible]="showDeleteConfirmModal"
+  title="Confirm Deletion"
+  message="Are you sure you want to delete this question? This action cannot be undone."
+  confirmButtonText="Delete Question"
+  cancelButtonText="Cancel"
+  (confirmed)="confirmDelete()"
+  (cancelled)="cancelDelete()">
+</app-confirm-modal>

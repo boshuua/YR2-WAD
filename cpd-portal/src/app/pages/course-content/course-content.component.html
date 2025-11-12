@@ -3,10 +3,83 @@
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
   <div *ngIf="!isLoading && !errorMessage && course">
+    <!-- Header with navigation -->
     <div class="course-header">
+      <button class="btn-back" (click)="goBack()">
+        ← Back to My Courses
+      </button>
       <h1>{{ course.title }}</h1>
       <p class="course-description">{{ course.description }}</p>
+      <div class="quiz-info">
+        <strong>Complete the quiz to finish this course</strong>
+        <p>You must score 80% or higher to complete the course.</p>
+      </div>
     </div>
-    <div class="course-content" [innerHTML]="course.content | safeHtml"></div>
+
+    <!-- Quiz Section (No tabs, just quiz) -->
+    <div class="quiz-section">
+      <div *ngIf="questions.length === 0" class="no-questions-message">
+        No quiz available for this course yet.
+      </div>
+
+      <div *ngIf="questions.length > 0">
+        <!-- Quiz Header -->
+        <div class="quiz-header">
+          <h2>Course Quiz</h2>
+          <p *ngIf="!quizSubmitted">Answer all questions and submit to see your score.</p>
+          <div *ngIf="quizSubmitted" class="quiz-results">
+            <h3>Quiz Results</h3>
+            <div class="score-display" [class.pass]="quizScore && quizScore >= 80" [class.fail]="quizScore && quizScore < 80">
+              Your Score: {{ quizScore }}%
+            </div>
+
+            <!-- Passed -->
+            <div *ngIf="quizScore && quizScore >= 80">
+              <p class="pass-message">Congratulations! You passed the course and it has been marked as completed.</p>
+              <button class="btn-primary" (click)="goBack()">Return to My Courses</button>
+            </div>
+
+            <!-- Failed -->
+            <div *ngIf="quizScore && quizScore < 80">
+              <p class="fail-message">You scored {{ quizScore }}%. You need 80% or higher to pass.</p>
+              <p class="fail-message">Please review and try again.</p>
+              <button class="btn-secondary" (click)="resetQuiz()">Retake Quiz</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Questions List - Only show if quiz not submitted -->
+        <div *ngIf="!quizSubmitted" class="questions-list">
+          <div *ngFor="let question of questions; let i = index" class="question-card">
+            <div class="question-header">
+              <h3>Question {{ i + 1 }}</h3>
+            </div>
+            <p class="question-text">{{ question.question_text }}</p>
+
+            <!-- Options -->
+            <div class="options-list">
+              <div *ngFor="let option of question.options" class="option-item"
+                   [class.selected]="isOptionSelected(question.id, option.id)"
+                   (click)="toggleAnswer(question.id, option.id, isTrueFalseQuestion(question))">
+                <input
+                  [type]="isTrueFalseQuestion(question) ? 'radio' : 'checkbox'"
+                  [name]="isTrueFalseQuestion(question) ? 'question-' + question.id : ''"
+                  [id]="'option-' + option.id"
+                  [checked]="isOptionSelected(question.id, option.id)"
+                />
+                <label [for]="'option-' + option.id">
+                  {{ option.option_text }}
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div *ngIf="!quizSubmitted" class="quiz-actions">
+          <button class="btn-primary" (click)="submitQuiz()">Submit Quiz</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

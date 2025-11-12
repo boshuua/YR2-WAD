@@ -65,6 +65,10 @@ export class CourseListComponent implements OnInit {
     this.router.navigate(['/admin/courses/edit', courseId]);
   }
 
+  manageQuestions(courseId: number): void {
+    this.router.navigate(['/admin/courses', courseId, 'questions']);
+  }
+
   promptDeleteCourse(courseId: number, courseTitle: string): void {
     this.courseToDeleteId = courseId;
     this.courseToDeleteTitle = courseTitle;

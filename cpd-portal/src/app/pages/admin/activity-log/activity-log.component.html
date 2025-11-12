@@ -1,0 +1,209 @@
+<div class="activity-log-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h2>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="12" y1="18" x2="12" y2="12"></line>
+          <line x1="9" y1="15" x2="15" y2="15"></line>
+        </svg>
+        Activity Log
+      </h2>
+      <p class="subtitle">Complete system activity history with detailed information</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-refresh" (click)="loadActivityLog()" [disabled]="isLoading">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="filter-group">
+      <label for="search">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        Search
+      </label>
+      <input
+        type="text"
+        id="search"
+        [(ngModel)]="searchTerm"
+        (input)="applyFilters()"
+        placeholder="Search by action, user, or details..."
+        class="filter-input">
+    </div>
+
+    <div class="filter-group">
+      <label for="filterAction">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+        </svg>
+        Action
+      </label>
+      <select
+        id="filterAction"
+        [(ngModel)]="filterAction"
+        (change)="applyFilters()"
+        class="filter-select">
+        <option value="">All Actions</option>
+        <option *ngFor="let action of uniqueActions" [value]="action">{{ action }}</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="filterUser">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        User
+      </label>
+      <select
+        id="filterUser"
+        [(ngModel)]="filterUser"
+        (change)="applyFilters()"
+        class="filter-select">
+        <option value="">All Users</option>
+        <option *ngFor="let user of uniqueUsers" [value]="user">{{ user }}</option>
+      </select>
+    </div>
+
+    <button
+      class="btn-clear-filters"
+      (click)="clearFilters()"
+      *ngIf="searchTerm || filterAction || filterUser">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+      Clear
+    </button>
+  </div>
+
+  <!-- Results Info -->
+  <div class="results-info" *ngIf="!isLoading && !loadError">
+    <span class="result-count">
+      Showing {{ (currentPage - 1) * itemsPerPage + 1 }} -
+      {{ Math.min(currentPage * itemsPerPage, totalLogs) }} of
+      {{ totalLogs }} {{ totalLogs === 1 ? 'entry' : 'entries' }}
+    </span>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <span>Loading activity log...</span>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="loadError" class="error-message">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    {{ loadError }}
+  </div>
+
+  <!-- Activity Table -->
+  <div *ngIf="!isLoading && !loadError" class="activity-table-container">
+    <table class="activity-table" *ngIf="paginatedLogs.length > 0">
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>User</th>
+          <th>Action</th>
+          <th>Details</th>
+          <th>IP Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let entry of paginatedLogs">
+          <td class="timestamp-cell">
+            <div class="timestamp">
+              <div class="date">{{ datePipe.transform(entry.timestamp, 'MMM d, y') }}</div>
+              <div class="time">{{ datePipe.transform(entry.timestamp, 'h:mm:ss a') }}</div>
+            </div>
+          </td>
+          <td class="user-cell">
+            <div class="user-info">
+              <div class="user-avatar-small">
+                {{ (entry.user_email || 'S').charAt(0).toUpperCase() }}
+              </div>
+              <span>{{ entry.user_email || 'System' }}</span>
+            </div>
+          </td>
+          <td class="action-cell">
+            <span class="action-badge" [ngClass]="getActionBadgeClass(entry.action)">
+              {{ entry.action }}
+            </span>
+          </td>
+          <td class="details-cell">
+            <span class="details-text">{{ entry.details || '—' }}</span>
+          </td>
+          <td class="ip-cell">
+            <span class="ip-address">{{ entry.ip_address || '—' }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="paginatedLogs.length === 0" class="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <h3>No activity found</h3>
+      <p>Try adjusting your filters or search criteria</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!isLoading && !loadError && totalPages > 1" class="pagination-container">
+    <div class="pagination">
+      <button
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+        class="pagination-btn"
+        aria-label="Previous page">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+
+      <div class="page-numbers">
+        <button
+          *ngFor="let page of visiblePageNumbers"
+          [disabled]="page === -1"
+          (click)="page !== -1 && goToPage(page)"
+          [class.active]="page === currentPage"
+          [class.ellipsis]="page === -1"
+          class="page-number-btn">
+          {{ page === -1 ? '...' : page }}
+        </button>
+      </div>
+
+      <button
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+        class="pagination-btn"
+        aria-label="Next page">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

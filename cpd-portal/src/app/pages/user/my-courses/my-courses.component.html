@@ -1,15 +1,42 @@
 <div class="user-dashboard-container">
   <h1>My Courses</h1>
 
+  <!-- Search and Filter Section -->
+  <div *ngIf="!isLoading && courses.length > 0" class="filters-section">
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange($event)"
+        placeholder="Search courses..."
+        class="search-input"
+      />
+    </div>
+    <div class="filter-box">
+      <label for="status-filter">Status:</label>
+      <select
+        id="status-filter"
+        [(ngModel)]="statusFilter"
+        (ngModelChange)="onStatusFilterChange($event)"
+        class="filter-select"
+      >
+        <option value="all">All Courses</option>
+        <option value="not_started">Not Started</option>
+        <option value="in_progress">In Progress</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+  </div>
+
   <div *ngIf="isLoading" class="loading-message">Loading courses...</div>
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-  <div *ngIf="!isLoading && !errorMessage && courses.length > 0" class="course-list">
-    <div *ngFor="let course of courses" class="course-card">
+  <div *ngIf="!isLoading && !errorMessage && filteredCourses.length > 0" class="course-list">
+    <div *ngFor="let course of filteredCourses" class="course-card">
       <h3>{{ course.title }}</h3>
       <p class="course-description">{{ course.description | slice:0:150 }}{{ course.description.length > 150 ? '...' : '' }}</p>
       <div class="course-meta">
-        <span class="badge"
+        <span *ngIf="isEnrolled(course)" class="badge"
           [ngClass]="{
             'badge-info': course.user_progress_status === 'not_started',
             'badge-warning': course.user_progress_status === 'in_progress',
@@ -17,14 +44,29 @@
           }">
           {{ course.user_progress_status | titlecase }}
         </span>
+        <span *ngIf="!isEnrolled(course)" class="badge badge-default">Not Enrolled</span>
         <span *ngIf="course.score !== null" class="course-score">Score: {{ course.score }}%</span>
       </div>
       <div class="course-actions">
-        <button class="btn-primary" (click)="viewCourse(course.id)">View Content</button>
-        <button class="btn-secondary" *ngIf="course.user_progress_status === 'not_started'" (click)="updateCourseStatus(course.id, 'in_progress')">Start Course</button>
-        <button class="btn-secondary" *ngIf="course.user_progress_status === 'in_progress'" (click)="updateCourseStatus(course.id, 'completed')">Mark as Completed</button>
+        <!-- Not Enrolled -->
+        <button *ngIf="!isEnrolled(course)" class="btn-primary" (click)="enrollCourse(course.id)">Enroll Now</button>
+
+        <!-- Enrolled - Not Completed -->
+        <button *ngIf="isEnrolled(course) && course.user_progress_status !== 'completed'" class="btn-primary" (click)="viewCourse(course.id)">
+          Take Quiz
+        </button>
+        <span *ngIf="course.user_progress_status === 'in_progress'" class="progress-hint">Score 80%+ to complete</span>
+
+        <!-- Completed - No retake allowed -->
+        <div *ngIf="course.user_progress_status === 'completed'" class="completed-message">
+          ✓ Course Completed
+        </div>
       </div>
     </div>
+  </div>
+
+  <div *ngIf="!isLoading && !errorMessage && courses.length > 0 && filteredCourses.length === 0" class="no-courses-message">
+    No courses match your search criteria.
   </div>
 
   <div *ngIf="!isLoading && !errorMessage && courses.length === 0" class="no-courses-message">

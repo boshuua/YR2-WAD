@@ -25,16 +25,36 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   constructor(private router: Router, private toastService: ToastService) {}
 
   ngOnInit(): void {
-    if (typeof localStorage !== 'undefined') {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      this.userName = user.name || 'Admin User';
-      this.userRole = user.role || 'Administrator';
-      this.userInitials = this.getInitials(this.userName);
+    this.loadUserInfo();
+
+    // Start with sidebar collapsed on mobile devices
+    if (typeof window !== 'undefined') {
+      this.isSidebarCollapsed = window.innerWidth <= 768;
     }
 
     this.toastSubscription = this.toastService.getToastEvents().subscribe(config => {
       this.currentToast = config;
     });
+  }
+
+  loadUserInfo(): void {
+    if (typeof sessionStorage !== 'undefined') {
+      const userJson = sessionStorage.getItem('currentUser');
+      if (userJson) {
+        const user = JSON.parse(userJson);
+        const firstName = user.first_name || '';
+        const lastName = user.last_name || '';
+
+        // Build full name
+        this.userName = `${firstName} ${lastName}`.trim() || 'Admin User';
+
+        // Set role based on access level
+        this.userRole = user.access_level === 'admin' ? 'Administrator' : 'User';
+
+        // Generate initials
+        this.userInitials = this.getInitials(this.userName);
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -55,9 +75,13 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
   logout(): void {
-    sessionStorage.clear();
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    // Clear all storage
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.clear();
+    }
+    if (typeof localStorage !== 'undefined') {
+      localStorage.clear();
+    }
     this.router.navigate(['/login']);
     this.toastService.info('You have been logged out.');
   }

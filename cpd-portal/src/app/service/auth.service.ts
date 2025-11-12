@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:8000/api'; // Make sure this URL is correct
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
@@ -74,15 +75,34 @@ export class AuthService {
     return this.http.get(`${this.apiUrl}/get_user_courses.php`, { withCredentials: true });
   }
 
-  getCourseContentForUser(courseId: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/get_course_content_for_user.php?course_id=${courseId}`, { withCredentials: true });
-  }
-
   updateCourseProgress(progressData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/update_course_progress.php`, progressData, { withCredentials: true });
   }
 
   getActivityLog(limit: number = 20): Observable<any> { // Default limit
     return this.http.get(`${this.apiUrl}/get_activity_log.php?limit=${limit}`, { withCredentials: true });
+  }
+
+  // Question Management
+  getCourseQuestions(courseId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_course_questions.php?course_id=${courseId}`, { withCredentials: true });
+  }
+
+  adminCreateQuestion(questionData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/admin_create_question.php`, questionData, { withCredentials: true });
+  }
+
+  adminDeleteQuestion(questionId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/admin_delete_question.php?id=${questionId}`, { withCredentials: true });
+  }
+
+  // Course Enrollment
+  enrollCourse(courseId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/enroll_course.php`, { course_id: courseId }, { withCredentials: true });
+  }
+
+  // Quiz Submission
+  submitQuiz(courseId: number, score: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/submit_quiz.php`, { course_id: courseId, score: score }, { withCredentials: true });
   }
 }

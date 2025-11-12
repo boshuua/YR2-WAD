@@ -229,7 +229,7 @@
 }
 
 .logout-btn {
-  padding: 0.5rem 0.875rem;
+  padding: 0.5rem;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -240,14 +240,18 @@
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  font-size: 0.875rem;
-  font-weight: 500;
+  width: 36px;
+  height: 36px;
 }
 
 .logout-btn:hover {
   background: rgba(229, 62, 62, 0.1);
   border-color: rgba(229, 62, 62, 0.3);
   transform: scale(1.05);
+}
+
+.logout-btn svg {
+  display: block;
 }
 
 .main-content {
@@ -289,4 +293,157 @@
   padding: 2.5rem;
   overflow-y: auto;
   background: var(--background-color);
+}
+
+/* === Mobile Overlay (shown only on mobile when sidebar is active) === */
+.mobile-overlay {
+  display: none;
+}
+
+@media only screen and (max-width: 768px) {
+  .mobile-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .layout:not(.sidebar-collapsed) .mobile-overlay {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+/* === RESPONSIVE ADJUSTMENTS === */
+@media only screen and (max-width: 768px) {
+  .layout {
+    flex-direction: row;
+    height: 100vh;
+  }
+
+  /* Mobile sidebar - hidden by default, slides in when toggled */
+  .sidebar {
+    position: fixed !important;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 280px !important;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    overflow-y: auto;
+  }
+
+  /* Show sidebar when NOT collapsed (toggled on) */
+  .layout:not(.sidebar-collapsed) .sidebar {
+    transform: translateX(0);
+  }
+
+  .sidebar-header {
+    padding: 1rem;
+  }
+
+  .sidebar-content {
+    padding: 1rem;
+  }
+
+  .section-label {
+    padding: 0 1rem 0.5rem;
+  }
+
+  .menu-section ul {
+    padding: 0 0.5rem;
+  }
+
+  .sidebar a {
+    padding: 0.875rem 1rem;
+  }
+
+  .sidebar-footer {
+    padding: 1rem;
+  }
+
+  .user-profile {
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  /* Main content takes full width */
+  .main-content {
+    flex: 1;
+    width: 100%;
+  }
+
+  .main-header {
+    height: auto;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .header-content {
+    flex: 1;
+  }
+
+  .header-title {
+    font-size: 1.25rem;
+  }
+
+  .page-content {
+    padding: 1.5rem 1rem;
+    overflow-y: auto;
+  }
+
+  /* Hamburger menu button in header for mobile */
+  .mobile-menu-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: #1e293b;
+    color: #fff;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1.25rem;
+  }
+
+  .mobile-menu-btn:hover {
+    background: #334155;
+  }
+}
+
+/* Hide mobile menu button on desktop */
+.mobile-menu-btn {
+  display: none;
+}
+
+/* === TABLET ADJUSTMENTS === */
+@media only screen and (min-width: 769px) and (max-width: 1024px) {
+  .sidebar {
+    width: 240px;
+  }
+
+  .main-header {
+    padding: 0 1.5rem;
+  }
+
+  .page-content {
+    padding: 2rem 1.5rem;
+  }
+
+  .header-title {
+    font-size: 1.375rem;
+  }
 }

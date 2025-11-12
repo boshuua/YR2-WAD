@@ -31,13 +31,10 @@ export class CourseFormComponent implements OnInit {
     this.courseForm = this.fb.group({
       title: ['', Validators.required],
       description: ['', Validators.required],
-      content: [''],
-      duration: [null, [Validators.min(0)]],
       category: [''],
-      status: ['draft'],
-      instructor_id: [null],
-      start_date: [null],
-      end_date: [null]
+      start_date: ['', Validators.required],
+      end_date: ['', Validators.required],
+      status: ['published']
     });
 
     this.route.paramMap.pipe(

@@ -3,9 +3,6 @@
 
 if (!function_exists('log_activity')) { // Prevent redefinition errors
     function log_activity(PDO $db, ?int $userId, ?string $userEmail, string $action, ?string $details = null): void {
-        // --- Add temporary debug log ---
-        error_log("--- Inside log_activity function for action: {$action} ---");
-
         // Get IP address
         $ipAddress = $_SERVER['REMOTE_ADDR'] ?? null;
         // Basic check for common proxy headers (adjust if needed)
@@ -16,7 +13,6 @@ if (!function_exists('log_activity')) { // Prevent redefinition errors
         }
 
         try {
-             error_log("Attempting DB INSERT for action: {$action}"); // Debug log
             $query = "INSERT INTO activity_log (user_id, user_email, action, details, ip_address)
                       VALUES (:user_id, :user_email, :action, :details, :ip_address)";
             $stmt = $db->prepare($query);
@@ -29,10 +25,9 @@ if (!function_exists('log_activity')) { // Prevent redefinition errors
             $stmt->bindParam(':ip_address', $ipAddress);
 
             $stmt->execute();
-            error_log("DB INSERT execute() completed for action: {$action}"); // Debug log
         } catch (PDOException $e) {
             // Log the error internally, don't show details to the user
-            error_log("!!! PDOException in log_activity for action {$action}: " . $e->getMessage());
+            error_log("Error in log_activity for action {$action}: " . $e->getMessage());
         }
     }
 }

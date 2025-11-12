@@ -12,6 +12,7 @@ import { ToastService } from '../../service/toast.service';
   styleUrls: ['./user-dashboard.component.css']
 })
 export class UserDashboardComponent implements OnInit {
+  isSidebarCollapsed = false;
   userName: string = 'User';
   userRole: string = 'User';
   userInitials: string = 'U';
@@ -23,11 +24,31 @@ export class UserDashboardComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    if (typeof localStorage !== 'undefined') {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      this.userName = user.name || 'User';
-      this.userRole = user.role || 'User';
-      this.userInitials = this.getInitials(this.userName);
+    this.loadUserInfo();
+
+    // Start with sidebar collapsed on mobile devices
+    if (typeof window !== 'undefined') {
+      this.isSidebarCollapsed = window.innerWidth <= 768;
+    }
+  }
+
+  loadUserInfo(): void {
+    if (typeof sessionStorage !== 'undefined') {
+      const userJson = sessionStorage.getItem('currentUser');
+      if (userJson) {
+        const user = JSON.parse(userJson);
+        const firstName = user.first_name || '';
+        const lastName = user.last_name || '';
+
+        // Build full name
+        this.userName = `${firstName} ${lastName}`.trim() || 'User';
+
+        // Set role based on access level
+        this.userRole = user.access_level === 'admin' ? 'Administrator' : 'Student';
+
+        // Generate initials
+        this.userInitials = this.getInitials(this.userName);
+      }
     }
   }
 
@@ -38,10 +59,18 @@ export class UserDashboardComponent implements OnInit {
       .join('');
   }
 
+  toggleSidebar(): void {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
+  }
+
   logout(): void {
-    sessionStorage.clear();
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    // Clear all storage
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.clear();
+    }
+    if (typeof localStorage !== 'undefined') {
+      localStorage.clear();
+    }
     this.router.navigate(['/login']);
     this.toastService.info('You have been logged out.');
   }

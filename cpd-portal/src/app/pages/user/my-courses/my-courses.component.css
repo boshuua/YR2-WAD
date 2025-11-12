@@ -15,6 +15,60 @@ h1 {
   text-align: center;
 }
 
+/* Filters Section */
+.filters-section {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 250px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: border-color var(--transition-base);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.filter-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-box label {
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.filter-select {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  background-color: var(--white);
+  cursor: pointer;
+  transition: border-color var(--transition-base);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
 .loading-message,
 .error-message,
 .no-courses-message {
@@ -79,10 +133,29 @@ h1 {
 
 .course-actions {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.btn-primary, .btn-secondary {
+.progress-hint {
+  font-size: 0.875rem;
+  color: var(--warning-color);
+  font-style: italic;
+  text-align: center;
+}
+
+.completed-message {
+  background-color: var(--success-light);
+  color: var(--success-color);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  text-align: center;
+  font-weight: 600;
+  font-size: 1rem;
+  border: 2px solid var(--success-color);
+}
+
+.btn-primary {
   background-color: var(--primary-color);
   color: white;
   border: none;
@@ -97,14 +170,6 @@ h1 {
 
 .btn-primary:hover {
   background-color: var(--primary-hover);
-}
-
-.btn-secondary {
-  background-color: var(--secondary-color);
-}
-
-.btn-secondary:hover {
-  background-color: var(--secondary-hover);
 }
 
 /* Badge styles (reused from admin components) */
@@ -132,4 +197,9 @@ h1 {
 .badge-success {
   background: var(--success-light);
   color: var(--success-color);
+}
+
+.badge-default {
+  background: var(--background-secondary);
+  color: var(--text-secondary);
 }

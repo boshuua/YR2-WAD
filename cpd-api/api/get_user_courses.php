@@ -43,7 +43,7 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         "id" => $row['course_id'],
         "title" => $row['title'],
         "description" => html_entity_decode($row['description']),
-        "user_progress_status" => $row['user_progress_status'] ?? 'not_started',
+        "user_progress_status" => $row['user_progress_status'], // NULL if not enrolled
         "completion_date" => $row['completion_date'],
         "score" => $row['score']
     );

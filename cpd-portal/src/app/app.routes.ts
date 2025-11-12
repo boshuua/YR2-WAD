@@ -11,6 +11,8 @@ import { UserCreateComponent } from './pages/admin/user-create/user-create.compo
 import { UserEditComponent } from './pages/admin/user-edit/user-edit.component';
 import { CourseListComponent } from './pages/admin/course-list/course-list.component';
 import { CourseFormComponent } from './pages/admin/course-form/course-form.component';
+import { CourseQuestionsComponent } from './pages/admin/course-questions/course-questions.component';
+import { ActivityLogComponent } from './pages/admin/activity-log/activity-log.component';
 import { SettingsComponent as AdminSettingsComponent } from './pages/admin/settings/settings.component';
 import { CourseContentComponent } from './pages/course-content/course-content.component';
 import { MyCoursesComponent } from './pages/user/my-courses/my-courses.component';
@@ -33,6 +35,8 @@ export const routes: Routes = [
       { path: 'courses', component: CourseListComponent, data: { breadcrumb: 'Course Management' } },
       { path: 'courses/new', component: CourseFormComponent, data: { breadcrumb: 'Create Course' } },
       { path: 'courses/edit/:id', component: CourseFormComponent, data: { breadcrumb: 'Edit Course' } },
+      { path: 'courses/:id/questions', component: CourseQuestionsComponent, data: { breadcrumb: 'Manage Questions' } },
+      { path: 'activity', component: ActivityLogComponent, data: { breadcrumb: 'Activity Log' } },
       { path: 'settings', component: AdminSettingsComponent, data: { breadcrumb: 'Settings' } },
       { path: '', redirectTo: 'overview', pathMatch: 'full' } // Default admin page
     ]

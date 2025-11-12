@@ -80,6 +80,7 @@ td {
   font-size: 0.9375rem;
 }
 td .edit-btn,
+td .info-btn,
 td .delete-btn {
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
@@ -96,6 +97,11 @@ td .edit-btn {
   color: white;
 }
 
+td .info-btn {
+  background: var(--primary-color);
+  color: white;
+}
+
 td .delete-btn {
   background: var(--danger-color);
   color: white;
@@ -103,6 +109,10 @@ td .delete-btn {
 
 td .edit-btn:hover {
   background: #c2410c;
+}
+
+td .info-btn:hover {
+  background: var(--primary-hover);
 }
 
 td .delete-btn:hover {

@@ -23,6 +23,7 @@
           <td>{{ course.description | slice:0:100 }}{{ course.description.length > 100 ? '...' : '' }}</td>
           <td>
             <button class="edit-btn" (click)="editCourse(course.id)">Edit</button>
+            <button class="info-btn" (click)="manageQuestions(course.id)">Questions</button>
             <button class="delete-btn" (click)="promptDeleteCourse(course.id, course.title)">Delete</button>
           </td>
         </tr>

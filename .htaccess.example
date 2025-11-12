@@ -1,0 +1,62 @@
+# Apache configuration for CPD Portal on Plesk
+# Copy this file to /httpdocs/.htaccess on your Plesk server
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Redirect API calls to cpd-api folder
+  RewriteCond %{REQUEST_URI} ^/cpd-api/
+  RewriteRule ^cpd-api/(.*)$ cpd-api/$1 [L]
+
+  # Angular routes - redirect everything else to index.html
+  # This allows Angular routing to work properly
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_URI} !^/cpd-api/
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# Prevent directory browsing
+Options -Indexes
+
+# Set default charset
+AddDefaultCharset utf-8
+
+# Enable GZIP compression
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+# Browser caching for static assets
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpg "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/gif "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# Security headers
+<IfModule mod_headers.c>
+  # Prevent clickjacking
+  Header always set X-Frame-Options "SAMEORIGIN"
+
+  # XSS protection
+  Header always set X-XSS-Protection "1; mode=block"
+
+  # Prevent MIME type sniffing
+  Header always set X-Content-Type-Options "nosniff"
+
+  # Referrer policy
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Protect sensitive files
+<FilesMatch "\.(env|git|gitignore|htaccess|sql)$">
+  Order allow,deny
+  Deny from all
+</FilesMatch>
