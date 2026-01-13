@@ -15,7 +15,7 @@ if (env('APP_DEBUG', false)) {
 // CORS CONFIGURATION
 // ===============================================================
 // Allow requests from your specific Angular app URL
-header("Access-Control-Allow-Origin: " . env('CORS_ALLOWED_ORIGIN', 'http://localhost:4200'));
+header("Access-Control-Allow-Origin: " . env('CORS_ALLOWED_ORIGIN', 'https://WS369808-wad.remote.ac'));
 // Allow the browser to send cookies (for sessions)
 header("Access-Control-Allow-Credentials: true");
 // ===============================================================
