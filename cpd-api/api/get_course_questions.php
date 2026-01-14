@@ -31,7 +31,7 @@ try {
       q.question_type,
       q.created_at
     FROM questions q
-    WHERE q.course_id = :course_id
+    WHERE q.course_id = :course_id AND q.lesson_id IS NULL
     ORDER BY q.id ASC
   ");
 

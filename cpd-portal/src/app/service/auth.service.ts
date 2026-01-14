@@ -67,6 +67,10 @@ export class AuthService {
     return this.http.get(`${this.apiUrl}/get_course_by_id.php?id=${courseId}`, { withCredentials: true });
   }
 
+  getCourseLessons(courseId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_course_lessons.php?course_id=${courseId}`, { withCredentials: true });
+  }
+
   adminUpdatePassword(passwordData: any): Observable<any> {
     return this.http.put(`${this.apiUrl}/admin_update_password.php`, passwordData, { withCredentials: true });
   }

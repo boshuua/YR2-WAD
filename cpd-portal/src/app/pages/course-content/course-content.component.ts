@@ -13,17 +13,23 @@ import { ToastService } from '../../service/toast.service';
 })
 export class CourseContentComponent implements OnInit {
   course: any | null = null;
-  questions: any[] = [];
+  lessons: any[] = [];
+  assessmentQuestions: any[] = [];
+  
   isLoading = true;
   errorMessage = '';
   isEnrolled = false;
   isCheckingEnrollment = true;
 
-  // Quiz state
-  userAnswers: Map<number, number[]> = new Map(); // Array to support multiple answers if needed
+  // Navigation State
+  currentView: 'lesson' | 'checkpoint' | 'assessment' | 'completed' = 'lesson';
+  currentLessonIndex = 0;
+  
+  // Quiz/Assessment state
+  userAnswers: Map<number, number[]> = new Map();
   quizSubmitted = false;
   quizScore: number | null = null;
-
+  
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -50,145 +56,130 @@ export class CourseContentComponent implements OnInit {
         const course = courses.find(c => c.id === courseId);
 
         if (!course || course.user_progress_status === null || course.user_progress_status === undefined) {
-          this.isEnrolled = false;
-          this.toastService.error('You must enroll in this course before accessing the quiz.');
+          this.toastService.error('You must enroll in this course first.');
           this.router.navigate(['/dashboard/my-courses']);
-          this.isCheckingEnrollment = false;
           return;
         }
 
         if (course.user_progress_status === 'completed') {
-          this.toastService.info('You have already completed this course.');
-          this.router.navigate(['/dashboard/my-courses']);
-          this.isCheckingEnrollment = false;
-          return;
+          this.currentView = 'completed';
+          this.quizScore = course.score;
         }
 
         this.isEnrolled = true;
-        this.loadCourse(courseId);
-        this.loadQuestions(courseId);
-        this.isCheckingEnrollment = false;
+        this.loadCourseData(courseId);
       },
       error: () => {
         this.toastService.error('Failed to verify enrollment status.');
         this.router.navigate(['/dashboard/my-courses']);
-        this.isCheckingEnrollment = false;
       }
     });
   }
 
-  loadCourse(courseId: number): void {
+  loadCourseData(courseId: number): void {
     this.isLoading = true;
-    this.errorMessage = '';
+    
+    // Load Course Basic Info
     this.authService.getCourseById(courseId).subscribe({
       next: (data) => {
         this.course = data;
-        this.isLoading = false;
+        
+        // Load Lessons (Training Content)
+        this.authService.getCourseLessons(courseId).subscribe({
+          next: (lessons) => {
+            this.lessons = lessons;
+            
+            // Load Final Assessment Questions
+            this.authService.getCourseQuestions(courseId).subscribe({
+              next: (questions) => {
+                this.assessmentQuestions = questions;
+                this.isLoading = false;
+              }
+            });
+          }
+        });
       },
-      error: (err) => {
-        this.errorMessage = 'Failed to load course content.';
-        this.toastService.error(this.errorMessage);
+      error: () => {
+        this.errorMessage = 'Failed to load course details.';
         this.isLoading = false;
       }
     });
   }
 
-  loadQuestions(courseId: number): void {
-    this.authService.getCourseQuestions(courseId).subscribe({
-      next: (data: any) => {
-        this.questions = Array.isArray(data) ? data : [];
-      },
-      error: (err) => {
-        console.error('Failed to load questions:', err);
-        this.questions = [];
-      }
-    });
+  get currentLesson() {
+    return this.lessons[this.currentLessonIndex];
   }
 
-  resetQuiz(): void {
+  nextSection(): void {
+    const lesson = this.currentLesson;
+    
+    if (this.currentView === 'lesson' && lesson.checkpoint_quiz?.length > 0) {
+      // Move to checkpoint quiz
+      this.currentView = 'checkpoint';
+      this.resetQuizState();
+    } else {
+      // Move to next lesson or assessment
+      if (this.currentLessonIndex < this.lessons.length - 1) {
+        this.currentLessonIndex++;
+        this.currentView = 'lesson';
+      } else {
+        this.currentView = 'assessment';
+        this.resetQuizState();
+      }
+    }
+  }
+
+  resetQuizState(): void {
     this.userAnswers.clear();
     this.quizSubmitted = false;
     this.quizScore = null;
   }
 
-  toggleAnswer(questionId: number, optionId: number, isSingleAnswer: boolean = false): void {
+  toggleAnswer(questionId: number, optionId: number, isSingle: boolean = true): void {
     if (this.quizSubmitted) return;
-
-    if (isSingleAnswer) {
-      // For single answer questions (true/false, single choice), replace the answer
-      this.userAnswers.set(questionId, [optionId]);
-    } else {
-      // For multiple answer questions, toggle the selection
-      const currentAnswers = this.userAnswers.get(questionId) || [];
-      const index = currentAnswers.indexOf(optionId);
-
-      if (index > -1) {
-        currentAnswers.splice(index, 1);
-      } else {
-        currentAnswers.push(optionId);
-      }
-
-      this.userAnswers.set(questionId, currentAnswers);
-    }
-  }
-
-  isTrueFalseQuestion(question: any): boolean {
-    return question.question_type === 'true_false';
+    this.userAnswers.set(questionId, [optionId]);
   }
 
   isOptionSelected(questionId: number, optionId: number): boolean {
-    const answers = this.userAnswers.get(questionId) || [];
-    return answers.includes(optionId);
+    return this.userAnswers.get(questionId)?.includes(optionId) || false;
   }
 
-  submitQuiz(): void {
-    // Check if all questions are answered
-    const unansweredQuestions = this.questions.filter(q => {
-      const answers = this.userAnswers.get(q.id);
-      return !answers || answers.length === 0;
-    });
-
-    if (unansweredQuestions.length > 0) {
-      this.toastService.error('Please answer all questions before submitting.');
-      return;
+  submitCheckpoint(): void {
+    const questions = this.currentLesson.checkpoint_quiz;
+    if (this.calculateScore(questions) >= 100) {
+      this.toastService.success('Checkpoint passed!');
+      this.nextSection();
+    } else {
+      this.toastService.error('Incorrect answer. Please review the section and try again.');
+      this.currentView = 'lesson';
     }
+  }
 
-    // Calculate score
-    let correctAnswers = 0;
-    this.questions.forEach(question => {
-      const userAnswerIds = this.userAnswers.get(question.id) || [];
-      const correctOptionIds = question.options
-        .filter((opt: any) => opt.is_correct)
-        .map((opt: any) => opt.id);
-
-      // Check if user's answers match correct answers exactly
-      const isCorrect =
-        userAnswerIds.length === correctOptionIds.length &&
-        userAnswerIds.every(id => correctOptionIds.includes(id));
-
-      if (isCorrect) {
-        correctAnswers++;
-      }
-    });
-
-    this.quizScore = Math.round((correctAnswers / this.questions.length) * 100);
+  submitFinalAssessment(): void {
+    const score = this.calculateScore(this.assessmentQuestions);
+    this.quizScore = score;
     this.quizSubmitted = true;
 
-    // Submit score to backend
-    if (this.course) {
-      this.authService.submitQuiz(this.course.id, this.quizScore).subscribe({
-        next: (response) => {
-          if (response.passed) {
-            this.toastService.success(response.message);
-          } else {
-            this.toastService.info(response.message);
-          }
-        },
-        error: (err) => {
-          this.toastService.error('Failed to save quiz score: ' + (err.error?.message || err.message));
+    if (score >= 80) {
+      this.authService.submitQuiz(this.course.id, score).subscribe({
+        next: () => {
+          this.toastService.success('Congratulations! You have completed your annual assessment.');
+          this.currentView = 'completed';
         }
       });
+    } else {
+      this.toastService.error('Assessment failed. You need 80% to pass.');
     }
+  }
+
+  private calculateScore(questions: any[]): number {
+    let correct = 0;
+    questions.forEach(q => {
+      const userAns = this.userAnswers.get(q.id);
+      const correctOpts = q.options.filter((o: any) => o.is_correct).map((o: any) => o.id);
+      if (userAns && userAns[0] === correctOpts[0]) correct++;
+    });
+    return Math.round((correct / questions.length) * 100);
   }
 
   goBack(): void {
