@@ -24,8 +24,8 @@ $database = new Database();
 $db = $database->getConn();
 
 // Prepare insert query
-$query = "INSERT INTO courses (title, description, content, duration, category, status, instructor_id, start_date, end_date)
-          VALUES (:title, :description, :content, :duration, :category, :status, :instructor_id, :start_date, :end_date)";
+$query = "INSERT INTO courses (title, description, content, duration, required_hours, category, status, instructor_id, start_date, end_date)
+          VALUES (:title, :description, :content, :duration, :required_hours, :category, :status, :instructor_id, :start_date, :end_date)";
 
 $stmt = $db->prepare($query);
 
@@ -34,6 +34,7 @@ $title = sanitizeString($data->title);
 $description = sanitizeString($data->description);
 $content = getValue($data, 'content', '');
 $duration = getValue($data, 'duration');
+$required_hours = getValue($data, 'required_hours', 3.00);
 $category = getValue($data, 'category');
 $status = getValue($data, 'status', 'draft');
 $instructor_id = getValue($data, 'instructor_id');
@@ -50,6 +51,7 @@ $stmt->bindParam(':title', $title);
 $stmt->bindParam(':description', $description);
 $stmt->bindParam(':content', $content);
 $stmt->bindParam(':duration', $duration, PDO::PARAM_INT);
+$stmt->bindParam(':required_hours', $required_hours);
 $stmt->bindParam(':category', $category);
 $stmt->bindParam(':status', $status);
 $stmt->bindParam(':instructor_id', $instructor_id, PDO::PARAM_INT);

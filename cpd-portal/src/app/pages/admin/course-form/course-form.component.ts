@@ -31,6 +31,7 @@ export class CourseFormComponent implements OnInit {
     this.courseForm = this.fb.group({
       title: ['', Validators.required],
       description: ['', Validators.required],
+      required_hours: [3.00, [Validators.required, Validators.min(0)]],
       category: [''],
       start_date: ['', Validators.required],
       end_date: ['', Validators.required],

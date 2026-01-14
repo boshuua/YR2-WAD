@@ -36,6 +36,7 @@ $query = "UPDATE courses
               description = :description,
               content = :content,
               duration = :duration,
+              required_hours = :required_hours,
               category = :category,
               status = :status,
               instructor_id = :instructor_id,
@@ -51,6 +52,7 @@ $title = sanitizeString($data->title);
 $description = sanitizeString($data->description);
 $content = getValue($data, 'content', '');
 $duration = getValue($data, 'duration');
+$required_hours = getValue($data, 'required_hours', 3.00);
 $category = getValue($data, 'category');
 $status = getValue($data, 'status', 'draft');
 $instructor_id = getValue($data, 'instructor_id');
@@ -67,6 +69,7 @@ $stmt->bindParam(':title', $title);
 $stmt->bindParam(':description', $description);
 $stmt->bindParam(':content', $content);
 $stmt->bindParam(':duration', $duration, PDO::PARAM_INT);
+$stmt->bindParam(':required_hours', $required_hours);
 $stmt->bindParam(':category', $category);
 $stmt->bindParam(':status', $status);
 $stmt->bindParam(':instructor_id', $instructor_id, PDO::PARAM_INT);
