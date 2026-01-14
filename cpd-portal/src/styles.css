@@ -5,16 +5,22 @@
 /* Import Roboto font from Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
 
-/* Define CSS variables for a consistent color scheme */
+/* Define CSS variables for a consistent color scheme based on SiteCheck Dashboard */
 :root {
-  /* MOT Club Red Primary Colors */
-  --primary-color: #e31e24;
-  --primary-hover: #c4191f;
-  --primary-light: #fff5f5;
+  /* SiteCheck Blue Palette */
+  --primary-color: #68aedd;      /* Light blue used in buttons and highlights */
+  --primary-hover: #569cc9;
+  --primary-light: #e1f0f7;
 
-  /* Secondary Colors (Greys) */
-  --secondary-color: #666666;
-  --secondary-hover: #444444;
+  /* Sidebar & Header Palette */
+  --sidebar-bg: #2c3e50;        /* Dark steel blue/grey */
+  --sidebar-active: #68aedd;
+  --header-bg: #ffffff;
+  
+  /* Text & Accents */
+  --text-primary: #2c3e50;
+  --text-secondary: #7f8c8d;
+  --accent-blue: #3498db;
 
   /* Status Colors */
   --success-color: #16a34a;

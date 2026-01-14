@@ -11,7 +11,7 @@
 
 .sidebar {
   width: 280px;
-  background: #1e293b;
+  background: var(--sidebar-bg);
   color: #e4e7eb;
   padding: 0;
   flex-shrink: 0;
@@ -153,9 +153,9 @@
 }
 
 .sidebar a.active {
-  background: rgba(227, 30, 36, 0.15);
+  background: var(--primary-color);
   color: #fff;
-  box-shadow: 0 4px 12px rgba(227, 30, 36, 0.1);
+  box-shadow: 0 4px 12px rgba(104, 174, 221, 0.2);
 }
 
 .sidebar a.active::before {
