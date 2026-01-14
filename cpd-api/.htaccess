@@ -1,41 +1,18 @@
 # Backend API .htaccess
-# This file should be in the cpd-api folder
-
 # Prevent directory browsing
 Options -Indexes
 
-# Protect sensitive files - IMPORTANT!
+# Protect sensitive files
 <FilesMatch "^\.(env|git|gitignore)$">
   Order allow,deny
   Deny from all
 </FilesMatch>
 
-# Protect composer files
-<FilesMatch "^(composer\.json|composer\.lock)$">
-  Order allow,deny
-  Deny from all
-</FilesMatch>
-
-# Protect SQL files
-<FilesMatch "\.sql$">
-  Order allow,deny
-  Deny from all
-</FilesMatch>
-
-# Allow PHP files in api directory
-<Directory "api">
+# Allow access to PHP files
+<FilesMatch "\.php$">
   Order allow,deny
   Allow from all
-</Directory>
+</FilesMatch>
 
 # Set default charset
 AddDefaultCharset utf-8
-
-# PHP settings (if allowed by hosting)
-<IfModule mod_php.c>
-  php_value max_execution_time 300
-  php_value upload_max_filesize 10M
-  php_value post_max_size 10M
-  php_flag display_errors off
-  php_flag log_errors on
-</IfModule>

@@ -1,9 +1,29 @@
 <?php
-// Load environment variables
+// ===============================================================
+// 1. CORS CONFIGURATION (MUST BE FIRST)
+// ===============================================================
+// In production, we hardcode the fallback to ensure CORS always works even if .env is missing
+$allowed_origin = "https://ws369808-wad.remote.ac"; 
+
+header("Access-Control-Allow-Origin: $allowed_origin");
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Content-Type: application/json; charset=UTF-8");
+
+// Handle preflight OPTIONS request immediately
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+// ===============================================================
+// 2. LOAD ENVIRONMENT
+// ===============================================================
 require_once __DIR__ . '/../helpers/env_helper.php';
 
 // Error reporting based on environment
-if (env('APP_DEBUG', false)) {
+if (function_exists('env') && env('APP_DEBUG', false)) {
     ini_set('display_errors', 1);
     error_reporting(E_ALL);
 } else {
@@ -11,25 +31,6 @@ if (env('APP_DEBUG', false)) {
     error_reporting(0);
 }
 
-// ===============================================================
-// CORS CONFIGURATION
-// ===============================================================
-// Allow requests from your specific Angular app URL
-header("Access-Control-Allow-Origin: " . env('CORS_ALLOWED_ORIGIN', 'https://ws369808-wad.remote.ac'));
-// Allow the browser to send cookies (for sessions)
-header("Access-Control-Allow-Credentials: true");
-// ===============================================================
-
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-
-// Handle preflight OPTIONS request for CORS
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
 
 class Database {
     private $host;
