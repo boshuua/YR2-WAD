@@ -1,108 +1,184 @@
 :host {
+  display: block;
+  height: 100vh;
+  width: 100%;
+}
+
+.login-page {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background: var(--gray-100);
+  min-height: 100vh;
+  background-color: #f4f7f9; /* Light grey background like the target */
+  font-family: 'Roboto', sans-serif;
 }
 
-.login-box {
+.login-card {
   width: 100%;
-  max-width: 420px;
-  padding: 2.5rem;
-  background: var(--white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--box-shadow-md);
-  border: 1px solid var(--border-color);
+  max-width: 400px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  overflow: hidden;
+  border: 1px solid #e1e8ed;
 }
 
-h2 {
+.card-header {
+  padding: 40px 20px 20px;
   text-align: center;
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-  color: var(--text-primary);
-  font-weight: 700;
-  font-size: 2rem;
-  letter-spacing: -0.025em;
+  background: #fff;
 }
 
-h2 + p {
-  text-align: center;
-  color: var(--text-secondary);
-  margin-bottom: 2rem;
-  font-size: 0.9375rem;
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.form-group {
-  margin-bottom: 1.5rem;
+.logo-text {
+  font-size: 24px;
+  font-weight: 900;
+  color: #333;
+  letter-spacing: 1px;
 }
 
-label {
+.logo-text .highlight {
+  color: #e31e24; /* Signature MOT Red */
+}
+
+.app-name {
+  font-size: 14px;
+  font-weight: 400;
+  color: #666;
+  letter-spacing: 4px;
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+
+.card-body {
+  padding: 30px;
+}
+
+.form-field {
+  margin-bottom: 20px;
+}
+
+.form-field label {
   display: block;
-  margin-bottom: 0.625rem;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--text-primary);
-  font-size: 0.9375rem;
+  color: #555;
+  margin-bottom: 8px;
+  text-transform: uppercase;
 }
 
-input {
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper .icon {
+  position: absolute;
+  left: 12px;
+  color: #999;
+  font-size: 16px;
+}
+
+.input-wrapper input {
   width: 100%;
-  padding: 0.875rem 1rem;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-md);
-  font-size: 1rem;
-  transition: all var(--transition-base);
-  background: var(--background-color);
+  padding: 12px 12px 12px 40px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 15px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: #fafafa;
 }
 
-input:hover {
-  border-color: var(--medium-gray);
-}
-
-input:focus {
+.input-wrapper input:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-  background: var(--white);
+  border-color: #e31e24;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(227, 30, 36, 0.1);
 }
 
-button {
+.form-actions {
+  margin-top: 30px;
+}
+
+.btn-login {
   width: 100%;
-  padding: 0.875rem;
-  border: none;
-  border-radius: var(--radius-md);
-  background: var(--primary-color);
+  padding: 14px;
+  background-color: #e31e24; /* MOT Red */
   color: white;
-  font-size: 1rem;
-  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color var(--transition-base);
-  margin-top: 0.5rem;
+  transition: background-color 0.2s;
 }
 
-button:hover {
-  background: var(--primary-hover);
+.btn-login:hover:not(:disabled) {
+  background-color: #c4191f;
 }
 
-.error-message {
-  color: var(--danger-color);
+.btn-login:disabled {
+  background-color: #eea2a4;
+  cursor: not-allowed;
+}
+
+.form-footer {
   text-align: center;
-  margin-top: 1.5rem;
-  font-weight: 500;
-  background: var(--danger-light);
-  padding: 0.875rem 1rem;
-  border-radius: var(--radius-md);
-  border-left: 4px solid var(--danger-color);
+  margin-top: 20px;
 }
-@media only screen and (max-width: 480px) {
-  .login-box {
-    padding: 1.5rem; /* Reduce padding on very small screens */
-    margin: 0 1rem; /* Add some horizontal margin */
-    max-width: calc(100% - 2rem); /* Ensure it doesn't touch edges */
-  }
 
-  h2 {
-    font-size: 1.5rem; /* Slightly smaller heading */
-    margin-bottom: 1.5rem;
+.forgot-link {
+  font-size: 14px;
+  color: #666;
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+.card-footer {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e1e8ed;
+  text-align: center;
+}
+
+.card-footer p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.join-link {
+  color: #e31e24;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.join-link:hover {
+  text-decoration: underline;
+}
+
+.alert-error {
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #fff5f5;
+  border: 1px solid #feb2b2;
+  border-radius: 4px;
+  color: #c53030;
+  font-size: 14px;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    max-width: 90%;
   }
 }

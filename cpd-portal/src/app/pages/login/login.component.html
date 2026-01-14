@@ -1,19 +1,61 @@
-<div class="login-container">
-  <div class="login-box">
-    <h2>CPD Portal Login</h2>
-    <form (ngSubmit)="onLogin()">
-      <div class="form-group">
-        <label for="email">Email Address</label>
-        <input id="email" type="email" [(ngModel)]="credentials.email" name="email" required placeholder="e.g., admin@cpd.com">
+<div class="login-page">
+  <div class="login-card">
+    <div class="card-header">
+      <div class="logo-container">
+        <!-- Placeholder for The MOT Club Logo lookalike -->
+        <div class="logo-text">THE <span class="highlight">MOT</span> CLUB</div>
+        <div class="app-name">SITECHECK</div>
       </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input id="password" type="password" [(ngModel)]="credentials.password" name="password" required placeholder="e.g., AdminPassword123!">
-      </div>
-      <button type="submit">Login</button>
-      <div *ngIf="errorMessage" class="error-message">
-        {{ errorMessage }}
-      </div>
-    </form>
+    </div>
+
+    <div class="card-body">
+      <form (ngSubmit)="onLogin()" #loginForm="ngForm">
+        <div class="form-field">
+          <label for="email">Email Address</label>
+          <div class="input-wrapper">
+            <span class="icon">@</span>
+            <input 
+              id="email" 
+              type="email" 
+              [(ngModel)]="credentials.email" 
+              name="email" 
+              required 
+              placeholder="Enter your email">
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <span class="icon">🔒</span>
+            <input 
+              id="password" 
+              type="password" 
+              [(ngModel)]="credentials.password" 
+              name="password" 
+              required 
+              placeholder="Enter your password">
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-login" [disabled]="!loginForm.form.valid">
+            LOGIN
+          </button>
+        </div>
+
+        <div class="form-footer">
+          <a href="#" class="forgot-link">Forgot Password?</a>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert-error">
+          {{ errorMessage }}
+        </div>
+      </form>
+    </div>
+    
+    <div class="card-footer">
+      <p>Not a member? <a href="#" class="join-link">Join The Club</a></p>
+    </div>
   </div>
 </div>
