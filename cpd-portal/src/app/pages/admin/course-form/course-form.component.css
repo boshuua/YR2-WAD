@@ -12,7 +12,7 @@
 /* Form Header */
 .form-header {
   padding: 2rem 2.5rem;
-  background: linear-gradient(135deg, var(--primary-color) 0%, #2563eb 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
   color: white;
   border-bottom: 3px solid rgba(255, 255, 255, 0.2);
 }

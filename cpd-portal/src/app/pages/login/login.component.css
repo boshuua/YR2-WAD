@@ -78,16 +78,9 @@
   align-items: center;
 }
 
-.input-wrapper .icon {
-  position: absolute;
-  left: 12px;
-  color: #999;
-  font-size: 16px;
-}
-
 .input-wrapper input {
   width: 100%;
-  padding: 12px 12px 12px 40px;
+  padding: 12px 15px;
   border: 1px solid #ced4da;
   border-radius: 4px;
   font-size: 15px;
@@ -140,29 +133,6 @@
 }
 
 .forgot-link:hover {
-  text-decoration: underline;
-}
-
-.card-footer {
-  padding: 20px;
-  background-color: #f8f9fa;
-  border-top: 1px solid #e1e8ed;
-  text-align: center;
-}
-
-.card-footer p {
-  margin: 0;
-  font-size: 14px;
-  color: #666;
-}
-
-.join-link {
-  color: #e31e24;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.join-link:hover {
   text-decoration: underline;
 }
 
