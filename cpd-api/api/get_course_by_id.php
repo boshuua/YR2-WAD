@@ -37,8 +37,8 @@ if ($stmt->rowCount() > 0) {
     $course_item = array(
         "id" => $row['id'],
         "title" => $row['title'],
-        "description" => html_entity_decode($row['description']),
-        "content" => html_entity_decode($row['content']),
+        "description" => $row['description'] ? html_entity_decode($row['description']) : '',
+        "content" => $row['content'] ? html_entity_decode($row['content']) : '',
         "duration" => $row['duration'],
         "category" => $row['category'],
         "status" => $row['status'],

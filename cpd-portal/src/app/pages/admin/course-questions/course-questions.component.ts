@@ -124,6 +124,7 @@ export class CourseQuestionsComponent implements OnInit {
         this.courseName = data.title;
       },
       error: (err) => {
+        console.error('Error loading course details:', err);
         this.toastService.error('Error loading course details');
       }
     });
