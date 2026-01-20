@@ -23,10 +23,10 @@ export class AppComponent {
         event instanceof NavigationCancel || 
         event instanceof NavigationError
       ) {
-        // Add a slight delay to prevent flickering on fast loads
+        // Extend the visibility of the loading spinner to ensure a smoother transition
         setTimeout(() => {
           this.loadingService.hide();
-        }, 300);
+        }, 1500);
       }
     });
   }
