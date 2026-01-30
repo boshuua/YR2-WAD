@@ -20,19 +20,27 @@ export class LoginComponent {
   onLogin() {
     this.authService.loginUser(this.credentials).subscribe({
       next: (response: any) => {
-        console.log('Login successful', response);
-        // TODO: Save user info/token locally
         sessionStorage.setItem('currentUser', JSON.stringify(response.user));
-        // Redirect based on access level
-        if (response.user.access_level === 'admin') {
-          this.router.navigate(['/admin/overview']);
-        } else {
-          this.router.navigate(['/dashboard']);
-        }
+
+        this.authService.getCsrfToken().subscribe({
+          next: (csrf) => {
+            sessionStorage.setItem('csrfToken', csrf.csrfToken);
+
+            if (response.user.access_level === 'admin') {
+              this.router.navigate(['/admin/overview']);
+            } else {
+              this.router.navigate(['/dashboard']);
+            }
+          },
+          error: (error: any) => {
+            console.error('CSRF bootstrap failed', error);
+            this.errorMessage = error?.error?.message || 'Unable to start secure session. Please try again.';
+          }
+        });
       },
       error: (error: any) => {
         console.error('Login failed', error);
-        this.errorMessage = error.error.message || 'An unknown error occurred.';
+        this.errorMessage = error.error?.message || 'An unknown error occurred.';
       }
     });
   }

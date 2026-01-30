@@ -66,13 +66,15 @@ export class AuthService {
   }
 
   adminCreateCourse(courseData: any): Observable<any> {
-    const csrfToken = sessionStorage.getItem('csrfToken') ?? '';
+    const csrfToken = sessionStorage.getItem('csrfToken');
+
+    const headers = csrfToken
+      ? new HttpHeaders({ 'X-CSRF-Token': csrfToken })
+      : undefined;
 
     return this.http.post(`${this.apiUrl}/admin_create_course.php`, courseData, {
       withCredentials: true,
-      headers: new HttpHeaders({
-        'X-CSRF-Token': csrfToken
-      })
+      headers
     });
   }
 
