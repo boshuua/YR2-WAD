@@ -3,6 +3,20 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+type AccessLevel = 'admin' | 'user';
+
+export type MeResponse = {
+  user: {
+    user_id: number | null;
+    email: string | null;
+    first_name: string | null;
+    last_name: string | null;
+    access_level: AccessLevel | null;
+  };
+};
+
+export type CsrfResponse = { csrfToken: string };
+
 @Injectable({
   providedIn: 'root'
 })
@@ -13,6 +27,14 @@ export class AuthService {
 
   loginUser(credentials: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/user_login.php`, credentials, { withCredentials: true });
+  }
+
+  getMe(): Observable<MeResponse> {
+    return this.http.get<MeResponse>(`${this.apiUrl}/me.php`, { withCredentials: true });
+  }
+
+  getCsrfToken(): Observable<CsrfResponse> {
+    return this.http.get<CsrfResponse>(`${this.apiUrl}/csrf.php`, { withCredentials: true });
   }
 
   adminCreateUser(userData: any): Observable<any> {

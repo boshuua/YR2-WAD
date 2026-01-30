@@ -1,18 +1,23 @@
+import { HttpInterceptorFn } from '@angular/common/http';
+
+const CSRF_STORAGE_KEY = 'csrfToken';
+
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { catchError, map, of } from 'rxjs';
+import { AuthService } from '../service/auth.service';
 
-export const adminGuard: CanActivateFn = (route, state) => {
+export const adminGuard: CanActivateFn = () => {
   const router = inject(Router);
-  const userItem = sessionStorage.getItem('currentUser');
+  const authService = inject(AuthService);
 
-  if (userItem) {
-    const user = JSON.parse(userItem);
-    if (user.access_level === 'admin') {
-      return true; // Access granted
-    }
-  }
-
-  // If no user or not an admin, redirect to login
-  router.navigate(['/login']);
-  return false; 
+  return authService.getMe().pipe(
+    map((res) => {
+      if (res.user?.access_level === 'admin') {
+        return true;
+      }
+      return router.createUrlTree(['/login']);
+    }),
+    catchError(() => of(router.createUrlTree(['/login'])))
+  );
 };

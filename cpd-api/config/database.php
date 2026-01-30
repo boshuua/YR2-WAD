@@ -8,7 +8,7 @@ $allowed_origin = "https://ws369808-wad.remote.ac";
 header("Access-Control-Allow-Origin: $allowed_origin");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-CSRF-Token");
 header("Content-Type: application/json; charset=UTF-8");
 
 // Handle preflight OPTIONS request immediately
@@ -31,6 +31,25 @@ if (function_exists('env') && env('APP_DEBUG', false)) {
     error_reporting(0);
 }
 
+// ===============================================================
+// 3. CSRF PROTECTION (SESSION + X-CSRF-Token HEADER)
+// ===============================================================
+include_once __DIR__ . '/../helpers/response_helper.php';
+include_once __DIR__ . '/../helpers/auth_helper.php';
+include_once __DIR__ . '/../helpers/CSRF_helper.php';
+
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+$unsafe = in_array($method, ['POST', 'PUT', 'DELETE'], true);
+
+$path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
+$endpoint = basename($path);
+
+// Allow login + csrf token bootstrap without CSRF header
+$csrfExempt = in_array($endpoint, ['user_login.php', 'csrf.php'], true);
+
+if ($unsafe && !$csrfExempt) {
+    requireCsrfToken('CSRF token missing or invalid.');
+}
 
 class Database {
     private $host;
