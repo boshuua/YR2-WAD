@@ -34,7 +34,8 @@ export class AuthService {
   }
 
   getCsrfToken(): Observable<CsrfResponse> {
-    return this.http.get<CsrfResponse>(`${this.apiUrl}/csrf.php`, { withCredentials: true });
+    // Use POST for compatibility with servers that require POST
+    return this.http.post<CsrfResponse>(`${this.apiUrl}/csrf.php`, {}, { withCredentials: true });
   }
 
   adminCreateUser(userData: any): Observable<any> {
