@@ -4,6 +4,7 @@ include_once '../helpers/auth_helper.php';
 include_once '../helpers/response_helper.php';
 include_once '../helpers/CSRF_helper.php';
 
+// Allow GET so the Angular app can fetch a CSRF token easily
 requireMethod(['GET', 'POST']);
 
 // Ensure a session exists and return the token.
