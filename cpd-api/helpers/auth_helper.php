@@ -10,6 +10,26 @@
  */
 function ensureSessionStarted() {
     if (session_status() === PHP_SESSION_NONE) {
+
+        // Detect HTTPS (important for SameSite=None cookies)
+        $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443);
+
+        // In production cross-site requests, cookies must be SameSite=None; Secure
+        // For local HTTP dev, Secure cookies won't work, so fall back to Lax.
+        $sameSite = $isHttps ? 'None' : 'Lax';
+        $secure = $isHttps;
+
+        // Must be set BEFORE session_start()
+        session_set_cookie_params([
+            'lifetime' => 0,
+            'path' => '/',
+            'domain' => '',      // default: current host (api subdomain)
+            'secure' => $secure,
+            'httponly' => true,
+            'samesite' => $sameSite,
+        ]);
+
         session_start();
     }
 }
