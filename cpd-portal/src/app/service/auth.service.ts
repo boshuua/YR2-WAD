@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -66,7 +66,14 @@ export class AuthService {
   }
 
   adminCreateCourse(courseData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/admin_create_course.php`, courseData, { withCredentials: true });
+    const csrfToken = sessionStorage.getItem('csrfToken') ?? '';
+
+    return this.http.post(`${this.apiUrl}/admin_create_course.php`, courseData, {
+      withCredentials: true,
+      headers: new HttpHeaders({
+        'X-CSRF-Token': csrfToken
+      })
+    });
   }
 
   getCourses(): Observable<any> {
