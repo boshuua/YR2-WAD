@@ -15,22 +15,7 @@ export class AppComponent {
   title = 'cpd-portal';
 
   constructor(private router: Router, private loadingService: LoadingService) {
-    this.router.events.subscribe((event: Event) => {
-      if (event instanceof NavigationStart) {
-        // Only show loader if we are NOT navigating to login OR the root path (which redirects to login)
-        if (!event.url.includes('/login') && event.url !== '/') {
-          this.loadingService.show();
-        }
-      } else if (
-        event instanceof NavigationEnd ||
-        event instanceof NavigationCancel ||
-        event instanceof NavigationError
-      ) {
-        // Extend the visibility of the loading spinner to ensure a smoother transition
-        setTimeout(() => {
-          this.loadingService.hide();
-        }, 500);
-      }
-    });
+    // Global navigation loader removed for better UX.
+    // Loaders are now handled by individual components fetching data.
   }
 }

@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../service/auth.service';
 import { ToastService } from '../../../service/toast.service';
 import { ConfirmModalComponent } from '../../../components/confirm-modal/confirm-modal.component';
+import { LoadingService } from '../../../service/loading.service';
 
 @Component({
   selector: 'app-course-list',
@@ -25,7 +26,8 @@ export class CourseListComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private toastService: ToastService,
-    private router: Router
+    private router: Router,
+    private loadingService: LoadingService
   ) { }
 
   ngOnInit(): void {
@@ -33,6 +35,7 @@ export class CourseListComponent implements OnInit {
   }
 
   loadCourses(): void {
+    this.loadingService.show();
     this.isLoading = true;
     this.errorMessage = '';
     this.noCoursesFound = false;
@@ -43,8 +46,10 @@ export class CourseListComponent implements OnInit {
         if (this.courses.length === 0) {
           this.noCoursesFound = true;
         }
+        this.loadingService.hide();
       },
       error: (err) => {
+        this.loadingService.hide();
         if (err.status === 404) {
           this.noCoursesFound = true;
           this.courses = [];

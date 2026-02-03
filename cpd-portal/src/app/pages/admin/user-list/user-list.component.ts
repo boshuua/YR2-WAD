@@ -4,6 +4,7 @@ import { AuthService } from '../../../service/auth.service';
 import { RouterLink } from '@angular/router';
 import { ConfirmModalComponent } from '../../../components/confirm-modal/confirm-modal.component';
 import { ToastService } from '../../../service/toast.service';
+import { LoadingService } from '../../../service/loading.service';
 
 @Component({
   selector: 'app-user-list',
@@ -19,19 +20,22 @@ export class UserListComponent implements OnInit {
   userToDeleteId: number | null = null;
   userToDeleteName: string = '';
 
-  constructor(private authService: AuthService, private toastService: ToastService) { }
+  constructor(private authService: AuthService, private toastService: ToastService, private loadingService: LoadingService) { }
 
   ngOnInit(): void {
     this.loadUsers();
   }
 
   loadUsers(): void {
+    this.loadingService.show();
     // *** Corrected: Call getUsers ***
     this.authService.getUsers().subscribe({
       next: (data) => {
         this.users = data;
+        this.loadingService.hide();
       },
       error: (err) => {
+        this.loadingService.hide();
         console.error('Failed to load users', err);
         this.toastService.error('Error loading users: ' + (err.error?.message || err.message));
       }
