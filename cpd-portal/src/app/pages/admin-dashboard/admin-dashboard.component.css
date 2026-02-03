@@ -250,6 +250,83 @@
   background: var(--background-color);
 }
 
+/* === COLLAPSED STATE STYLES === */
+.sidebar a .collapsed-link-text {
+  display: none;
+}
+
+.admin-layout.sidebar-collapsed .sidebar {
+  width: 80px;
+}
+
+.admin-layout.sidebar-collapsed .sidebar-header {
+  justify-content: center;
+  padding: 0 1rem;
+}
+
+.admin-layout.sidebar-collapsed .logo-container {
+  gap: 0;
+}
+
+.admin-layout.sidebar-collapsed .sidebar-logo {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+.admin-layout.sidebar-collapsed .sidebar-content {
+  padding: 1rem 0;
+}
+
+.admin-layout.sidebar-collapsed .section-label {
+  opacity: 0;
+  height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.admin-layout.sidebar-collapsed .menu-section ul {
+  padding: 0 0.5rem;
+}
+
+.admin-layout.sidebar-collapsed .sidebar a {
+  justify-content: center;
+  padding: 0.875rem 0.5rem;
+}
+
+.admin-layout.sidebar-collapsed .sidebar a .link-text {
+  display: none;
+}
+
+.admin-layout.sidebar-collapsed .sidebar a .collapsed-link-text {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-align: center;
+  width: 100%;
+}
+
+.admin-layout.sidebar-collapsed .sidebar a::before {
+  display: none;
+}
+
+.admin-layout.sidebar-collapsed .user-info {
+  opacity: 0;
+  width: 0;
+  overflow: hidden;
+}
+
+.admin-layout.sidebar-collapsed .user-profile {
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem;
+}
+
+.admin-layout.sidebar-collapsed .logout-btn {
+  width: 36px;
+  height: 36px;
+}
+
 /* === Mobile Overlay === */
 .mobile-overlay {
   display: none;
