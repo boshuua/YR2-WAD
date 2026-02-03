@@ -18,10 +18,10 @@
       </thead>
       <tbody>
         <tr *ngFor="let user of users">
-          <td>{{ user.first_name }} {{ user.last_name }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.job_title }}</td>
-          <td>
+          <td data-label="Name">{{ user.first_name }} {{ user.last_name }}</td>
+          <td data-label="Email">{{ user.email }}</td>
+          <td data-label="Job Title">{{ user.job_title }}</td>
+          <td data-label="Access Level">
             <span class="badge" [ngClass]="{
               'badge-admin': user.access_level === 'admin',
               'badge-user': user.access_level === 'user'
@@ -29,7 +29,7 @@
               {{ user.access_level }}
             </span>
           </td>
-          <td>
+          <td data-label="Actions" class="actions-cell">
             <button class="edit-btn" [routerLink]="['/admin/users/edit', user.id]">Edit</button>
             <button
               class="delete-btn"

@@ -1,3 +1,4 @@
+/* Reuse the clean, card-based styles from User List */
 .user-management-panel {
   background: var(--white);
   border-radius: var(--radius-lg);
@@ -6,6 +7,7 @@
   border: 1px solid var(--border-color);
   overflow: hidden;
 }
+
 .panel-header {
   display: flex;
   justify-content: space-between;
@@ -14,6 +16,7 @@
   border-bottom: 2px solid var(--border-color);
   background: var(--background-secondary);
 }
+
 .panel-header h2 {
   margin: 0;
   color: var(--text-primary);
@@ -21,6 +24,7 @@
   font-weight: 700;
   letter-spacing: -0.025em;
 }
+
 .add-user-btn {
   background: var(--success-color);
   color: white;
@@ -30,15 +34,23 @@
   font-weight: 600;
   font-size: 0.9375rem;
   cursor: pointer;
-  transition: background-color var(--transition-base);
+  transition: all var(--transition-base);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  box-shadow: var(--box-shadow-sm);
 }
+
 .add-user-btn:hover {
-  background: #15803d;
+  background: #059669;
+  transform: translateY(-1px);
 }
+
+.table-responsive {
+  width: 100%;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -47,13 +59,13 @@ table {
 
 thead tr {
   background: var(--background-secondary);
-  border-bottom: 2px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 th {
-  padding: 1.125rem 1.5rem;
+  padding: 1rem 1.5rem;
   text-align: left;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--text-secondary);
   letter-spacing: 0.05em;
@@ -74,129 +86,152 @@ tbody tr:hover {
 }
 
 td {
-  padding: 1.125rem 1.5rem;
+  padding: 1rem 1.5rem;
   vertical-align: middle;
   color: var(--text-primary);
   font-size: 0.9375rem;
 }
+
 td .edit-btn,
 td .info-btn,
 td .delete-btn {
   padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: 600;
   margin-right: 0.5rem;
-  transition: background-color var(--transition-base);
+  transition: all var(--transition-base);
 }
 
 td .edit-btn {
+  background: var(--white);
+  color: var(--warning-color);
+  border: 1px solid var(--warning-color);
+}
+
+td .info-btn {
+  background: var(--white);
+  color: var(--info-color);
+  border: 1px solid var(--info-color);
+}
+
+td .delete-btn {
+  background: var(--white);
+  color: var(--danger-color);
+  border: 1px solid var(--danger-color);
+}
+
+td .edit-btn:hover {
   background: var(--warning-color);
   color: white;
 }
 
-td .info-btn {
-  background: var(--primary-color);
+td .info-btn:hover {
+  background: var(--info-color);
   color: white;
 }
 
-td .delete-btn {
+td .delete-btn:hover {
   background: var(--danger-color);
   color: white;
 }
 
-td .edit-btn:hover {
-  background: #c2410c;
+.no-data-message,
+.error-message {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
 }
 
-td .info-btn:hover {
-  background: var(--primary-hover);
+.error-message {
+  color: var(--danger-color);
 }
 
-td .delete-btn:hover {
-  background: #b91c1c;
-}
-.table-responsive {
-  width: 100%;
-  overflow-x: auto; /* Enable horizontal scrolling */
-  -webkit-overflow-scrolling: touch; /* Smoother scrolling on iOS */
-}
 
-/* Optional: Improve table appearance on small screens */
-@media only screen and (max-width: 768px) {
-  .user-management-panel {
+/* === MOBILE RESPONSIVE TABLE (CARD VIEW) === */
+@media screen and (max-width: 768px) {
+  .panel-header {
     padding: 1rem;
   }
 
-  .panel-header {
-    flex-direction: column; /* Stack header items */
-    align-items: flex-start;
-    gap: 1rem;
+  .panel-header h2 {
+    font-size: 1.25rem;
   }
 
-  /* Make table cells wrap text better if needed */
-  td, th {
-     white-space: normal; /* Allow text wrapping */
-     padding: 0.75rem 0.5rem;
+  .add-user-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
   }
 
-  /* Maybe hide less important columns */
-  /* Example: Hiding Job Title on very small screens */
-  @media only screen and (max-width: 480px) {
-    th:nth-child(3), /* Assuming Job Title is the 3rd column */
-    td:nth-child(3) {
-      display: none;
-    }
+  thead {
+    display: none;
   }
-}
 
-/* Ensure the wrapper div takes up necessary space */
-.user-management-panel {
-  overflow: hidden;
-}
+  tbody,
+  tr,
+  td {
+    display: block;
+    width: 100%;
+  }
 
-/* Badge styles for access levels */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.375rem 0.875rem;
-  border-radius: 9999px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  line-height: 1;
-  text-transform: capitalize;
-}
+  tr {
+    margin-bottom: 1rem;
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: var(--box-shadow-sm);
+  }
 
-.badge-admin {
-  background: var(--primary-color);
-  color: white;
-}
+  td {
+    padding: 0.75rem 1rem;
+    text-align: right;
+    position: relative;
+    padding-left: 50%;
+    border-bottom: 1px solid var(--border-color-light);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-.badge-user {
-  background: var(--info-light);
-  color: var(--info-color);
-}
+  td:last-child {
+    border-bottom: none;
+  }
 
-.badge-info {
-  background: var(--info-light);
-  color: var(--info-color);
-}
+  td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 1rem;
+    width: 40%;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
 
-.badge-success {
-  background: var(--success-color);
-  color: white;
-}
+  /* Actions Cell */
+  td.actions-cell {
+    padding: 1rem;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    background: var(--gray-50);
+    border-top: 1px solid var(--border-color);
+    padding-left: 1rem;
+  }
 
-.badge-secondary {
-  background: var(--secondary-color);
-  color: white;
-}
+  td.actions-cell::before {
+    display: none;
+  }
 
-.no-data-message {
-  text-align: center;
-  padding: 2rem;
-  color: var(--text-secondary);
-  font-size: 1.1rem;
+  td .edit-btn,
+  td .info-btn,
+  td .delete-btn {
+    margin: 0;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    padding: 0.625rem;
+  }
 }

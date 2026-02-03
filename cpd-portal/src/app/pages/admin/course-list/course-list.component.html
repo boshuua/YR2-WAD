@@ -19,9 +19,10 @@
       </thead>
       <tbody>
         <tr *ngFor="let course of courses">
-          <td>{{ course.title }}</td>
-          <td>{{ course.description | slice:0:100 }}{{ course.description.length > 100 ? '...' : '' }}</td>
-          <td>
+          <td data-label="Title">{{ course.title }}</td>
+          <td data-label="Description">{{ course.description | slice:0:100 }}{{ course.description.length > 100 ? '...'
+            : '' }}</td>
+          <td data-label="Actions" class="actions-cell">
             <button class="edit-btn" (click)="editCourse(course.id)">Edit</button>
             <button class="info-btn" (click)="manageQuestions(course.id)">Questions</button>
             <button class="delete-btn" (click)="promptDeleteCourse(course.id, course.title)">Delete</button>
@@ -36,12 +37,8 @@
   </div>
 </div>
 
-<app-confirm-modal
-  [isVisible]="showDeleteConfirmModal"
-  title="Confirm Deletion"
+<app-confirm-modal [isVisible]="showDeleteConfirmModal" title="Confirm Deletion"
   [message]="'Are you sure you want to delete the course \'' + courseToDeleteTitle + '\'?'"
-  confirmButtonText="Delete Course"
-  cancelButtonText="Cancel"
-  (confirmed)="confirmDelete()"
+  confirmButtonText="Delete Course" cancelButtonText="Cancel" (confirmed)="confirmDelete()"
   (cancelled)="cancelDelete()">
 </app-confirm-modal>
