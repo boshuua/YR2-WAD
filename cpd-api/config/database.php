@@ -62,11 +62,11 @@ class Database
 
     public function __construct()
     {
-        $this->host = env('DB_HOST', '6.tcp.eu.ngrok.io');
-        $this->db_name = env('DB_NAME', 'myprojectdb');
-        $this->username = env('DB_USER', 'admin1');
-        $this->password = env('DB_PASS', 'rjRqJ0MKbGu2kyp4mZZ1oQ');
-        $this->port = env('DB_PORT', '15008');
+        $this->host = env('DB_HOST', 'localhost');
+        $this->db_name = env('DB_NAME', 'mydb');
+        $this->username = env('DB_USER', 'dev');
+        $this->password = env('DB_PASS', 'pass');
+        $this->port = env('DB_PORT', '5432');
     }
 
     public function getConn()
