@@ -12,7 +12,7 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 header("Content-Type: application/json; charset=UTF-8");
 
 // Handle preflight OPTIONS request immediately
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
@@ -38,7 +38,7 @@ include_once __DIR__ . '/../helpers/response_helper.php';
 include_once __DIR__ . '/../helpers/auth_helper.php';
 include_once __DIR__ . '/../helpers/CSRF_helper.php';
 
-$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+$method = $_SERVER['REQUEST_METHOD'] ?? 'CLI';
 $unsafe = in_array($method, ['POST', 'PUT', 'DELETE'], true);
 
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
