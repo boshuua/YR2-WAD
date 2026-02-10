@@ -245,6 +245,10 @@
   justify-content: space-between;
 }
 
+.mobile-menu-btn {
+  display: none;
+}
+
 .header-title {
   font-size: 1.25rem;
   font-weight: 700;
@@ -399,8 +403,4 @@
   .page-content {
     padding: 1rem;
   }
-}
-
-.mobile-menu-btn {
-  display: none;
 }
