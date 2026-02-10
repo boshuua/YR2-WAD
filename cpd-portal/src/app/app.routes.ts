@@ -9,6 +9,7 @@ import { OverviewComponent } from './pages/admin/overview/overview.component';
 import { UserListComponent } from './pages/admin/user-list/user-list.component';
 import { UserCreateComponent } from './pages/admin/user-create/user-create.component';
 import { UserEditComponent } from './pages/admin/user-edit/user-edit.component';
+import { UserDetailComponent } from './pages/admin/user-detail/user-detail';
 import { CourseListComponent } from './pages/admin/course-list/course-list.component';
 import { CourseFormComponent } from './pages/admin/course-form/course-form.component';
 import { CourseQuestionsComponent } from './pages/admin/course-questions/course-questions.component';
@@ -31,6 +32,7 @@ export const routes: Routes = [
       { path: 'overview', component: OverviewComponent, data: { breadcrumb: 'Overview' } },
       { path: 'users', component: UserListComponent, data: { breadcrumb: 'User Management' } },
       { path: 'users/new', component: UserCreateComponent, data: { breadcrumb: 'Create User' } },
+      { path: 'users/:id', component: UserDetailComponent, data: { breadcrumb: 'User Dashboard' } },
       { path: 'users/edit/:id', component: UserEditComponent, data: { breadcrumb: 'Edit User' } },
       { path: 'courses', component: CourseListComponent, data: { breadcrumb: 'Course Management' } },
       { path: 'courses/new', component: CourseFormComponent, data: { breadcrumb: 'Create Course' } },

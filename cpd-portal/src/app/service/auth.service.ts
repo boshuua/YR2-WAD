@@ -76,6 +76,36 @@ export class AuthService {
     return this.http.get(`${this.apiUrl}/get_users.php?id=${userId}`, { withCredentials: true });
   }
 
+  getUserDashboard(userId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_user_dashboard.php?id=${userId}`, { withCredentials: true });
+  }
+
+  uploadUserAttachment(userId: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('user_id', userId.toString());
+    formData.append('file', file);
+
+    return this.ensureCsrfToken().pipe(
+      switchMap((csrfToken) =>
+        this.http.post(`${this.apiUrl}/upload_user_attachment.php`, formData, {
+          withCredentials: true,
+          headers: new HttpHeaders({ 'X-CSRF-Token': csrfToken })
+        })
+      )
+    );
+  }
+
+  deleteUserAttachment(attachmentId: number): Observable<any> {
+    return this.ensureCsrfToken().pipe(
+      switchMap((csrfToken) =>
+        this.http.delete(`${this.apiUrl}/delete_user_attachment.php?id=${attachmentId}`, {
+          withCredentials: true,
+          headers: new HttpHeaders({ 'X-CSRF-Token': csrfToken })
+        })
+      )
+    );
+  }
+
   adminUpdateUser(userId: number, userData: any): Observable<any> {
     return this.ensureCsrfToken().pipe(
       switchMap((csrfToken) =>

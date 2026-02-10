@@ -1,0 +1,147 @@
+<div class="dashboard-container">
+
+    <!-- Header Section -->
+    <header class="dashboard-header" *ngIf="user">
+        <div class="user-info">
+            <button class="back-btn" (click)="goBack()">← Back</button>
+            <h1>{{ user.first_name }} {{ user.last_name }} <span class="user-id">(ID: {{ user.id }})</span></h1>
+            <span class="user-role badge" [class.admin]="user.access_level === 'admin'">
+                {{ user.access_level | titlecase }}
+            </span>
+        </div>
+
+        <div class="header-actions">
+            <div class="period-selector">
+                <label>Select Period:</label>
+                <select [(ngModel)]="selectedPeriod" (change)="onPeriodChange()">
+                    <option *ngFor="let p of periods" [value]="p">{{ p }}</option>
+                </select>
+            </div>
+            <button class="action-btn edit-profile" (click)="editUser()">Edit Profile</button>
+            <button class="action-btn register-elearning" disabled>Register E-Leaner</button>
+            <button class="action-btn open-user" disabled>Open User</button>
+        </div>
+    </header>
+
+    <div *ngIf="isLoading" class="loading-state">Loading dashboard...</div>
+
+    <div class="dashboard-grid" *ngIf="!isLoading && user">
+
+        <!-- Left Column -->
+        <div class="dashboard-col-left">
+
+            <!-- Training Summary Widget -->
+            <section class="widget training-summary">
+                <h3>MOT Training Summary</h3>
+                <div class="summary-content">
+                    <div class="progress-item">
+                        <span class="label">Group B</span>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" [style.width.%]="trainingSummary?.group_b_percentage || 0"></div>
+                        </div>
+                        <span class="percentage">{{ trainingSummary?.group_b_percentage || 0 }}%</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Training History Widget -->
+            <section class="widget training-history">
+                <h3>MOT Training History</h3>
+                <div class="history-content">
+                    <h4>Total Training Complete</h4>
+                    <div *ngIf="!trainingSummary?.total_hours" class="no-data">No data to display</div>
+                    <div *ngIf="trainingSummary?.total_hours" class="history-stats">
+                        {{ trainingSummary.total_hours }} Hours
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- Right Column -->
+        <div class="dashboard-col-right">
+
+            <!-- Enrolments Widget -->
+            <section class="widget enrolments">
+                <h3>Enrolments</h3>
+                <h4>E-Learning</h4>
+
+                <div *ngIf="enrolments.length === 0" class="no-data">No eLearning enrolments</div>
+
+                <ul *ngIf="enrolments.length > 0" class="item-list">
+                    <li *ngFor="let course of enrolments">
+                        <span class="item-title">{{ course.title }}</span>
+                        <span class="item-status badge" [class.in-progress]="course.status !== 'completed'">{{
+                            course.status | titlecase }}</span>
+                    </li>
+                </ul>
+
+                <h4 class="mt-4">Exams</h4>
+                <div class="no-data">No outstanding exams</div>
+            </section>
+
+            <!-- Exam History Widget -->
+            <section class="widget exam-history">
+                <h3>MOT Exam History</h3>
+
+                <div *ngIf="examHistory.length === 0" class="no-data">No data</div>
+
+                <table *ngIf="examHistory.length > 0" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Exam</th>
+                            <th>Date</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let exam of examHistory">
+                            <td>{{ exam.title }}</td>
+                            <td>{{ exam.completion_date | date:'shortDate' }}</td>
+                            <td>{{ exam.score }}%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Attachments Widget -->
+            <section class="widget attachments">
+                <div class="widget-header">
+                    <h3>Attachments</h3>
+                    <label class="upload-btn">
+                        + Upload
+                        <input type="file" (change)="onFileSelected($event)" [disabled]="isUploading" hidden>
+                    </label>
+                </div>
+
+                <div *ngIf="isUploading" class="uploading-indicator">Uploading...</div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let file of attachments">
+                            <td>{{ file.file_name }}</td>
+                            <td>{{ file.file_type | uppercase }}</td>
+                            <td>{{ file.created_at | date:'shortDate' }}</td>
+                            <td>
+                                <button class="delete-icon" (click)="deleteAttachment(file.id)"
+                                    title="Delete">🗑️</button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="attachments.length === 0 && !isUploading">
+                            <td colspan="4" class="text-center">No attachments found</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+        </div>
+    </div>
+</div>
