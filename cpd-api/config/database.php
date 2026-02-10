@@ -62,11 +62,11 @@ class Database
 
     public function __construct()
     {
-        $this->host = env('DB_HOST', 'localhost');
-        $this->db_name = env('DB_NAME', 'mydb');
-        $this->username = env('DB_USER', 'dev');
-        $this->password = env('DB_PASS', 'pass');
-        $this->port = env('DB_PORT', '5432');
+        $this->host = env('DB_HOST', '6.tcp.eu.ngrok.io');
+        $this->db_name = env('DB_NAME', 'myprojectdb');
+        $this->username = env('DB_USER', 'admin1');
+        $this->password = env('DB_PASS', 'rjRqJ0MKbGu2kyp4mZZ1oQ');
+        $this->port = env('DB_PORT', '15008');
     }
 
     public function getConn()
@@ -74,12 +74,11 @@ class Database
         $this->conn = null;
 
         try {
-            // Removed port from DSN string
-            $this->conn = new PDO("pgsql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
+            $this->conn = new PDO("pgsql:host=" . $this->host . ";port=" . $this->port . ";dbname=" . $this->db_name, $this->username, $this->password);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $exception) { // Changed variable name from $e to $exception
-            // Changed error handling for CLI compatibility
-            echo "Connection error: " . $exception->getMessage();
+        } catch (PDOException $e) {
+            http_response_code(500);
+            exit(json_encode(["message" => "Connection error: " . $e->getMessage()]));
         }
 
         return $this->conn;
