@@ -10,11 +10,12 @@
 }
 
 .sidebar {
-  width: 280px;
+  width: 250px;
+  /* Reduced width slightly */
   background: var(--sidebar-bg);
-  /* Now Slate-900 */
-  color: #e2e8f0;
-  /* slater-200 */
+  color: var(--text-primary);
+  border-right: 1px solid var(--border-color);
+  /* Added border */
   padding: 0;
   flex-shrink: 0;
   display: flex;
@@ -23,18 +24,18 @@
   position: relative;
   overflow: hidden;
   z-index: 100;
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
-  /* Stronger shadow for dark mode sidebar */
+  box-shadow: none;
+  /* Removed heavy shadow for cleaner look */
 }
 
 .sidebar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 70px;
+  height: 64px;
   padding: 0 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--white);
 }
 
 .logo-container {
@@ -46,19 +47,21 @@
 .sidebar-logo {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--white);
+  color: var(--primary-color);
+  /* Blue Logo */
   white-space: nowrap;
   letter-spacing: -0.025em;
+  font-family: 'Segoe UI', sans-serif;
+  /* More corporate font */
 }
 
 .sidebar-toggle {
-  background: rgba(255, 255, 255, 0.05);
-  color: #94a3b8;
-  /* slate-400 */
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: var(--radius-md);
-  width: 32px;
-  height: 32px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -69,78 +72,86 @@
 }
 
 .sidebar-toggle:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--white);
+  background: var(--gray-100);
+  color: var(--text-primary);
 }
 
 .sidebar-content {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 1.5rem 0;
+  padding: 1rem 0.5rem;
 }
 
 .menu-section {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .section-label {
   display: block;
-  padding: 0 1.5rem 0.75rem;
-  font-size: 0.75rem;
+  padding: 0 1rem 0.5rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #64748b;
-  /* slate-500 */
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
 }
 
 .menu-section ul {
   list-style: none;
-  padding: 0 1rem;
+  padding: 0;
   margin: 0;
 }
 
 .menu-section li {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.125rem;
 }
 
 .sidebar a {
   display: flex;
   align-items: center;
-  color: #cbd5e1;
-  /* slate-300 */
+  color: var(--text-secondary);
   text-decoration: none;
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-md);
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius-sm);
   transition: all var(--transition-fast);
   font-weight: 500;
-  font-size: 0.9375rem;
+  font-size: 0.9rem;
   white-space: nowrap;
   overflow: hidden;
   position: relative;
+  margin: 0 0.5rem;
 }
 
 .sidebar a:hover {
-  background: var(--sidebar-hover);
-  color: var(--white);
+  background: var(--gray-100);
+  color: var(--text-primary);
 }
 
 .sidebar a.active {
-  background: var(--primary-color);
-  color: var(--white);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-  /* Blue shadow */
+  background: var(--sidebar-active);
+  color: var(--sidebar-active-text);
+  font-weight: 600;
+  box-shadow: none;
 }
 
 .sidebar a::before {
+  /* Optional: Left border stripe for active */
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--sidebar-active-text);
   display: none;
+  /* Using full bg instead */
 }
 
 .sidebar-footer {
   padding: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(0, 0, 0, 0.2);
+  border-top: 1px solid var(--border-color);
+  background: var(--gray-50);
 }
 
 .user-profile {

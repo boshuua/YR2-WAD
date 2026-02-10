@@ -150,7 +150,7 @@ export class AuthService {
     );
   }
 
-  getCourses(type: 'all' | 'active' | 'template' = 'all'): Observable<any> {
+  getCourses(type: 'all' | 'active' | 'template' | 'locked' = 'all'): Observable<any> {
     return this.http.get(`${this.apiUrl}/get_courses.php?type=${type}`, { withCredentials: true });
   }
 
@@ -269,6 +269,17 @@ export class AuthService {
             headers: new HttpHeaders({ 'X-CSRF-Token': csrfToken })
           }
         )
+      )
+    );
+  }
+  // Course Assignment (Admin)
+  assignCourse(data: any): Observable<any> {
+    return this.ensureCsrfToken().pipe(
+      switchMap((csrfToken) =>
+        this.http.post(`${this.apiUrl}/assign_course.php`, data, {
+          withCredentials: true,
+          headers: new HttpHeaders({ 'X-CSRF-Token': csrfToken })
+        })
       )
     );
   }

@@ -4,7 +4,7 @@
 
   <nav class="sidebar">
     <div class="sidebar-header">
-      <span class="sidebar-logo">E-LEARNING</span>
+      <span class="sidebar-logo">MOT TRAINING</span>
     </div>
 
 
@@ -28,6 +28,12 @@
             <a routerLink="/admin/courses" routerLinkActive="active">
               <span class="link-text">Course Management</span>
               <span class="collapsed-link-text">C</span>
+            </a>
+          </li>
+          <li>
+            <a routerLink="/admin/calendar" routerLinkActive="active">
+              <span class="link-text">Training Schedule</span>
+              <span class="collapsed-link-text">T</span>
             </a>
           </li>
         </ul>
@@ -62,7 +68,8 @@
           <span class="user-role">{{ userRole }}</span>
         </div>
         <button class="logout-btn" (click)="logout()" title="Logout" aria-label="Logout">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
             <polyline points="16 17 21 12 16 7"></polyline>
             <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -75,7 +82,8 @@
   <main class="main-content">
     <header class="main-header">
       <!-- Mobile menu button (only visible on mobile) -->
-      <button class="mobile-menu-btn" (click)="toggleSidebar()" [attr.aria-label]="isSidebarCollapsed ? 'Open menu' : 'Close menu'">
+      <button class="mobile-menu-btn" (click)="toggleSidebar()"
+        [attr.aria-label]="isSidebarCollapsed ? 'Open menu' : 'Close menu'">
         <span>☰</span>
       </button>
 
@@ -90,11 +98,7 @@
     </div>
   </main>
 
-  <app-toast-notification
-    *ngIf="currentToast"
-    [message]="currentToast.message"
-    [type]="currentToast.type"
-    [duration]="currentToast.duration || 3000"
-    (closed)="onToastClosed()">
+  <app-toast-notification *ngIf="currentToast" [message]="currentToast.message" [type]="currentToast.type"
+    [duration]="currentToast.duration || 3000" (closed)="onToastClosed()">
   </app-toast-notification>
 </div>

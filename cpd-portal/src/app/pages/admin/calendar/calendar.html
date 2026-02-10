@@ -1,0 +1,84 @@
+<div class="calendar-container">
+
+    <!-- Calendar Header and Controls -->
+    <div class="calendar-header">
+        <div class="calendar-title">
+            <h2>{{ currentDate | date:'MMMM yyyy' }}</h2>
+            <div class="calendar-controls">
+                <button class="btn btn-sm btn-secondary" (click)="today()">Today</button>
+                <div class="nav-buttons">
+                    <button class="btn btn-icon" (click)="prevMonth()">❮</button>
+                    <button class="btn btn-icon" (click)="nextMonth()">❯</button>
+                </div>
+            </div>
+        </div>
+        <div class="calendar-actions">
+            <!-- Maybe a filter here later? -->
+        </div>
+    </div>
+
+    <!-- Days of Week Header -->
+    <div class="calendar-grid-header">
+        <div *ngFor="let day of weekDays" class="weekday-label">{{ day }}</div>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="calendar-grid">
+        <div *ngFor="let day of daysInMonth" class="calendar-day" [class.not-current-month]="!day.isCurrentMonth"
+            [class.today]="day.isToday" (click)="onDayClick(day)">
+
+            <div class="day-number">{{ day.date | date:'d' }}</div>
+
+            <div class="day-content">
+                <!-- Placeholder for assignments if we load them later -->
+                <div *ngFor="let assignment of day.assignments" class="event-pill">
+                    {{ assignment.user_name }} - {{ assignment.course_title }}
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- Assignment Modal -->
+<div class="modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Assign Training</h3>
+            <button class="close-btn" (click)="closeModal()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Date</label>
+                <input type="date" [(ngModel)]="assignmentData.date" class="form-control" [disabled]="true">
+            </div>
+
+            <div class="form-group">
+                <label>Select User</label>
+                <select [(ngModel)]="assignmentData.userId" class="form-control">
+                    <option [ngValue]="null" disabled>-- Select User --</option>
+                    <option *ngFor="let u of users" [ngValue]="u.id">
+                        {{ u.first_name }} {{ u.last_name }} ({{ u.email }})
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Select Course</label>
+                <select [(ngModel)]="assignmentData.courseId" class="form-control">
+                    <option [ngValue]="null" disabled>-- Select Course --</option>
+                    <option *ngFor="let c of courses" [ngValue]="c.id">
+                        {{ c.title }} ({{ c.duration }} min)
+                    </option>
+                </select>
+                <small class="hint" *ngIf="courses.length === 0">No locked courses available.</small>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
+            <button class="btn btn-primary" (click)="assignTraining()"
+                [disabled]="!assignmentData.userId || !assignmentData.courseId">Assign</button>
+        </div>
+    </div>
+</div>

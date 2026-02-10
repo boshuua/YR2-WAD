@@ -21,7 +21,7 @@ export class CourseListComponent implements OnInit {
   errorMessage = '';
   noCoursesFound: boolean = false;
 
-  currentTab: 'active' | 'template' = 'active';
+  currentTab: 'active' | 'library' = 'active';
 
   // Delete Modal
   showDeleteConfirmModal = false;
@@ -49,7 +49,8 @@ export class CourseListComponent implements OnInit {
     this.loadCourses();
   }
 
-  switchTab(tab: 'active' | 'template'): void {
+  // Updated to 'library'
+  switchTab(tab: 'active' | 'library'): void {
     this.currentTab = tab;
     this.loadCourses();
   }
@@ -61,7 +62,11 @@ export class CourseListComponent implements OnInit {
     this.noCoursesFound = false;
     this.courses = [];
 
-    this.authService.getCourses(this.currentTab).subscribe({
+    // Map 'library' tab to API type 'library'
+    // Map 'active' to 'active'
+    const apiType = this.currentTab === 'library' ? 'library' : 'active';
+
+    this.authService.getCourses(apiType as any).subscribe({
       next: (data) => {
         this.courses = data;
         this.isLoading = false;

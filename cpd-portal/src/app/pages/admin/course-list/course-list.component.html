@@ -6,12 +6,13 @@
       <div class="tabs">
         <button class="tab-btn" [class.active]="currentTab === 'active'" (click)="switchTab('active')">Active
           Schedules</button>
-        <button class="tab-btn" [class.active]="currentTab === 'template'"
-          (click)="switchTab('template')">Templates</button>
+        <button class="tab-btn" [class.active]="currentTab === 'library'" (click)="switchTab('library')">Course
+          Library</button>
       </div>
     </div>
-    <button class="add-user-btn" (click)="addCourse()">
-      {{ currentTab === 'active' ? '+ Schedule Course' : '+ Create Template' }}
+    <!-- Only show Add button for Active Tab (Scheduling) -->
+    <button *ngIf="currentTab === 'active'" class="add-user-btn" (click)="addCourse()">
+      + Schedule Course
     </button>
   </div>
 
@@ -25,29 +26,39 @@
           <th>Title</th>
           <th>Description</th>
           <th *ngIf="currentTab === 'active'">Dates</th>
+          <th *ngIf="currentTab === 'library'">Type</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let course of courses">
-          <td data-label="Title">{{ course.title }}</td>
+        <tr *ngFor="let course of courses" [class.locked-row]="course.is_locked">
+          <td data-label="Title">
+            {{ course.title }}
+            <span *ngIf="course.is_locked" class="badge badge-warning" style="margin-left:5px;">LOCKED</span>
+          </td>
           <td data-label="Description">{{ course.description | slice:0:100 }}{{ course.description.length > 100 ? '...'
             : '' }}</td>
           <td *ngIf="currentTab === 'active'" data-label="Dates">
             {{ course.start_date | date }} - {{ course.end_date | date }}
           </td>
+          <td *ngIf="currentTab === 'library'" data-label="Type">
+            {{ course.is_locked ? 'System' : (course.is_template ? 'Template' : 'Course') }}
+          </td>
           <td data-label="Actions" class="actions-cell">
-            <button class="edit-btn" (click)="editCourse(course.id)">Edit</button>
-            <button class="info-btn" (click)="manageQuestions(course.id)">Questions</button>
-            <button class="delete-btn" (click)="promptDeleteCourse(course.id, course.title)">Delete</button>
+            <button class="edit-btn" (click)="editCourse(course.id)" [disabled]="course.is_locked"
+              title="Edit">Edit</button>
+            <button class="info-btn" (click)="manageQuestions(course.id)" [disabled]="course.is_locked"
+              title="Questions">Questions</button>
+            <button class="delete-btn" (click)="promptDeleteCourse(course.id, course.title)"
+              [disabled]="course.is_locked" title="Delete">Delete</button>
           </td>
         </tr>
       </tbody>
     </table>
 
     <div *ngIf="!isLoading && noCoursesFound" class="no-data-message">
-      No {{ currentTab === 'active' ? 'active courses' : 'templates' }} found.
-      Click '{{ currentTab === 'active' ? '+ Schedule Course' : '+ Create Template' }}' to add one.
+      No {{ currentTab === 'active' ? 'active courses' : 'courses' }} found.
+      <span *ngIf="currentTab === 'active'">Click '+ Schedule Course' to add one.</span>
     </div>
   </div>
 </div>
