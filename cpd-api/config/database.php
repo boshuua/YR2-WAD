@@ -3,7 +3,7 @@
 // 1. CORS CONFIGURATION (MUST BE FIRST)
 // ===============================================================
 // In production, we hardcode the fallback to ensure CORS always works even if .env is missing
-$allowed_origin = "https://ws369808-wad.remote.ac"; 
+$allowed_origin = "https://ws369808-wad.remote.ac";
 
 header("Access-Control-Allow-Origin: $allowed_origin");
 header("Access-Control-Allow-Credentials: true");
@@ -51,7 +51,8 @@ if ($unsafe && !$csrfExempt) {
     requireCsrfToken('CSRF token missing or invalid.');
 }
 
-class Database {
+class Database
+{
     private $host;
     private $db_name;
     private $username;
@@ -59,7 +60,8 @@ class Database {
     private $port;
     public $conn;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->host = env('DB_HOST', 'localhost');
         $this->db_name = env('DB_NAME', 'mydb');
         $this->username = env('DB_USER', 'dev');
@@ -67,16 +69,19 @@ class Database {
         $this->port = env('DB_PORT', '5432');
     }
 
-    public function getConn() {
+    public function getConn()
+    {
         $this->conn = null;
-        $dsn = "pgsql:host=" . $this->host . ";port=" . $this->port . ";dbname=" . $this->db_name;
+
         try {
-            $this->conn = new PDO($dsn, $this->username, $this->password);
+            // Removed port from DSN string
+            $this->conn = new PDO("pgsql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch(PDOException $e) {
-            http_response_code(500);
-            exit(json_encode(["message" => "Connection error: " . $e->getMessage()]));
+        } catch (PDOException $exception) { // Changed variable name from $e to $exception
+            // Changed error handling for CLI compatibility
+            echo "Connection error: " . $exception->getMessage();
         }
+
         return $this->conn;
     }
 }

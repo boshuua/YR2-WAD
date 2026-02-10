@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS courses (
     required_hours DECIMAL(5,2) DEFAULT 3.00, -- e.g., 3 hours annual training
     category VARCHAR(100),
     status VARCHAR(20) DEFAULT 'draft', -- 'draft' or 'published'
+    is_template BOOLEAN DEFAULT FALSE, -- Distinguishes Templates from Scheduled Courses
     instructor_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
     start_date DATE,
     end_date DATE,
@@ -106,15 +107,16 @@ INSERT INTO users (first_name, last_name, email, password, job_title, access_lev
 SELECT 'Admin', 'User', 'admin@test.com', crypt('admin123', gen_salt('bf')), 'Administrator', 'admin'
 WHERE NOT EXISTS (SELECT 1 FROM users WHERE email = 'admin@test.com');
 
--- Add Annual MOT Training Course 2024/25
-INSERT INTO courses (title, description, duration, required_hours, category, status, start_date, end_date)
+-- Add Annual MOT Training Course 2024/25 (TEMPLATE)
+INSERT INTO courses (title, description, duration, required_hours, category, status, is_template, start_date, end_date)
 VALUES (
-    'MOT Annual Training 2024/25 - Class 4 & 7', 
-    'Official annual training covering Corrosion, Standards of Repair, and Vehicle Classification.', 
+    'MOT Annual Training 2024-25 - Class 4 & 7', 
+    'Official annual training curriculum for 2024-25 covering Corrosion, Vehicle Classification, and Test Procedures. This is the master template.', 
     180, 
     3.00, 
     'MOT Training', 
-    'published', 
+    'published',
+    TRUE,
     '2024-04-01', 
     '2025-03-31'
 );
@@ -126,7 +128,7 @@ DECLARE
     v_lesson_id INTEGER;
     v_question_id INTEGER;
 BEGIN
-    SELECT id INTO v_course_id FROM courses WHERE title = 'MOT Annual Training 2024/25 - Class 4 & 7' LIMIT 1;
+    SELECT id INTO v_course_id FROM courses WHERE title = 'MOT Annual Training 2024-25 - Class 4 & 7' LIMIT 1;
 
     -- LESSON 1: Corrosion & Standards of Repair
     INSERT INTO lessons (course_id, title, content, order_index)

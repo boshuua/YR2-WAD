@@ -23,7 +23,7 @@ export type CsrfResponse = { csrfToken: string };
 export class AuthService {
   private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   loginUser(credentials: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/user_login.php`, credentials, { withCredentials: true });
@@ -109,8 +109,19 @@ export class AuthService {
     );
   }
 
-  getCourses(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/get_courses.php`, { withCredentials: true });
+  adminCreateCourseFromTemplate(templateData: any): Observable<any> {
+    return this.ensureCsrfToken().pipe(
+      switchMap((csrfToken) =>
+        this.http.post(`${this.apiUrl}/admin_create_course_from_template.php`, templateData, {
+          withCredentials: true,
+          headers: new HttpHeaders({ 'X-CSRF-Token': csrfToken })
+        })
+      )
+    );
+  }
+
+  getCourses(type: 'all' | 'active' | 'template' = 'all'): Observable<any> {
+    return this.http.get(`${this.apiUrl}/get_courses.php?type=${type}`, { withCredentials: true });
   }
 
   adminUpdateCourse(courseId: number, courseData: any): Observable<any> {
