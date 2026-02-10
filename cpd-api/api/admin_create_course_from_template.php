@@ -128,7 +128,7 @@ try {
             $insOpt->execute([
                 ':qid' => $newQuestionId,
                 ':text' => $opt['option_text'],
-                ':correct' => $opt['is_correct']
+                ':correct' => $opt['is_correct'] ? 't' : 'f'
             ]);
         }
     }
