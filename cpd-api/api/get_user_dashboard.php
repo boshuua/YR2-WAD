@@ -64,16 +64,35 @@ try {
     $stmtAtt->execute([':uid' => $userId]);
     $attachments = $stmtAtt->fetchAll(PDO::FETCH_ASSOC);
 
-    // 5. Calculate Training Summary (Mock logic for 'Group B 0%')
-    // Real logic would depend on specific training requirements
-    $trainingSummary = [
-        "group_b_percentage" => 0, // Placeholder
-        "total_hours" => 0
-    ];
+    // 5. Calculate Training Summary
+    // Calculate average progress across all active enrolments
+    $totalProgress = 0;
+    $courseCount = 0;
 
-    foreach ($exams as $exam) {
-        $trainingSummary['total_hours'] += floatval($exam['hours_completed']);
+    // Check progress for active enrolments
+    foreach ($enrolments as $enrol) {
+        $stmtProg = $db->prepare("
+            SELECT COUNT(*) as total, 
+                   SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed
+            FROM user_lesson_progress
+            WHERE user_id = :uid AND lesson_id IN (SELECT id FROM lessons WHERE course_id = :cid)
+        ");
+        $stmtProg->execute([':uid' => $userId, ':cid' => $enrol['id']]);
+        $prog = $stmtProg->fetch(PDO::FETCH_ASSOC);
+
+        if ($prog && $prog['total'] > 0) {
+            $percentage = ($prog['completed'] / $prog['total']) * 100;
+            $totalProgress += $percentage;
+        }
+        $courseCount++;
     }
+
+    $overallPercentage = ($courseCount > 0) ? round($totalProgress / $courseCount) : 0;
+
+    $trainingSummary = [
+        "overall_percentage" => $overallPercentage,
+        "active_courses_count" => $courseCount
+    ];
 
     $response = [
         "user" => $user,

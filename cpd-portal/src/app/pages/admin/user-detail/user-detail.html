@@ -11,15 +11,9 @@
         </div>
 
         <div class="header-actions">
-            <div class="period-selector">
-                <label>Select Period:</label>
-                <select [(ngModel)]="selectedPeriod" (change)="onPeriodChange()">
-                    <option *ngFor="let p of periods" [value]="p">{{ p }}</option>
-                </select>
-            </div>
+            <!-- Period Selector Removed -->
             <button class="action-btn edit-profile" (click)="editUser()">Edit Profile</button>
-            <button class="action-btn register-elearning" disabled>Register E-Leaner</button>
-            <button class="action-btn open-user" disabled>Open User</button>
+            <!-- Register/Open User Buttons Removed -->
         </div>
     </header>
 
@@ -35,11 +29,11 @@
                 <h3>MOT Training Summary</h3>
                 <div class="summary-content">
                     <div class="progress-item">
-                        <span class="label">Group B</span>
+                        <span class="label">Overall Progress</span>
                         <div class="progress-bar-container">
-                            <div class="progress-bar" [style.width.%]="trainingSummary?.group_b_percentage || 0"></div>
+                            <div class="progress-bar" [style.width.%]="trainingSummary?.overall_percentage || 0"></div>
                         </div>
-                        <span class="percentage">{{ trainingSummary?.group_b_percentage || 0 }}%</span>
+                        <span class="percentage">{{ trainingSummary?.overall_percentage || 0 }}%</span>
                     </div>
                 </div>
             </section>
@@ -48,10 +42,9 @@
             <section class="widget training-history">
                 <h3>MOT Training History</h3>
                 <div class="history-content">
-                    <h4>Total Training Complete</h4>
-                    <div *ngIf="!trainingSummary?.total_hours" class="no-data">No data to display</div>
-                    <div *ngIf="trainingSummary?.total_hours" class="history-stats">
-                        {{ trainingSummary.total_hours }} Hours
+                    <h4>Total Active Courses</h4>
+                    <div class="history-stats">
+                        {{ trainingSummary?.active_courses_count || 0 }} Assigned
                     </div>
                 </div>
             </section>
@@ -61,24 +54,7 @@
         <!-- Right Column -->
         <div class="dashboard-col-right">
 
-            <!-- Enrolments Widget -->
-            <section class="widget enrolments">
-                <h3>Enrolments</h3>
-                <h4>E-Learning</h4>
-
-                <div *ngIf="enrolments.length === 0" class="no-data">No eLearning enrolments</div>
-
-                <ul *ngIf="enrolments.length > 0" class="item-list">
-                    <li *ngFor="let course of enrolments">
-                        <span class="item-title">{{ course.title }}</span>
-                        <span class="item-status badge" [class.in-progress]="course.status !== 'completed'">{{
-                            course.status | titlecase }}</span>
-                    </li>
-                </ul>
-
-                <h4 class="mt-4">Exams</h4>
-                <div class="no-data">No outstanding exams</div>
-            </section>
+            <!-- Enrolments Widget Removed as requested -->
 
             <!-- Exam History Widget -->
             <section class="widget exam-history">
@@ -127,10 +103,15 @@
                     </thead>
                     <tbody>
                         <tr *ngFor="let file of attachments">
-                            <td>{{ file.file_name }}</td>
+                            <td>
+                                <a [href]="getAttachmentUrl(file.id)" target="_blank" class="file-link">{{
+                                    file.file_name }}</a>
+                            </td>
                             <td>{{ file.file_type | uppercase }}</td>
                             <td>{{ file.created_at | date:'shortDate' }}</td>
-                            <td>
+                            <td class="actions-cell">
+                                <a [href]="getAttachmentUrl(file.id)" target="_blank" class="view-icon"
+                                    title="View">👁️</a>
                                 <button class="delete-icon" (click)="deleteAttachment(file.id)"
                                     title="Delete">🗑️</button>
                             </td>

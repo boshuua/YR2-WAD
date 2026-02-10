@@ -5,6 +5,7 @@ import { AuthService } from '../../../service/auth.service';
 import { ToastService } from '../../../service/toast.service';
 import { LoadingService } from '../../../service/loading.service';
 import { FormsModule } from '@angular/forms';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-user-detail',
@@ -24,9 +25,8 @@ export class UserDetailComponent implements OnInit {
   isLoading = true;
   errorMessage = '';
 
-  selectedPeriod = '2025-2026';
-  periods = ['2025-2026', '2024-2025'];
   isUploading = false;
+  private apiUrl = environment.apiUrl;
 
   constructor(
     private route: ActivatedRoute,
@@ -74,10 +74,6 @@ export class UserDetailComponent implements OnInit {
     });
   }
 
-  onPeriodChange(): void {
-    this.toastService.info(`Period changed to ${this.selectedPeriod}`);
-  }
-
   editUser(): void {
     this.router.navigate(['/admin/users/edit', this.userId]);
   }
@@ -118,6 +114,10 @@ export class UserDetailComponent implements OnInit {
         this.toastService.error('Delete failed: ' + (err.error?.message || err.message));
       }
     });
+  }
+
+  getAttachmentUrl(attachmentId: number): string {
+    return `${this.apiUrl}/view_attachment.php?id=${attachmentId}`;
   }
 
   goBack(): void {
