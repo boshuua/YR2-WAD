@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/pages/user/settings/user-settings.component.css"],
-  "sourcesContent": [".settings-panel {\r\n  background: var(--white);\r\n  padding: 2.5rem;\r\n  border-radius: var(--radius-lg);\r\n  width: 100%;\r\n  box-shadow: var(--box-shadow);\r\n  border: 1px solid var(--border-color);\r\n  margin: 0 auto;\r\n}\r\n"],
-  "mappings": ";AAAA,CAAC;AACC,cAAY,IAAI;AAChB,WAAS;AACT,iBAAe,IAAI;AACnB,SAAO;AACP,cAAY,IAAI;AAChB,UAAQ,IAAI,MAAM,IAAI;AACtB,UAAQ,EAAE;AACZ;",
-  "names": []
-}

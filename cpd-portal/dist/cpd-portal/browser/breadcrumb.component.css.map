@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/components/breadcrumb/breadcrumb.component.css"],
-  "sourcesContent": [".breadcrumb {\r\n  font-size: 0.875rem;\r\n  color: var(--text-secondary);\r\n  display: flex;\r\n  align-items: center;\r\n  gap: 0.5rem;\r\n}\r\n\r\n.breadcrumb a {\r\n  color: var(--text-secondary);\r\n  text-decoration: none;\r\n  transition: color var(--transition-base);\r\n  font-weight: 500;\r\n}\r\n\r\n.breadcrumb a:hover {\r\n  color: var(--primary-color);\r\n}\r\n\r\n.breadcrumb span {\r\n  color: var(--text-muted);\r\n  display: flex;\r\n  align-items: center;\r\n  gap: 0.5rem;\r\n}\r\n\r\n.breadcrumb span:not(:last-child)::after {\r\n  content: '\u203A';\r\n  margin-left: 0.5rem;\r\n  color: var(--text-muted);\r\n  font-size: 1.125rem;\r\n}\r\n\r\n.breadcrumb span:last-child a {\r\n  color: var(--text-primary);\r\n  pointer-events: none;\r\n  font-weight: 600;\r\n}"],
-  "mappings": ";AAAA,CAAC;AACC,aAAW;AACX,SAAO,IAAI;AACX,WAAS;AACT,eAAa;AACb,OAAK;AACP;AAEA,CARC,WAQW;AACV,SAAO,IAAI;AACX,mBAAiB;AACjB,cAAY,MAAM,IAAI;AACtB,eAAa;AACf;AAEA,CAfC,WAeW,CAAC;AACX,SAAO,IAAI;AACb;AAEA,CAnBC,WAmBW;AACV,SAAO,IAAI;AACX,WAAS;AACT,eAAa;AACb,OAAK;AACP;AAEA,CA1BC,WA0BW,IAAI,KAAK,YAAY;AAC/B,WAAS;AACT,eAAa;AACb,SAAO,IAAI;AACX,aAAW;AACb;AAEA,CAjCC,WAiCW,IAAI,YAAY;AAC1B,SAAO,IAAI;AACX,kBAAgB;AAChB,eAAa;AACf;",
-  "names": []
-}
