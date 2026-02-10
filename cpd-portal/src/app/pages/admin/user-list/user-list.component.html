@@ -30,10 +30,8 @@
             </span>
           </td>
           <td data-label="Actions" class="actions-cell">
-            <button class="edit-btn" [routerLink]="['/admin/users/edit', user.id]">Edit</button>
-            <button
-              class="delete-btn"
-              (click)="promptDeleteUser(user.id, user.first_name + ' ' + user.last_name)">
+            <button class="edit-btn" [routerLink]="['/admin/users', user.id]">View</button>
+            <button class="delete-btn" (click)="promptDeleteUser(user.id, user.first_name + ' ' + user.last_name)">
               Delete
             </button>
           </td>
@@ -41,13 +39,8 @@
       </tbody>
     </table>
   </div>
-  </div>
-<app-confirm-modal
-  [isVisible]="showDeleteConfirmModal"
-  title="Confirm Deletion"
-  [message]="'Are you sure you want to delete the user \'' + userToDeleteName + '\'?'"
-  confirmButtonText="Delete User"
-  cancelButtonText="Cancel"
-  (confirmed)="confirmDelete()"
-  (cancelled)="cancelDelete()">
+</div>
+<app-confirm-modal [isVisible]="showDeleteConfirmModal" title="Confirm Deletion"
+  [message]="'Are you sure you want to delete the user \'' + userToDeleteName + '\'?'" confirmButtonText="Delete User"
+  cancelButtonText="Cancel" (confirmed)="confirmDelete()" (cancelled)="cancelDelete()">
 </app-confirm-modal>
