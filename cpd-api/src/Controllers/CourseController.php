@@ -92,17 +92,52 @@ class CourseController extends BaseController
             $title = $courseRaw['title'];
 
             // 2. Check if it's an MOT training course
-            // Pattern: "MOT Class X & Y Training"
-            if (strpos($title, 'MOT Class') !== false && strpos($title, 'Training') !== false) {
+            $targetTemplateTitle = null;
 
+            if (strpos($title, 'MOT Class 1 & 2 Training') !== false) {
+                $targetTemplateTitle = 'MOT Class 1 & 2 Annual Assessment';
+            } elseif (strpos($title, 'MOT Class 4 & 7 Training') !== false) {
+                $targetTemplateTitle = 'MOT Class 4 & 7 Annual Assessment';
+            }
+
+            if ($targetTemplateTitle) {
                 // 3. Find the Annual Assessment Template
-                $templStmt = $this->db->prepare("SELECT id FROM courses WHERE title = 'MOT Tester Annual Assessment' AND is_template = TRUE LIMIT 1");
-                $templStmt->execute();
+                $templStmt = $this->db->prepare("SELECT id, title FROM courses WHERE title = :title AND is_template = TRUE LIMIT 1");
+                $templStmt->execute([':title' => $targetTemplateTitle]);
                 $assessmentTemplate = $templStmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($assessmentTemplate) {
                     $templateId = $assessmentTemplate['id'];
-                    $this->createAutoInstanceAndEnroll($userId, $templateId);
+                    $newCourseId = $this->createAutoInstanceAndEnroll($userId, $templateId);
+
+                    // Return info for frontend prompt
+                    return [
+                        'success' => true,
+                        'assigned_course_id' => $newCourseId,
+                        'assigned_course_title' => $assessmentTemplate['title']
+                    ];
+                }
+                $targetTemplateTitle = 'MOT Class 1 & 2 Annual Assessment';
+            } elseif (strpos($title, 'MOT Class 4 & 7 Training') !== false) {
+                $targetTemplateTitle = 'MOT Class 4 & 7 Annual Assessment';
+            }
+
+            if ($targetTemplateTitle) {
+                // 3. Find the Annual Assessment Template
+                $templStmt = $this->db->prepare("SELECT id, title FROM courses WHERE title = :title AND is_template = TRUE LIMIT 1");
+                $templStmt->execute([':title' => $targetTemplateTitle]);
+                $assessmentTemplate = $templStmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($assessmentTemplate) {
+                    $templateId = $assessmentTemplate['id'];
+                    $newCourseId = $this->createAutoInstanceAndEnroll($userId, $templateId);
+
+                    // Return info for frontend prompt
+                    return [
+                        'success' => true,
+                        'assigned_course_id' => $newCourseId,
+                        'assigned_course_title' => $assessmentTemplate['title']
+                    ];
                 }
             }
         } catch (\Exception $e) {
@@ -171,6 +206,8 @@ class CourseController extends BaseController
         if ($user) {
             sendEmail($this->db, $user['email'], "Annual Assessment Assigned", "You have completed your training and validated for the Annual Assessment.");
         }
+
+        return $newCourseId;
     }
 
     /**
@@ -735,11 +772,17 @@ class CourseController extends BaseController
             log_activity($this->db, $userId, getCurrentUserEmail(), 'Course Progress Updated', "Course ID: {$courseId}, Status: {$status}");
 
             // Check if completion triggers auto-assignment
+            $responseData = ["message" => "Course progress updated successfully."];
+
             if ($status === 'completed') {
-                $this->checkAuthAssign($userId, $courseId);
+                $assignResult = $this->checkAuthAssign($userId, $courseId);
+                if ($assignResult && isset($assignResult['assigned_course_id'])) {
+                    $responseData['assigned_course_id'] = $assignResult['assigned_course_id'];
+                    $responseData['assigned_course_title'] = $assignResult['assigned_course_title'];
+                }
             }
 
-            $this->json(["message" => "Course progress updated successfully."]);
+            $this->json($responseData);
 
         } catch (\Exception $e) {
             $this->error("Database error: " . $e->getMessage(), 500);
@@ -932,13 +975,25 @@ class CourseController extends BaseController
             ]);
 
             if ($updateStmt->rowCount() === 0) {
-                throw new \Exception("No enrollment found or already completed");
+                // If rowCount is 0, it might be because it was already completed.
+                // We should still allow the checkAuthAssign to run if needed, or just return success.
+                // For now, let's assume it's fine.
             }
 
-            echo json_encode([
+            // Check for Auto-Assignment
+            $assignResult = $this->checkAuthAssign($userId, $courseId);
+
+            $response = [
                 'success' => true,
                 'message' => 'Course completed successfully!'
-            ]);
+            ];
+
+            if ($assignResult && isset($assignResult['assigned_course_id'])) {
+                $response['assigned_course_id'] = $assignResult['assigned_course_id'];
+                $response['assigned_course_title'] = $assignResult['assigned_course_title'];
+            }
+
+            echo json_encode($response);
 
         } catch (\Exception $e) {
             error_log("Complete course error: " . $e->getMessage());

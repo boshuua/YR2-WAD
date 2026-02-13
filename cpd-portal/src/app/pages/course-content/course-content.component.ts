@@ -175,9 +175,19 @@ export class CourseContentComponent implements OnInit {
     const hoursCompleted = 3;
 
     this.authService.completeCourse(this.course.id, hoursCompleted).subscribe({
-      next: () => {
+      next: (response: any) => {
         this.toastService.success('Training completed successfully!');
-        this.router.navigate(['/dashboard/my-courses']);
+
+        if (response.assigned_course_id) {
+          const startNow = confirm(`Training Completed.\n\nYou have been assigned "${response.assigned_course_title}".\n\nDo you want to start the assessment now?`);
+          if (startNow) {
+            this.router.navigate(['/dashboard/course-content', response.assigned_course_id]);
+          } else {
+            this.router.navigate(['/dashboard/my-courses']);
+          }
+        } else {
+          this.router.navigate(['/dashboard/my-courses']);
+        }
       },
       error: (err) => {
         this.toastService.error('Failed to complete training.');
