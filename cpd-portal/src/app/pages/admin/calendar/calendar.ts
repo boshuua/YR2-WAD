@@ -143,11 +143,11 @@ export class CalendarComponent implements OnInit {
   }
 
   onDayClick(day: Day): void {
-    // Open modal
-    this.assignmentData.date = this.formatDateForInput(day.date);
-    this.assignmentData.userId = null;
-    this.assignmentData.courseId = null;
-    this.showModal = true;
+    // Interaction disabled as per requirement
+    // this.assignmentData.date = this.formatDateForInput(day.date);
+    // this.assignmentData.userId = null;
+    // this.assignmentData.courseId = null;
+    // this.showModal = true;
   }
 
   closeModal(): void {

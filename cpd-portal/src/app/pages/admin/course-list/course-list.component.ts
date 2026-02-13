@@ -203,4 +203,77 @@ export class CourseListComponent implements OnInit {
     this.courseToDeleteId = null;
     this.courseToDeleteTitle = '';
   }
+
+  // --- Enroll Modal Logic ---
+  showEnrollModal = false;
+  enrollData = {
+    courseId: null as number | null,
+    userId: null as number | null
+  };
+  users: any[] = [];
+  isEnrolling = false;
+
+  openEnrollModal(courseId: number): void {
+    this.enrollData.courseId = courseId;
+    this.showEnrollModal = true;
+    if (this.users.length === 0) {
+      this.loadUsers();
+    }
+  }
+
+  closeEnrollModal(): void {
+    this.showEnrollModal = false;
+    this.enrollData = { courseId: null, userId: null };
+  }
+
+  loadUsers(): void {
+    this.loadingService.show();
+    this.authService.getUsers().subscribe({
+      next: (data) => {
+        this.users = data;
+        this.loadingService.hide();
+      },
+      error: (err) => {
+        console.error('Failed to load users', err);
+        this.loadingService.hide();
+        this.toastService.error('Failed to load users');
+      }
+    });
+  }
+
+  enrollUser(): void {
+    if (!this.enrollData.userId || !this.enrollData.courseId) {
+      this.toastService.error('Please select a user');
+      return;
+    }
+
+    this.isEnrolling = true;
+    this.loadingService.show();
+
+    // Find course to get start date
+    const course = this.courses.find(c => c.id === this.enrollData.courseId);
+    // Default to today if not found, but scheduled courses usually have start_date
+    const startDate = course ? course.start_date : new Date().toISOString().split('T')[0];
+
+    const payload = {
+      user_id: this.enrollData.userId,
+      course_id: this.enrollData.courseId,
+      start_date: startDate
+    };
+
+    // Assuming assignCourse exists in AuthService as seen in CalendarComponent
+    this.authService.assignCourse(payload).subscribe({
+      next: (res) => {
+        this.toastService.success('User enrolled successfully');
+        this.isEnrolling = false;
+        this.closeEnrollModal();
+        this.loadingService.hide();
+      },
+      error: (err) => {
+        this.isEnrolling = false;
+        this.loadingService.hide();
+        this.toastService.error('Enrollment failed: ' + (err.error?.message || err.message));
+      }
+    });
+  }
 }

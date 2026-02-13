@@ -6,6 +6,8 @@
     background: var(--white);
     border-radius: var(--radius-lg);
     box-shadow: var(--box-shadow);
+    overflow-x: auto;
+    max-width: 100%;
 }
 
 .calendar-header {

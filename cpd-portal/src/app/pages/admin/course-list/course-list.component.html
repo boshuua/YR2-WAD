@@ -49,6 +49,8 @@
               title="Edit">Edit</button>
             <button class="info-btn" (click)="manageQuestions(course.id)" [disabled]="course.is_locked"
               title="Questions">Questions</button>
+            <button *ngIf="currentTab === 'active'" class="enroll-btn" (click)="openEnrollModal(course.id)"
+              title="Enroll User">Enroll</button>
             <button class="delete-btn" (click)="promptDeleteCourse(course.id, course.title)"
               [disabled]="course.is_locked" title="Delete">Delete</button>
           </td>
@@ -96,6 +98,31 @@
         <button type="button" class="cancel-btn" (click)="closeScheduleModal()">Cancel</button>
         <button type="submit" class="confirm-btn" [disabled]="isScheduling">
           {{ isScheduling ? 'Scheduling...' : 'Schedule Course' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Enroll User Modal -->
+<div class="modal-backdrop" *ngIf="showEnrollModal">
+  <div class="modal-content">
+    <h3>Enroll User in Course</h3>
+    <form (ngSubmit)="enrollUser()">
+      <div class="form-group">
+        <label>Select User</label>
+        <select [(ngModel)]="enrollData.userId" name="userId" required>
+          <option [ngValue]="null" disabled>-- Select User --</option>
+          <option *ngFor="let user of users" [value]="user.id">
+            {{ user.first_name }} {{ user.last_name }} ({{ user.email }})
+          </option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="cancel-btn" (click)="closeEnrollModal()">Cancel</button>
+        <button type="submit" class="confirm-btn" [disabled]="isEnrolling">
+          {{ isEnrolling ? 'Enrolling...' : 'Enroll User' }}
         </button>
       </div>
     </form>
