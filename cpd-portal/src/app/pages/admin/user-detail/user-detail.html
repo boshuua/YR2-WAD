@@ -41,86 +41,88 @@
                             <span *ngIf="course.last_accessed_lesson_id" class="last-accessed">Last Accessed: Lesson {{
                                 course.last_accessed_lesson_id }}</span>
                         </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" [style.width.%]="getProgressPercentage(course)"></div>
+                        </div>
+                        <span class="percentage">{{ getProgressPercentage(course) }}%</span>
                     </div>
-                    <div class="progress-bar-container">
-                        <div class="progress-bar" [style.width.%]="getProgressPercentage(course)"></div>
-                    </div>
-                    <span class="percentage">{{ getProgressPercentage(course) }}%</span>
                 </div>
+
+
+                <!-- Completed Courses Section -->
+                <div class="history-content completed-section">
+                    <h4>Completed Courses</h4>
+
+                    <div *ngIf="completedCourses.length === 0" class="no-data">No completed courses</div>
+
+                    <div *ngFor="let course of completedCourses" class="completed-course">
+                        <strong>{{ course.title }}</strong>
+                        <div class="completion-details">
+                            <span>Completed: {{ course.completion_date | date:'shortDate' }}</span>
+                            <span class="hours-badge">{{ course.hours_completed || 0 }} Hours</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
         </div>
 
-        <!-- Completed Courses Section -->
-        <div class="history-content completed-section">
-            <h4>Completed Courses</h4>
+        <!-- Right Column -->
+        <div class="dashboard-col-right">
 
-            <div *ngIf="completedCourses.length === 0" class="no-data">No completed courses</div>
+            <!-- Exam History Widget -->
+            <section class="widget exam-history">
+                <h3>MOT Exam History</h3>
 
-            <div *ngFor="let course of completedCourses" class="completed-course">
-                <strong>{{ course.title }}</strong>
-                <div class="completion-details">
-                    <span>Completed: {{ course.completion_date | date:'shortDate' }}</span>
-                    <span class="hours-badge">{{ course.hours_completed || 0 }} Hours</span>
+                <div class="no-data exam-placeholder">
+                    <p>No assessments completed yet.</p>
+                    <p class="placeholder-note">End-of-course assessments will appear here in the future.</p>
                 </div>
-            </div>
+            </section>
+
+            <!-- Attachments Widget -->
+            <section class="widget attachments">
+                <div class="widget-header">
+                    <h3>Attachments</h3>
+                    <label class="upload-btn">
+                        + Upload
+                        <input type="file" (change)="onFileSelected($event)" [disabled]="isUploading" hidden>
+                    </label>
+                </div>
+
+                <div *ngIf="isUploading" class="uploading-indicator">Uploading...</div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let file of attachments">
+                            <td>
+                                <a [href]="getAttachmentUrl(file.id)" target="_blank" class="file-link">{{
+                                    file.file_name }}</a>
+                            </td>
+                            <td>{{ file.file_type | uppercase }}</td>
+                            <td>{{ file.created_at | date:'shortDate' }}</td>
+                            <td class="actions-cell">
+                                <a [href]="getAttachmentUrl(file.id)" target="_blank" class="view-icon"
+                                    title="View">👁️</a>
+                                <button class="delete-icon" (click)="deleteAttachment(file.id)"
+                                    title="Delete">🗑️</button>
+                            </td>
+                        </tr>
+                        <tr *ngIf="attachments.length === 0 && !isUploading">
+                            <td colspan="4" class="text-center">No attachments found</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+
         </div>
-        </section>
-
     </div>
-
-    <!-- Right Column -->
-    <div class="dashboard-col-right">
-
-        <!-- Exam History Widget -->
-        <section class="widget exam-history">
-            <h3>MOT Exam History</h3>
-
-            <div class="no-data exam-placeholder">
-                <p>No assessments completed yet.</p>
-                <p class="placeholder-note">End-of-course assessments will appear here in the future.</p>
-            </div>
-        </section>
-
-        <!-- Attachments Widget -->
-        <section class="widget attachments">
-            <div class="widget-header">
-                <h3>Attachments</h3>
-                <label class="upload-btn">
-                    + Upload
-                    <input type="file" (change)="onFileSelected($event)" [disabled]="isUploading" hidden>
-                </label>
-            </div>
-
-            <div *ngIf="isUploading" class="uploading-indicator">Uploading...</div>
-
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>File Name</th>
-                        <th>Type</th>
-                        <th>Date</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr *ngFor="let file of attachments">
-                        <td>
-                            <a [href]="getAttachmentUrl(file.id)" target="_blank" class="file-link">{{
-                                file.file_name }}</a>
-                        </td>
-                        <td>{{ file.file_type | uppercase }}</td>
-                        <td>{{ file.created_at | date:'shortDate' }}</td>
-                        <td class="actions-cell">
-                            <a [href]="getAttachmentUrl(file.id)" target="_blank" class="view-icon" title="View">👁️</a>
-                            <button class="delete-icon" (click)="deleteAttachment(file.id)" title="Delete">🗑️</button>
-                        </td>
-                    </tr>
-                    <tr *ngIf="attachments.length === 0 && !isUploading">
-                        <td colspan="4" class="text-center">No attachments found</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
-    </div>
-</div>
-</div>

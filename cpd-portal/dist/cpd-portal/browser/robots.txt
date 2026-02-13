@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemap (update with your actual domain)
+Sitemap: https://ws369808-wad.remote.ac/sitemap.xml
