@@ -1,9 +1,7 @@
 <?php
 // cpd-api/api/save_lesson_progress.php
 
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../helpers/auth.php';
-require_once __DIR__ . '/../helpers/csrf.php';
+
 require_once __DIR__ . '/bootstrap.php';
 
 header('Content-Type: application/json');
