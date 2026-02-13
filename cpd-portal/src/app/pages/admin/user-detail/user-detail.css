@@ -182,72 +182,90 @@
     color: #1e40af;
 }
 
+/* Attachments Table Styling */
 .data-table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     margin-top: 0.5rem;
 }
 
 .data-table th {
     text-align: left;
-    font-size: 0.8rem;
-    color: #64748b;
-    padding: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem;
     border-bottom: 1px solid #e2e8f0;
 }
 
 .data-table td {
-    padding: 0.75rem 0.5rem;
+    padding: 1rem;
     font-size: 0.9rem;
     border-bottom: 1px solid #f1f5f9;
     color: #334155;
+    vertical-align: middle;
 }
 
-.text-center {
-    text-align: center;
+.data-table tr:last-child td {
+    border-bottom: none;
 }
 
-/* Attachments */
-.widget-header {
+.file-link {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.file-link:hover {
+    text-decoration: underline;
+}
+
+.actions-cell {
     display: flex;
-    justify-content: space-between;
+    gap: 0.5rem;
     align-items: center;
-    border-bottom: 1px solid #f1f5f9;
-    padding-bottom: 0.75rem;
-    margin-bottom: 1rem;
 }
 
-.widget-header h3 {
-    margin: 0;
-    border: none;
-    padding: 0;
-}
-
-.upload-btn {
-    background: #3b82f6;
-    color: white;
-    padding: 0.4rem 0.8rem;
-    border-radius: 4px;
-    font-size: 0.875rem;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.upload-btn:hover {
-    background: #2563eb;
-}
-
-.delete-icon {
+.icon-btn {
     background: none;
     border: none;
+    padding: 0.4rem;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 1rem;
-    opacity: 0.6;
-    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    color: #64748b;
 }
 
-.delete-icon:hover {
-    opacity: 1;
+.icon-btn:hover {
+    background-color: #f1f5f9;
+    color: #334155;
+}
+
+.view-btn:hover {
+    color: #3b82f6;
+    background-color: #eff6ff;
+}
+
+.delete-btn:hover {
+    color: #ef4444;
+    background-color: #fef2f2;
+}
+
+/* Badge update for file type */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: #475569;
 }
 
 .uploading-indicator {
