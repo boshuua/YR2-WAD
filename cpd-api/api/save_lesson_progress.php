@@ -40,8 +40,8 @@ try {
     $stmt = $db->prepare("
         INSERT INTO user_course_progress (user_id, course_id, status, enrolled_at, updated_at, last_accessed_lesson_id)
         VALUES (:uid, :cid, 'in_progress', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :lid_access)
-        ON DUPLICATE KEY UPDATE 
-            status = IF(status = 'completed', 'completed', 'in_progress'),
+        ON CONFLICT (user_id, course_id) DO UPDATE SET 
+            status = CASE WHEN user_course_progress.status = 'completed' THEN 'completed' ELSE 'in_progress' END,
             updated_at = CURRENT_TIMESTAMP,
             last_accessed_lesson_id = :lid_access
     ");
@@ -51,7 +51,7 @@ try {
     $stmt = $db->prepare("
         INSERT INTO user_lesson_progress (user_id, lesson_id, status, completed_at)
         VALUES (:uid, :lid, 'completed', CURRENT_TIMESTAMP)
-        ON DUPLICATE KEY UPDATE 
+        ON CONFLICT (user_id, lesson_id) DO UPDATE SET 
             status = 'completed',
             completed_at = CURRENT_TIMESTAMP
     ");
@@ -84,5 +84,5 @@ try {
 } catch (Exception $e) {
     error_log("Save lesson progress error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to save progress: ' . $e->getMessage()]);
+    echo json_encode(['error' => 'Failed to save progress']);
 }
