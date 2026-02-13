@@ -124,15 +124,12 @@ class CourseController extends BaseController
         $endDate = date('Y-m-d', strtotime('+1 month'));
         $newTitle = $template['title'] . " - " . date('M Y');
 
-        // Handle NULL values
-        $instructorId = $template['instructor_id'] ?? null;
-
         // Insert Course
         $insertCourse = $this->db->prepare("
              INSERT INTO courses 
-             (title, description, content, duration, required_hours, category, status, instructor_id, is_template, start_date, end_date, is_locked)
+             (title, description, content, duration, required_hours, category, status, is_template, start_date, end_date, is_locked)
              VALUES 
-             (:title, :desc, :content, :duration, :req_hours, :cat, 'published', :inst_id, FALSE, :start, :end, FALSE)
+             (:title, :desc, :content, :duration, :req_hours, :cat, 'published', FALSE, :start, :end, FALSE)
          ");
 
         $insertCourse->execute([
@@ -142,7 +139,6 @@ class CourseController extends BaseController
             ':duration' => $template['duration'],
             ':req_hours' => $template['required_hours'],
             ':cat' => $template['category'],
-            ':inst_id' => $instructorId,
             ':start' => $startDate,
             ':end' => $endDate
         ]);
@@ -326,18 +322,13 @@ class CourseController extends BaseController
 
             $courseTitle = $newTitle ? $newTitle : $template['title'];
 
-            // Handle NULL instructor_id (templates might not have one)
-            $instructorId = $template['instructor_id'] ?? null;
-
-            // 2. Insert Course
+            // 2. Insert Course (removed instructor_id - not needed)
             $insertCourse = $this->db->prepare("
                 INSERT INTO courses 
-                (title, description, content, duration, required_hours, category, status, instructor_id, is_template, start_date, end_date, is_locked)
+                (title, description, content, duration, required_hours, category, status, is_template, start_date, end_date, is_locked)
                 VALUES 
-                (:title, :desc, :content, :duration, :req_hours, :cat, 'published', :inst_id, FALSE, :start, :end, FALSE)
+                (:title, :desc, :content, :duration, :req_hours, :cat, 'published', FALSE, :start, :end, FALSE)
             ");
-            // Note: Added is_locked explicitly as false for scheduled instances based on previous context, 
-            // though default might be false.
 
             $insertCourse->execute([
                 ':title' => $courseTitle,
@@ -346,7 +337,6 @@ class CourseController extends BaseController
                 ':duration' => $template['duration'],
                 ':req_hours' => $template['required_hours'],
                 ':cat' => $template['category'],
-                ':inst_id' => $instructorId,
                 ':start' => $startDate,
                 ':end' => $endDate
             ]);
