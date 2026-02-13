@@ -4,6 +4,7 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../helpers/auth.php';
 require_once __DIR__ . '/../helpers/csrf.php';
+require_once __DIR__ . '/bootstrap.php';
 
 header('Content-Type: application/json');
 
@@ -14,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 requireAuth();
-verifyCsrfToken();
 
 $userId = $_SESSION['user_id'];
 $input = json_decode(file_get_contents('php://input'), true);
@@ -29,7 +29,8 @@ if (!$courseId || !$lessonId) {
 }
 
 try {
-    $db = getDBConnection();
+    $database = new Database();
+    $db = $database->getConn();
 
     // Clear cache for this user's dashboard
     $cacheFile = sys_get_temp_dir() . "/dashboard_user_{$userId}.json";
