@@ -124,6 +124,9 @@ class CourseController extends BaseController
         $endDate = date('Y-m-d', strtotime('+1 month'));
         $newTitle = $template['title'] . " - " . date('M Y');
 
+        // Handle NULL values
+        $instructorId = $template['instructor_id'] ?? null;
+
         // Insert Course
         $insertCourse = $this->db->prepare("
              INSERT INTO courses 
@@ -135,11 +138,11 @@ class CourseController extends BaseController
         $insertCourse->execute([
             ':title' => $newTitle,
             ':desc' => $template['description'],
-            ':content' => $template['content'],
+            ':content' => $template['content'] ?? null,
             ':duration' => $template['duration'],
             ':req_hours' => $template['required_hours'],
             ':cat' => $template['category'],
-            ':inst_id' => $template['instructor_id'],
+            ':inst_id' => $instructorId,
             ':start' => $startDate,
             ':end' => $endDate
         ]);
@@ -323,6 +326,9 @@ class CourseController extends BaseController
 
             $courseTitle = $newTitle ? $newTitle : $template['title'];
 
+            // Handle NULL instructor_id (templates might not have one)
+            $instructorId = $template['instructor_id'] ?? null;
+
             // 2. Insert Course
             $insertCourse = $this->db->prepare("
                 INSERT INTO courses 
@@ -336,11 +342,11 @@ class CourseController extends BaseController
             $insertCourse->execute([
                 ':title' => $courseTitle,
                 ':desc' => $template['description'],
-                ':content' => $template['content'],
+                ':content' => $template['content'] ?? null,
                 ':duration' => $template['duration'],
                 ':req_hours' => $template['required_hours'],
                 ':cat' => $template['category'],
-                ':inst_id' => $template['instructor_id'],
+                ':inst_id' => $instructorId,
                 ':start' => $startDate,
                 ':end' => $endDate
             ]);
