@@ -30,6 +30,10 @@ class CourseController extends BaseController
             $sql .= " AND c.is_locked = TRUE";
         } else if ($type === 'library') {
             $sql .= " AND (c.is_template = TRUE OR c.is_locked = TRUE)";
+        } else if ($type === 'template') {
+            // Strictly templates, used for scheduling dropdown
+            // HIDE "MOT Tester Annual Assessment" from this list so it can't be manually scheduled easily
+            $sql .= " AND c.is_template = TRUE AND c.title != 'MOT Tester Annual Assessment'";
         } else if ($type === 'active') {
             // Active usually means filtered instances (not templates)
             $sql .= " AND c.is_template = FALSE AND c.is_locked = FALSE";
@@ -69,6 +73,163 @@ class CourseController extends BaseController
 
         } catch (\Exception $e) {
             $this->error("Database error: " . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Helper to check if a completed course should trigger an auto-assignment.
+     */
+    private function checkAuthAssign($userId, $courseId)
+    {
+        try {
+            // 1. Get the completed course title
+            $stmt = $this->db->prepare("SELECT title FROM courses WHERE id = :id");
+            $stmt->execute([':id' => $courseId]);
+            $courseRaw = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$courseRaw)
+                return;
+
+            $title = $courseRaw['title'];
+
+            // 2. Check if it's an MOT training course
+            // Pattern: "MOT Class X & Y Training"
+            if (strpos($title, 'MOT Class') !== false && strpos($title, 'Training') !== false) {
+
+                // 3. Find the Annual Assessment Template
+                $templStmt = $this->db->prepare("SELECT id FROM courses WHERE title = 'MOT Tester Annual Assessment' AND is_template = TRUE LIMIT 1");
+                $templStmt->execute();
+                $assessmentTemplate = $templStmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($assessmentTemplate) {
+                    $templateId = $assessmentTemplate['id'];
+                    $this->createAutoInstanceAndEnroll($userId, $templateId);
+                }
+            }
+        } catch (\Exception $e) {
+            // Log silent error, don't block response
+            error_log("Auto-assign failed: " . $e->getMessage());
+        }
+    }
+
+    private function createAutoInstanceAndEnroll($userId, $templateId)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM courses WHERE id = :id");
+        $stmt->execute([':id' => $templateId]);
+        $template = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$template)
+            return;
+
+        // Set dates: Start NOW, End +1 Month?
+        $startDate = date('Y-m-d');
+        $endDate = date('Y-m-d', strtotime('+1 month'));
+        $newTitle = $template['title'] . " - " . date('M Y');
+
+        // Insert Course
+        $insertCourse = $this->db->prepare("
+             INSERT INTO courses 
+             (title, description, content, duration, required_hours, category, status, instructor_id, is_template, start_date, end_date, is_locked)
+             VALUES 
+             (:title, :desc, :content, :duration, :req_hours, :cat, 'published', :inst_id, FALSE, :start, :end, FALSE)
+         ");
+
+        $insertCourse->execute([
+            ':title' => $newTitle,
+            ':desc' => $template['description'],
+            ':content' => $template['content'],
+            ':duration' => $template['duration'],
+            ':req_hours' => $template['required_hours'],
+            ':cat' => $template['category'],
+            ':inst_id' => $template['instructor_id'],
+            ':start' => $startDate,
+            ':end' => $endDate
+        ]);
+
+        $newCourseId = $this->db->lastInsertId();
+
+        // Copy Questions
+        $this->copyCourseContent($templateId, $newCourseId);
+
+        // Enroll User
+        $enrollStmt = $this->db->prepare("
+             INSERT INTO user_course_progress (user_id, course_id, status, enrolled_at, hours_completed)
+             VALUES (:uid, :cid, 'not_started', NOW(), 0)
+         ");
+        $enrollStmt->execute([
+            ':uid' => $userId,
+            ':cid' => $newCourseId
+        ]);
+
+        require_once __DIR__ . '/../../helpers/email_helper.php';
+        $uStmt = $this->db->prepare("SELECT email FROM users WHERE id = :id");
+        $uStmt->execute([':id' => $userId]);
+        $user = $uStmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($user) {
+            sendEmail($this->db, $user['email'], "Annual Assessment Assigned", "You have completed your training and validated for the Annual Assessment.");
+        }
+    }
+
+    private function copyCourseContent($templateId, $newCourseId)
+    {
+        // Copy Lessons
+        $getLessons = $this->db->prepare("SELECT * FROM lessons WHERE course_id = :tid ORDER BY order_index ASC");
+        $getLessons->execute([':tid' => $templateId]);
+        $lessons = $getLessons->fetchAll(PDO::FETCH_ASSOC);
+
+        $lessonMap = [];
+        foreach ($lessons as $lesson) {
+            $insLesson = $this->db->prepare("
+                INSERT INTO lessons (course_id, title, content, order_index)
+                VALUES (:cid, :title, :content, :oi)
+            ");
+            $insLesson->execute([
+                ':cid' => $newCourseId,
+                ':title' => $lesson['title'],
+                ':content' => $lesson['content'],
+                ':oi' => $lesson['order_index']
+            ]);
+            $lessonMap[$lesson['id']] = $this->db->lastInsertId();
+        }
+
+        // Copy Questions
+        $getQuestions = $this->db->prepare("SELECT * FROM questions WHERE course_id = :tid");
+        $getQuestions->execute([':tid' => $templateId]);
+        $questions = $getQuestions->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($questions as $q) {
+            $newLessonId = null;
+            if ($q['lesson_id'] && isset($lessonMap[$q['lesson_id']])) {
+                $newLessonId = $lessonMap[$q['lesson_id']];
+            }
+
+            $insQ = $this->db->prepare("
+                INSERT INTO questions (course_id, lesson_id, question_text, question_type)
+                VALUES (:cid, :lid, :qtext, :qtype)
+            ");
+            $insQ->execute([
+                ':cid' => $newCourseId,
+                ':lid' => $newLessonId,
+                ':qtext' => $q['question_text'],
+                ':qtype' => $q['question_type']
+            ]);
+            $newQuestionId = $this->db->lastInsertId();
+
+            // Copy Options
+            $getOpts = $this->db->prepare("SELECT * FROM question_options WHERE question_id = :qid");
+            $getOpts->execute([':qid' => $q['id']]);
+            $options = $getOpts->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($options as $opt) {
+                $insOpt = $this->db->prepare("
+                    INSERT INTO question_options (question_id, option_text, is_correct)
+                    VALUES (:qid, :text, :correct)
+                ");
+                $insOpt->execute([
+                    ':qid' => $newQuestionId,
+                    ':text' => $opt['option_text'],
+                    ':correct' => $opt['is_correct']
+                ]);
+            }
         }
     }
 
@@ -186,68 +347,10 @@ class CourseController extends BaseController
 
             $newCourseId = $this->db->lastInsertId();
 
-            // 3. Copy Lessons
-            $getLessons = $this->db->prepare("SELECT * FROM lessons WHERE course_id = :tid ORDER BY order_index ASC");
-            $getLessons->execute([':tid' => $templateId]);
-            $lessons = $getLessons->fetchAll(PDO::FETCH_ASSOC);
+            // 3. Copy Content (Refactored to helper)
+            $this->copyCourseContent($templateId, $newCourseId);
 
-            $lessonMap = [];
-            foreach ($lessons as $lesson) {
-                $insLesson = $this->db->prepare("
-                    INSERT INTO lessons (course_id, title, content, order_index)
-                    VALUES (:cid, :title, :content, :oi)
-                ");
-                $insLesson->execute([
-                    ':cid' => $newCourseId,
-                    ':title' => $lesson['title'],
-                    ':content' => $lesson['content'],
-                    ':oi' => $lesson['order_index']
-                ]);
-                $lessonMap[$lesson['id']] = $this->db->lastInsertId();
-            }
-
-            // 4. Copy Questions
-            $getQuestions = $this->db->prepare("SELECT * FROM questions WHERE course_id = :tid");
-            $getQuestions->execute([':tid' => $templateId]);
-            $questions = $getQuestions->fetchAll(PDO::FETCH_ASSOC);
-
-            foreach ($questions as $q) {
-                $newLessonId = null;
-                if ($q['lesson_id'] && isset($lessonMap[$q['lesson_id']])) {
-                    $newLessonId = $lessonMap[$q['lesson_id']];
-                }
-
-                $insQ = $this->db->prepare("
-                    INSERT INTO questions (course_id, lesson_id, question_text, question_type)
-                    VALUES (:cid, :lid, :qtext, :qtype)
-                ");
-                $insQ->execute([
-                    ':cid' => $newCourseId,
-                    ':lid' => $newLessonId,
-                    ':qtext' => $q['question_text'],
-                    ':qtype' => $q['question_type']
-                ]);
-                $newQuestionId = $this->db->lastInsertId();
-
-                // 5. Copy Options
-                $getOpts = $this->db->prepare("SELECT * FROM question_options WHERE question_id = :qid");
-                $getOpts->execute([':qid' => $q['id']]);
-                $options = $getOpts->fetchAll(PDO::FETCH_ASSOC);
-
-                foreach ($options as $opt) {
-                    $insOpt = $this->db->prepare("
-                        INSERT INTO question_options (question_id, option_text, is_correct)
-                        VALUES (:qid, :text, :correct)
-                    ");
-                    $insOpt->execute([
-                        ':qid' => $newQuestionId,
-                        ':text' => $opt['option_text'],
-                        ':correct' => $opt['is_correct']
-                    ]);
-                }
-            }
-
-            // 6. Enroll Users
+            // 4. Enroll Users
             $userIds = [];
             if (isset($data->user_ids) && is_array($data->user_ids)) {
                 $userIds = $data->user_ids;
@@ -658,6 +761,12 @@ class CourseController extends BaseController
             }
 
             log_activity($this->db, $userId, getCurrentUserEmail(), 'Course Progress Updated', "Course ID: {$courseId}, Status: {$status}");
+
+            // Check if completion triggers auto-assignment
+            if ($status === 'completed') {
+                $this->checkAuthAssign($userId, $courseId);
+            }
+
             $this->json(["message" => "Course progress updated successfully."]);
 
         } catch (\Exception $e) {
@@ -768,6 +877,11 @@ class CourseController extends BaseController
 
             $statusText = $score >= 80 ? "passed" : "attempted";
             log_activity($this->db, $userId, getCurrentUserEmail(), 'submit_quiz', "Quiz $statusText for course ID: $courseId with score: $score%");
+
+            // Check if passing triggers auto-assignment
+            if ($score >= 80) {
+                $this->checkAuthAssign($userId, $courseId);
+            }
 
             $message = $score >= 80
                 ? "Congratulations! You passed the course with a score of {$score}%."

@@ -94,6 +94,7 @@ td {
 
 td .edit-btn,
 td .info-btn,
+td .enroll-btn,
 td .delete-btn {
   padding: 0.5rem 1rem;
   font-size: 0.8125rem;
@@ -117,6 +118,12 @@ td .info-btn {
   border: 1px solid var(--info-color);
 }
 
+td .enroll-btn {
+  background: var(--white);
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
 td .delete-btn {
   background: var(--white);
   color: var(--danger-color);
@@ -130,6 +137,11 @@ td .edit-btn:hover {
 
 td .info-btn:hover {
   background: var(--info-color);
+  color: white;
+}
+
+td .enroll-btn:hover {
+  background: var(--primary-color);
   color: white;
 }
 
