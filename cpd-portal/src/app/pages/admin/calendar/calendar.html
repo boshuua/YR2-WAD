@@ -5,7 +5,8 @@
         <div class="calendar-title">
             <h2>{{ currentDate | date:'MMMM yyyy' }}</h2>
             <div class="calendar-controls">
-                <button class="btn btn-sm btn-primary" (click)="today()">Today</button>
+                <button class="btn btn-sm btn-primary" style="background-color: #007bff; color: white;"
+                    (click)="today()">Today</button>
                 <div class="nav-buttons">
                     <button class="btn btn-icon" (click)="prevMonth()">❮</button>
                     <button class="btn btn-icon" (click)="nextMonth()">❯</button>
