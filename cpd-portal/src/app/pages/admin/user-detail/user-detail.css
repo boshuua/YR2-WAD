@@ -145,8 +145,8 @@
 
 .progress-bar {
     height: 100%;
-    background: #f59e0b;
-    /* Orange/Yellow like screenshot */
+    background: linear-gradient(90deg, #f59e0b, #fb923c);
+    transition: width 0.3s ease;
 }
 
 /* Lists and Tables */
@@ -255,4 +255,85 @@
     color: #3b82f6;
     font-size: 0.9rem;
     margin-bottom: 1rem;
+}
+
+/* Course Cards - Active Courses */
+.course-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.course-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.course-title {
+    font-size: 0.95rem;
+    color: #1e293b;
+    display: block;
+}
+
+.lesson-progress {
+    font-size: 0.8rem;
+    color: #64748b;
+    display: block;
+}
+
+.progress-bar-container {
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.percentage {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #f59e0b;
+}
+
+/* Completed Courses */
+.completed-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.completed-course {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.completed-course:last-child {
+    border-bottom: none;
+}
+
+.completed-course strong {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #475569;
+}
+
+.completion-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.hours-badge {
+    background: #dcfce7;
+    color: #166534;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.75rem;
 }

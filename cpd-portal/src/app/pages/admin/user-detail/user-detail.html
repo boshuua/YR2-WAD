@@ -49,8 +49,8 @@
                     <div *ngIf="activeCourses.length === 0" class="no-data">No active courses</div>
 
                     <div *ngFor="let course of activeCourses" class="course-card">
-                        <div class="course-info">
-                            <strong>{{ course.title }}</strong>
+                        <div class="course-header">
+                            <strong class="course-title">{{ course.title }}</strong>
                             <span class="lesson-progress">{{ getLessonProgressText(course) }} completed</span>
                         </div>
                         <div class="progress-bar-container">
