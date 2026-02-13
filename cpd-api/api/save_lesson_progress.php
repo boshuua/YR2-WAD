@@ -1,7 +1,9 @@
 <?php
 // cpd-api/api/save_lesson_progress.php
 
-require_once __DIR__ . '/../bootstrap.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../helpers/auth.php';
+require_once __DIR__ . '/../helpers/csrf.php';
 
 header('Content-Type: application/json');
 
@@ -29,16 +31,18 @@ if (!$courseId || !$lessonId) {
 try {
     $db = getDBConnection();
 
+    // Clear cache for this user's dashboard
+    $cacheFile = sys_get_temp_dir() . "/dashboard_user_{$userId}.json";
+    if (file_exists($cacheFile)) {
+        unlink($cacheFile);
+    }
+
     // 1. Update or create user_course_progress (set to 'in_progress')
     $stmt = $db->prepare("
         INSERT INTO user_course_progress (user_id, course_id, status, enrolled_at, updated_at)
         VALUES (:uid, :cid, 'in_progress', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-        ON CONFLICT (user_id, course_id) 
-        DO UPDATE SET 
-            status = CASE 
-                WHEN user_course_progress.status = 'completed' THEN 'completed'
-                ELSE 'in_progress' 
-            END,
+        ON DUPLICATE KEY UPDATE 
+            status = IF(status = 'completed', 'completed', 'in_progress'),
             updated_at = CURRENT_TIMESTAMP
     ");
     $stmt->execute([':uid' => $userId, ':cid' => $courseId]);
@@ -47,8 +51,7 @@ try {
     $stmt = $db->prepare("
         INSERT INTO user_lesson_progress (user_id, lesson_id, status, completed_at)
         VALUES (:uid, :lid, 'completed', CURRENT_TIMESTAMP)
-        ON CONFLICT (user_id, lesson_id)
-        DO UPDATE SET 
+        ON DUPLICATE KEY UPDATE 
             status = 'completed',
             completed_at = CURRENT_TIMESTAMP
     ");
