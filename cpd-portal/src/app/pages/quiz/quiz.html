@@ -1,0 +1,78 @@
+<div class="quiz-container">
+    <div *ngIf="isLoading" class="loading-message">Loading assessment...</div>
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <!-- Quiz Interface -->
+    <div *ngIf="!isLoading && !errorMessage && !quizCompleted && course">
+        <div class="quiz-header">
+            <button class="btn-back" (click)="goBack()">← Back</button>
+            <h1>{{ course.title }}</h1>
+            <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="progressPercentage"></div>
+            </div>
+            <p class="progress-text">Question {{ currentQuestionIndex + 1 }} of {{ questions.length }} ({{
+                progressPercentage }}%)</p>
+        </div>
+
+        <div *ngIf="currentQuestion" class="question-card">
+            <h2 class="question-text">{{ currentQuestion.question_text }}</h2>
+
+            <div class="options-list">
+                <div *ngFor="let option of currentQuestion.options" class="option-item"
+                    [class.selected]="isSelected(option.id)" (click)="selectAnswer(option.id)">
+                    <div class="option-radio" [class.checked]="isSelected(option.id)"></div>
+                    <span class="option-text">{{ option.option_text }}</span>
+                </div>
+            </div>
+
+            <div class="navigation-buttons">
+                <button *ngIf="currentQuestionIndex > 0" class="btn-secondary" (click)="previousQuestion()">
+                    ← Previous
+                </button>
+
+                <button *ngIf="!isLastQuestion" class="btn-primary" (click)="nextQuestion()">
+                    Next →
+                </button>
+
+                <button *ngIf="isLastQuestion" class="btn-success" (click)="submitQuiz()" [disabled]="isSubmitting">
+                    {{ isSubmitting ? 'Submitting...' : 'Submit Assessment' }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div *ngIf="quizCompleted" class="results-card">
+        <div class="results-header" [class.passed]="passed" [class.failed]="!passed">
+            <h1>{{ passed ? '✓ Assessment Passed' : '✗ Assessment Failed' }}</h1>
+            <div class="score-display">{{ score }}%</div>
+            <p class="pass-mark">Pass mark: 80%</p>
+        </div>
+
+        <div class="results-body">
+            <p *ngIf="passed">
+                Congratulations! You have successfully completed this assessment.
+            </p>
+            <p *ngIf="!passed">
+                Unfortunately, you did not meet the minimum pass mark. You will need to retake this assessment.
+            </p>
+
+            <div class="results-stats">
+                <div class="stat">
+                    <span class="stat-label">Correct Answers:</span>
+                    <span class="stat-value">{{ Math.round(score / 100 * questions.length) }} / {{ questions.length
+                        }}</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Score:</span>
+                    <span class="stat-value">{{ score }}%</span>
+                </div>
+            </div>
+
+            <div class="results-actions">
+                <button *ngIf="!passed" class="btn-primary" (click)="retakeQuiz()">Retake Assessment</button>
+                <button class="btn-secondary" (click)="goBack()">Return to Dashboard</button>
+            </div>
+        </div>
+    </div>
+</div>

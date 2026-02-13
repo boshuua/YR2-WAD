@@ -20,6 +20,7 @@ import { CourseContentComponent } from './pages/course-content/course-content.co
 import { MyCoursesComponent } from './pages/user/my-courses/my-courses.component';
 import { UserCalendarComponent } from './pages/user/calendar/user-calendar.component';
 import { UserSettingsComponent } from './pages/user/settings/user-settings.component';
+import { QuizComponent } from './pages/quiz/quiz';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -58,6 +59,7 @@ export const routes: Routes = [
     ]
   },
 
+  { path: 'quiz/:id', component: QuizComponent, data: { breadcrumb: 'Assessment' } },
   { path: 'courses/:id/lesson/:lessonId', component: CourseContentComponent, data: { breadcrumb: 'Course Content' } },
   { path: 'courses/:id', component: CourseContentComponent, data: { breadcrumb: 'Course Content' } },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
