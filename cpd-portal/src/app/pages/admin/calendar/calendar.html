@@ -13,7 +13,7 @@
             </div>
         </div>
         <div class="calendar-actions">
-            <!-- Maybe a filter here later? -->
+            <button class="btn btn-primary" (click)="openModal()">+ Schedule Course</button>
         </div>
     </div>
 
@@ -31,8 +31,8 @@
 
             <div class="day-content">
                 <!-- Placeholder for assignments if we load them later -->
-                <div *ngFor="let assignment of day.assignments" class="event-pill">
-                    {{ assignment.user_name }} - {{ assignment.course_title }}
+                <div *ngFor="let assignment of day.assignments" class="event-pill" [title]="assignment.course_title">
+                    {{ assignment.user_name ? (assignment.user_name + ' - ') : '' }}{{ assignment.course_title }}
                 </div>
             </div>
 

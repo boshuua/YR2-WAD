@@ -61,9 +61,12 @@ export class CalendarComponent implements OnInit {
     this.loadResources();
   }
 
+  scheduledCourses: any[] = [];
+
   loadResources(): void {
     this.loadingService.show();
-    // Load Users
+
+    // 1. Load Users (for assignment modal)
     this.authService.getUsers().subscribe({
       next: (data) => {
         this.users = data;
@@ -71,14 +74,23 @@ export class CalendarComponent implements OnInit {
       error: (err) => console.error('Failed to load users', err)
     });
 
-    // Load Locked Courses
+    // 2. Load Locked Courses (Templates for assignment modal)
     this.authService.getCourses('locked').subscribe({
       next: (data) => {
         this.courses = data;
+      },
+      error: (err) => console.error('Failed to load locked courses', err)
+    });
+
+    // 3. Load Active/Scheduled Courses (For Calendar Display)
+    this.authService.getCourses('active').subscribe({
+      next: (data) => {
+        this.scheduledCourses = data;
+        this.mapCoursesToCalendar();
         this.loadingService.hide();
       },
       error: (err) => {
-        console.error('Failed to load courses', err);
+        console.error('Failed to load active courses', err);
         this.loadingService.hide();
       }
     });
@@ -124,6 +136,7 @@ export class CalendarComponent implements OnInit {
     }
 
     this.daysInMonth = days;
+    this.mapCoursesToCalendar(); // Remap when view changes
   }
 
   prevMonth(): void {
@@ -142,12 +155,49 @@ export class CalendarComponent implements OnInit {
     this.generateCalendar();
   }
 
+  mapCoursesToCalendar(): void {
+    if (!this.daysInMonth.length || !this.scheduledCourses.length) return;
+
+    this.daysInMonth.forEach(day => {
+      day.assignments = []; // Clear previous
+      const dayDateStr = this.formatDateForInput(day.date);
+
+      // Find courses starting on this day
+      // Note: This logic places the "Course Start" on the calendar.
+      // If we want to show duration, we'd check if date is within range.
+      // For now, let's show Start Date.
+
+      const coursesStarting = this.scheduledCourses.filter(c => {
+        if (!c.start_date) return false;
+        const startDate = c.start_date.split(' ')[0].split('T')[0];
+        return startDate === dayDateStr;
+      });
+
+      coursesStarting.forEach(c => {
+        day.assignments.push({
+          id: c.id,
+          user_id: 0, // Not relevant for course instance view
+          course_id: c.id,
+          user_name: '', // Not relevant
+          course_title: c.title
+        });
+      });
+    });
+  }
+
   onDayClick(day: Day): void {
     // Interaction disabled as per requirement
     // this.assignmentData.date = this.formatDateForInput(day.date);
     // this.assignmentData.userId = null;
     // this.assignmentData.courseId = null;
     // this.showModal = true;
+  }
+
+  openModal(): void {
+    this.assignmentData.date = this.formatDateForInput(new Date());
+    this.assignmentData.userId = null;
+    this.assignmentData.courseId = null;
+    this.showModal = true;
   }
 
   closeModal(): void {
