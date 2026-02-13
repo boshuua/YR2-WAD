@@ -124,7 +124,12 @@ class CourseController extends BaseController
         $endDate = date('Y-m-d', strtotime('+1 month'));
         $newTitle = $template['title'] . " - " . date('M Y');
 
-        // Insert Course
+        // Helper to convert empty strings to NULL
+        $toNullIfEmpty = function ($value) {
+            return ($value === '' || $value === null) ? null : $value;
+        };
+
+        // Insert Course (removed instructor_id - not needed)
         $insertCourse = $this->db->prepare("
              INSERT INTO courses 
              (title, description, content, duration, required_hours, category, status, is_template, start_date, end_date, is_locked)
@@ -134,11 +139,11 @@ class CourseController extends BaseController
 
         $insertCourse->execute([
             ':title' => $newTitle,
-            ':desc' => $template['description'],
-            ':content' => $template['content'] ?? null,
+            ':desc' => $toNullIfEmpty($template['description']),
+            ':content' => $toNullIfEmpty($template['content']),
             ':duration' => $template['duration'],
             ':req_hours' => $template['required_hours'],
-            ':cat' => $template['category'],
+            ':cat' => $toNullIfEmpty($template['category']),
             ':start' => $startDate,
             ':end' => $endDate
         ]);
@@ -322,6 +327,11 @@ class CourseController extends BaseController
 
             $courseTitle = $newTitle ? $newTitle : $template['title'];
 
+            // Helper to convert empty strings to NULL for PostgreSQL compatibility
+            $toNullIfEmpty = function ($value) {
+                return ($value === '' || $value === null) ? null : $value;
+            };
+
             // 2. Insert Course (removed instructor_id - not needed)
             $insertCourse = $this->db->prepare("
                 INSERT INTO courses 
@@ -330,16 +340,22 @@ class CourseController extends BaseController
                 (:title, :desc, :content, :duration, :req_hours, :cat, 'published', FALSE, :start, :end, FALSE)
             ");
 
-            $insertCourse->execute([
+            $params = [
                 ':title' => $courseTitle,
-                ':desc' => $template['description'],
-                ':content' => $template['content'] ?? null,
+                ':desc' => $toNullIfEmpty($template['description']),
+                ':content' => $toNullIfEmpty($template['content']),
                 ':duration' => $template['duration'],
                 ':req_hours' => $template['required_hours'],
-                ':cat' => $template['category'],
+                ':cat' => $toNullIfEmpty($template['category']),
                 ':start' => $startDate,
                 ':end' => $endDate
-            ]);
+            ];
+
+            // DEBUG: Log parameters to help identify the issue
+            error_log("INSERT PARAMS: " . json_encode($params));
+            error_log("TEMPLATE DATA: " . json_encode($template));
+
+            $insertCourse->execute($params);
 
             $newCourseId = $this->db->lastInsertId();
 
