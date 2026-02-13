@@ -38,13 +38,14 @@ try {
 
     // 1. Update or create user_course_progress (set to 'in_progress')
     $stmt = $db->prepare("
-        INSERT INTO user_course_progress (user_id, course_id, status, enrolled_at, updated_at)
-        VALUES (:uid, :cid, 'in_progress', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        INSERT INTO user_course_progress (user_id, course_id, status, enrolled_at, updated_at, last_accessed_lesson_id)
+        VALUES (:uid, :cid, 'in_progress', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, :lid_access)
         ON DUPLICATE KEY UPDATE 
             status = IF(status = 'completed', 'completed', 'in_progress'),
-            updated_at = CURRENT_TIMESTAMP
+            updated_at = CURRENT_TIMESTAMP,
+            last_accessed_lesson_id = :lid_access
     ");
-    $stmt->execute([':uid' => $userId, ':cid' => $courseId]);
+    $stmt->execute([':uid' => $userId, ':cid' => $courseId, ':lid_access' => $lessonId]);
 
     // 2. Mark lesson as completed in user_lesson_progress
     $stmt = $db->prepare("

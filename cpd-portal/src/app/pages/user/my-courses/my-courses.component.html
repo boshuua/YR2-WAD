@@ -28,7 +28,7 @@
             <span *ngIf="course.enrolled_at">Enrolled: {{ course.enrolled_at | date }}</span>
           </div>
           <div class="course-actions">
-            <button class="btn-primary" (click)="viewCourse(course.id)">Continue Training</button>
+            <a class="btn-primary" [routerLink]="getResumeLink(course)">Continue Training</a>
             <span class="progress-hint">Score: {{ course.score || 0 }}%</span>
           </div>
         </div>

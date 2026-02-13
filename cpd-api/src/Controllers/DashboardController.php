@@ -55,6 +55,7 @@ class DashboardController extends BaseController
                     ucp.enrolled_at,
                     ucp.completion_date,
                     ucp.hours_completed,
+                    ucp.last_accessed_lesson_id,
                     COUNT(DISTINCT l.id) as total_lessons,
                     COUNT(DISTINCT CASE WHEN ulp.status = 'completed' THEN ulp.lesson_id END) as completed_lessons
                 FROM user_course_progress ucp
@@ -63,7 +64,7 @@ class DashboardController extends BaseController
                 LEFT JOIN user_lesson_progress ulp ON l.id = ulp.lesson_id AND ulp.user_id = ucp.user_id
                 WHERE ucp.user_id = :uid 
                     AND c.is_template = FALSE
-                GROUP BY c.id, c.title, ucp.status, ucp.enrolled_at, ucp.completion_date, ucp.hours_completed
+                GROUP BY c.id, c.title, ucp.status, ucp.enrolled_at, ucp.completion_date, ucp.hours_completed, ucp.last_accessed_lesson_id
                 ORDER BY 
                     CASE 
                         WHEN ucp.status IN ('enrolled', 'in_progress') THEN ucp.enrolled_at
@@ -93,6 +94,7 @@ class DashboardController extends BaseController
                         'title' => $course['title'],
                         'status' => $course['status'],
                         'enrolled_at' => $course['enrolled_at'],
+                        'last_accessed_lesson_id' => $course['last_accessed_lesson_id'],
                         'total_lessons' => (int) $course['total_lessons'],
                         'completed_lessons' => (int) $course['completed_lessons']
                     ];

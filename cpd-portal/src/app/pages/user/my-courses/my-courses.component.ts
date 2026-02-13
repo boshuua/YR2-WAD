@@ -116,4 +116,17 @@ export class MyCoursesComponent implements OnInit {
     return (course.enrolled_count || 0) >= course.max_attendees;
   }
 
+  getResumeLink(course: any): any[] {
+    if (course.last_accessed_lesson_id) {
+      // If we know the exact lesson, go there (assuming route is /courses/:id/lessons/:lessonId or similar)
+      // BUT, the current router seems to be just /courses/:id.
+      // If the course viewer handles lesson navigation internally via URL, we might need a specific route.
+      // Let's assume standard route is /courses/:id and we pass the lesson as query param or fragment if supported.
+      // OR if the route is /courses/:id/lesson/:lessonId
+      return ['/courses', course.id, 'lesson', course.last_accessed_lesson_id];
+    }
+    // Default to course overview or first lesson
+    return ['/courses', course.id];
+  }
+
 }

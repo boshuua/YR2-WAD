@@ -766,7 +766,8 @@ class CourseController extends BaseController
                         c.title,
                         c.description,
                         ucp.status AS user_progress_status,
-                        ucp.completion_date
+                        ucp.completion_date,
+                        ucp.last_accessed_lesson_id
                       FROM courses c
                       INNER JOIN user_course_progress ucp ON c.id = ucp.course_id AND ucp.user_id = :user_id
                       WHERE c.is_template = FALSE
@@ -782,7 +783,8 @@ class CourseController extends BaseController
                     "title" => $row['title'],
                     "description" => html_entity_decode($row['description']),
                     "user_progress_status" => $row['user_progress_status'],
-                    "completion_date" => $row['completion_date']
+                    "completion_date" => $row['completion_date'],
+                    "last_accessed_lesson_id" => $row['last_accessed_lesson_id']
                 ];
             }
 
