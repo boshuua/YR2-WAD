@@ -218,8 +218,8 @@ class CourseController extends BaseController
 
         foreach ($questions as $question) {
             $insQuestion = $this->db->prepare("
-                INSERT INTO questions (course_id, question_text, question_type)
-                VALUES (:cid, :question, :type)
+                INSERT INTO questions (course_id, lesson_id, question_text, question_type)
+                VALUES (:cid, NULL, :question, :type)
             ");
             $insQuestion->execute([
                 ':cid' => $newCourseId,
