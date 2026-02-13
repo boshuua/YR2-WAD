@@ -49,11 +49,11 @@ try {
 
     // 2. Mark lesson as completed in user_lesson_progress
     $stmt = $db->prepare("
-        INSERT INTO user_lesson_progress (user_id, lesson_id, status, completed_at)
+        INSERT INTO user_lesson_progress (user_id, lesson_id, status, completion_date)
         VALUES (:uid, :lid, 'completed', CURRENT_TIMESTAMP)
         ON CONFLICT (user_id, lesson_id) DO UPDATE SET 
             status = 'completed',
-            completed_at = CURRENT_TIMESTAMP
+            completion_date = CURRENT_TIMESTAMP
     ");
     $stmt->execute([':uid' => $userId, ':lid' => $lessonId]);
 
@@ -84,5 +84,5 @@ try {
 } catch (Exception $e) {
     error_log("Save lesson progress error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to save progress: ' . $e->getMessage()]);
+    echo json_encode(['error' => 'Failed to save progress']);
 }
