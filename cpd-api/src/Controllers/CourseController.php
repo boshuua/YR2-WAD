@@ -719,17 +719,16 @@ class CourseController extends BaseController
                     ':cid' => $courseId
                 ]);
             } else {
-                // Insert
+                // Insert new progress record (simplified - no score)
                 $ins = $this->db->prepare("
-                    INSERT INTO user_course_progress (user_id, course_id, status, completion_date, score)
-                    VALUES (:uid, :cid, :status, CASE WHEN :status_case = 'completed' THEN CURRENT_TIMESTAMP ELSE NULL END, :score)
+                    INSERT INTO user_course_progress (user_id, course_id, status, completion_date)
+                    VALUES (:uid, :cid, :status, CASE WHEN :status_case = 'completed' THEN CURRENT_TIMESTAMP ELSE NULL END)
                 ");
                 $ins->execute([
                     ':uid' => $userId,
                     ':cid' => $courseId,
                     ':status' => $status,
-                    ':status_case' => $status,
-                    ':score' => $score
+                    ':status_case' => $status
                 ]);
             }
 

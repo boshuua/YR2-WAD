@@ -50,7 +50,7 @@ class DashboardController extends BaseController
 
             // 3. Fetch Exam History (Completed) - Exclude templates
             $stmtExams = $this->db->prepare("
-                SELECT c.id, c.title, ucp.score, ucp.completion_date, ucp.hours_completed
+                SELECT c.id, c.title, ucp.completion_date, ucp.hours_completed
                 FROM user_course_progress ucp
                 JOIN courses c ON ucp.course_id = c.id
                 WHERE ucp.user_id = :uid AND ucp.status = 'completed' AND c.is_template = FALSE
