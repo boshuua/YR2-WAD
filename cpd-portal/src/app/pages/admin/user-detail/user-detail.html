@@ -24,20 +24,6 @@
         <!-- Left Column -->
         <div class="dashboard-col-left">
 
-            <!-- Training Summary Widget -->
-            <section class="widget training-summary">
-                <h3>MOT Training Summary</h3>
-                <div class="summary-content">
-                    <div class="progress-item">
-                        <span class="label">Overall Progress</span>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" [style.width.%]="trainingSummary?.overall_percentage || 0"></div>
-                        </div>
-                        <span class="percentage">{{ trainingSummary?.overall_percentage || 0 }}%</span>
-                    </div>
-                </div>
-            </section>
-
             <!-- Training History Widget -->
             <section class="widget training-history">
                 <h3>MOT Training History</h3>
