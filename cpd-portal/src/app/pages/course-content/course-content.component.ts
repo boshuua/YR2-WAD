@@ -181,7 +181,7 @@ export class CourseContentComponent implements OnInit {
         if (response.assigned_course_id) {
           const startNow = confirm(`Training Completed.\n\nYou have been assigned "${response.assigned_course_title}".\n\nDo you want to start the assessment now?`);
           if (startNow) {
-            this.router.navigate(['/dashboard/course-content', response.assigned_course_id]);
+            this.router.navigate(['/courses', response.assigned_course_id]);
           } else {
             this.router.navigate(['/dashboard/my-courses']);
           }
