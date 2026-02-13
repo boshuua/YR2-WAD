@@ -1,27 +1,47 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../service/auth.service';
-import { LoadingService } from '../../service/loading.service';
+import { AuthService } from '../../core/services/auth.service';
+import { AuthResponse } from '../../core/models/api-response.model';
+import { LoadingService } from '../../core/services/loading.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent {
-  credentials = { email: '', password: '' };
+export class LoginComponent implements OnInit {
+  loginForm!: FormGroup;
   errorMessage = '';
 
-  constructor(private authService: AuthService, private router: Router, private loadingService: LoadingService) { }
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private router: Router,
+    private loadingService: LoadingService
+  ) { }
+
+  ngOnInit(): void {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required]
+    });
+  }
 
   onLogin() {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
+
     this.loadingService.show();
-    this.authService.loginUser(this.credentials).subscribe({
-      next: (response: any) => {
+    const credentials = this.loginForm.value;
+
+    this.authService.loginUser(credentials).subscribe({
+      next: (response: AuthResponse) => {
         sessionStorage.setItem('currentUser', JSON.stringify(response.user));
 
         // Use loading service to keep spinner up while getting CSRF

@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
 import { UserDashboardComponent } from './pages/user-dashboard/user-dashboard.component';
-import { adminGuard } from './auth/admin-guard';
+import { adminGuard } from './core/guards/admin-guard';
 
 // Import your admin page components
 import { OverviewComponent } from './pages/admin/overview/overview.component';

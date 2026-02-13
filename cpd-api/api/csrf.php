@@ -1,14 +1,8 @@
 <?php
-include_once '../config/database.php';
-include_once '../helpers/auth_helper.php';
-include_once '../helpers/response_helper.php';
-include_once '../helpers/CSRF_helper.php';
+require_once __DIR__ . '/bootstrap.php';
 
-requireMethod(['GET', 'POST']);
+use App\Controllers\AuthController;
 
-$token = getCsrfToken();
-
-sendOk([
-    'csrfToken' => $token
-]);
+$controller = new AuthController();
+$controller->csrf();
 ?>

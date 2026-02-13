@@ -1,12 +1,8 @@
 <?php
-include_once '../config/database.php';
-include_once '../helpers/auth_helper.php';
-include_once '../helpers/response_helper.php';
+require_once __DIR__ . '/bootstrap.php';
 
-requireMethod('GET');
-requireAuth('Please log in.');
+use App\Controllers\AuthController;
 
-sendOk([
-    'user' => getCurrentUserData()
-]);
+$controller = new AuthController();
+$controller->me();
 ?>

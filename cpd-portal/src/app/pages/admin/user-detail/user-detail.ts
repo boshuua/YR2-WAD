@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common'; // Covers TitleCasePipe, DatePipe, UpperCasePipe, NgIf, NgFor
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '../../../service/auth.service';
-import { ToastService } from '../../../service/toast.service';
-import { LoadingService } from '../../../service/loading.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { LoadingService } from '../../../core/services/loading.service';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../../../environments/environment';
 
@@ -92,7 +92,7 @@ export class UserDetailComponent implements OnInit {
     this.authService.uploadUserAttachment(this.userId, file).subscribe({
       next: (res) => {
         this.toastService.success('File uploaded successfully');
-        this.attachments.unshift(res.attachment);
+        this.attachments.unshift(res['attachment']);
         this.isUploading = false;
       },
       error: (err) => {

@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../service/auth.service';
-import { ToastService } from '../../../service/toast.service';
-import { LoadingService } from '../../../service/loading.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { LoadingService } from '../../../core/services/loading.service';
 
 interface Assignment {
   id: number;

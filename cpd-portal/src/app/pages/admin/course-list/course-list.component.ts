@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../service/auth.service';
-import { ToastService } from '../../../service/toast.service';
-import { ConfirmModalComponent } from '../../../components/confirm-modal/confirm-modal.component';
-import { LoadingService } from '../../../service/loading.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
+import { LoadingService } from '../../../core/services/loading.service';
 
 @Component({
   selector: 'app-course-list',
@@ -15,6 +15,14 @@ import { LoadingService } from '../../../service/loading.service';
   styleUrls: ['./course-list.component.css']
 })
 export class CourseListComponent implements OnInit {
+  // Lists
+  upcomingCourses: any[] = [];
+  pastCourses: any[] = [];
+
+  // Library/Templates list (when tab is library)
+  libraryCourses: any[] = [];
+
+  // Original properties (Restored)
   courses: any[] = [];
   templates: any[] = [];
   isLoading = true;
@@ -62,6 +70,9 @@ export class CourseListComponent implements OnInit {
     this.errorMessage = '';
     this.noCoursesFound = false;
     this.courses = [];
+    this.upcomingCourses = [];
+    this.pastCourses = [];
+    this.libraryCourses = [];
 
     // Map 'library' tab to API type 'library'
     // Map 'active' to 'active'
@@ -69,9 +80,21 @@ export class CourseListComponent implements OnInit {
 
     this.authService.getCourses(apiType as any).subscribe({
       next: (data) => {
-        this.courses = data;
+        this.courses = data; // Keep raw for reference if needed
+
+        if (this.currentTab === 'active') {
+          const now = new Date();
+          // Split into Upcoming and Past
+          // Upcoming: Start Date >= Today OR End Date >= Today (Active)
+          // Past: End Date < Today
+          this.upcomingCourses = data.filter((c: any) => new Date(c.end_date) >= now || new Date(c.start_date) >= now);
+          this.pastCourses = data.filter((c: any) => new Date(c.end_date) < now);
+        } else {
+          this.libraryCourses = data;
+        }
+
         this.isLoading = false;
-        if (this.courses.length === 0) {
+        if (data.length === 0) {
           this.noCoursesFound = true;
         }
         this.loadingService.hide();

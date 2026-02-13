@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../../service/auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { RouterLink } from '@angular/router';
-import { ConfirmModalComponent } from '../../../components/confirm-modal/confirm-modal.component';
-import { ToastService } from '../../../service/toast.service';
-import { LoadingService } from '../../../service/loading.service';
+import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
+import { ToastService } from '../../../core/services/toast.service';
+import { LoadingService } from '../../../core/services/loading.service';
+import { User } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-user-list',
@@ -15,7 +16,7 @@ import { LoadingService } from '../../../service/loading.service';
   styleUrls: ['./user-list.component.css']
 })
 export class UserListComponent implements OnInit {
-  users: any[] = [];
+  users: User[] = [];
   showDeleteConfirmModal = false;
   userToDeleteId: number | null = null;
   userToDeleteName: string = '';

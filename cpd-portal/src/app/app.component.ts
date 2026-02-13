@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router, RouterOutlet, NavigationStart, NavigationEnd, NavigationCancel, NavigationError, Event } from '@angular/router';
-import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
-import { LoadingService } from './service/loading.service';
+import { LoadingSpinnerComponent } from './shared/components/loading-spinner/loading-spinner.component';
+import { LoadingService } from './core/services/loading.service';
 import { CommonModule } from '@angular/common';
 
 @Component({

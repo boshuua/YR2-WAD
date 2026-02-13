@@ -202,4 +202,103 @@ h1 {
 .badge-default {
   background: var(--background-secondary);
   color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+/* === New Styles for Sections === */
+.course-section {
+  margin-bottom: 3rem;
+}
+
+.course-section h2 {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.empty-section {
+  color: var(--text-secondary);
+  font-style: italic;
+  padding: 1rem;
+}
+
+/* Card Header adjustments */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 0.75rem;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  padding-right: 0.5rem;
+}
+
+/* Badges & Meta */
+.date-badge,
+.capacity-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  background: var(--background-primary);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+.capacity-badge.full {
+  color: var(--danger-color);
+  border-color: var(--danger-color);
+  background: var(--danger-light);
+  font-weight: 600;
+}
+
+/* Button Variants */
+.btn-success {
+  background-color: var(--success-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color var(--transition-base);
+  width: 100%;
+}
+
+.btn-success:hover {
+  background-color: #059669;
+}
+
+.btn-disabled {
+  background-color: var(--text-muted);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  cursor: not-allowed;
+  font-weight: 600;
+  font-size: 1rem;
+  width: 100%;
+  opacity: 0.7;
+}
+
+/* Specific Card Tweaks */
+.history-card {
+  opacity: 0.9;
+  border-left: 4px solid var(--success-color);
+}
+
+.active-card {
+  border-left: 4px solid var(--info-color);
+}
+
+.available-card {
+  border-left: 4px solid var(--border-color);
 }

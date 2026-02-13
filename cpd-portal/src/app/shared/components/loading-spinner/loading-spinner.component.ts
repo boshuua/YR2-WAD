@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LoadingService } from '../../service/loading.service';
+import { LoadingService } from '../../../core/services/loading.service';
 
 @Component({
   selector: 'app-loading-spinner',
@@ -61,5 +61,5 @@ import { LoadingService } from '../../service/loading.service';
   `]
 })
 export class LoadingSpinnerComponent {
-  constructor(public loadingService: LoadingService) {}
+  constructor(public loadingService: LoadingService) { }
 }

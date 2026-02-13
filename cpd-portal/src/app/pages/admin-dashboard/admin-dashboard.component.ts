@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { BreadcrumbComponent } from '../../components/breadcrumb/breadcrumb.component';
-import { ToastNotificationComponent } from '../../components/toast-notification/toast-notification.component';
-import { ToastService, ToastConfig } from '../../service/toast.service';
+import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
+import { ToastNotificationComponent } from '../../shared/components/toast-notification/toast-notification.component';
+import { ToastService, ToastConfig } from '../../core/services/toast.service';
 import { Subscription } from 'rxjs';
 
 @Component({

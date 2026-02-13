@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'; // Import OnInit
 import { CommonModule, DatePipe } from '@angular/common'; // Import DatePipe
 import { RouterLink } from '@angular/router'; // Import RouterLink
-import { AuthService } from '../../../service/auth.service'; // Adjust path if needed
+import { AuthService } from '../../../core/services/auth.service'; // Adjust path if needed
 
 @Component({
   selector: 'app-overview',

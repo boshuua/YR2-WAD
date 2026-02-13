@@ -441,3 +441,34 @@ td .delete-btn:hover {
   font-size: 0.75rem;
   color: var(--text-secondary);
 }
+
+/* === New Section Styles === */
+.section-title {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--border-color);
+  margin-top: 1rem;
+  padding-left: 1rem;
+}
+
+.past-table td {
+  color: var(--text-secondary);
+}
+
+.no-data-param {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+  background: var(--gray-50);
+  border-radius: var(--radius-md);
+  margin-bottom: 2rem;
+  border: 1px dashed var(--border-color);
+}
+
+.badge-warning.full {
+  background: #ef4444;
+  color: white;
+}

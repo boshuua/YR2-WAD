@@ -7,35 +7,31 @@
     </div>
 
     <div class="card-body">
-      <form (ngSubmit)="onLogin()" #loginForm="ngForm">
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
         <div class="form-field">
           <label for="email">Email Address</label>
           <div class="input-wrapper">
-            <input 
-              id="email" 
-              type="email" 
-              [(ngModel)]="credentials.email" 
-              name="email" 
-              required 
-              placeholder="Enter your email">
+            <input id="email" type="email" formControlName="email" placeholder="Enter your email"
+              [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+          </div>
+          <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error-text">
+            Valid email is required
           </div>
         </div>
 
         <div class="form-field">
           <label for="password">Password</label>
           <div class="input-wrapper">
-            <input 
-              id="password" 
-              type="password" 
-              [(ngModel)]="credentials.password" 
-              name="password" 
-              required 
-              placeholder="Enter your password">
+            <input id="password" type="password" formControlName="password" placeholder="Enter your password"
+              [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+          </div>
+          <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error-text">
+            Password is required
           </div>
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn-login" [disabled]="!loginForm.form.valid">
+          <button type="submit" class="btn-login" [disabled]="loginForm.invalid">
             LOGIN
           </button>
         </div>

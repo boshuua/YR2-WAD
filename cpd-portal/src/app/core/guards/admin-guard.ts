@@ -5,7 +5,7 @@ const CSRF_STORAGE_KEY = 'csrfToken';
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
-import { AuthService } from '../service/auth.service';
+import { AuthService } from '../services/auth.service';
 
 export const adminGuard: CanActivateFn = () => {
   const router = inject(Router);

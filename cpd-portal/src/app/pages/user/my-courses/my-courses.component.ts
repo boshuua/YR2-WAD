@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService } from '../../../service/auth.service';
-import { ToastService } from '../../../service/toast.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
@@ -14,12 +14,19 @@ import { HttpErrorResponse } from '@angular/common/http';
   styleUrls: ['./my-courses.component.css']
 })
 export class MyCoursesComponent implements OnInit {
-  courses: any[] = [];
-  filteredCourses: any[] = [];
+  // Lists
+  activeCourses: any[] = [];
+  historyCourses: any[] = [];
+  availableCourses: any[] = [];
+
+  // filtered lists (if we keep search)
+  filteredActive: any[] = [];
+  filteredHistory: any[] = [];
+  filteredAvailable: any[] = [];
+
   isLoading = true;
   errorMessage = '';
   searchTerm: string = '';
-  statusFilter: string = 'all';
 
   constructor(
     private authService: AuthService,
@@ -28,28 +35,42 @@ export class MyCoursesComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.loadUserCourses();
+    this.loadData();
   }
 
-  loadUserCourses(): void {
+  loadData(): void {
     this.isLoading = true;
     this.errorMessage = '';
+
+    // ForkJoin would be better, but let's do sequential for simplicity or simple parallel
+    // 1. Get User Courses (Enrolled & History)
     this.authService.getUserCourses().subscribe({
-      next: (data: any) => {
-        this.courses = data;
-        this.filteredCourses = data;
-        this.applyFilters();
-        this.isLoading = false;
+      next: (userCourses: any[]) => {
+        // Split into Active and History
+        this.activeCourses = userCourses.filter(c => c.user_progress_status !== 'completed');
+        this.historyCourses = userCourses.filter(c => c.user_progress_status === 'completed');
+
+        // 2. Get Upcoming Courses
+        this.authService.getUpcomingCourses().subscribe({
+          next: (allUpcoming: any[]) => {
+            // Filter out courses user is already enrolled in
+            const enrolledIds = new Set(userCourses.map(c => c.id));
+            this.availableCourses = allUpcoming.filter(c => !enrolledIds.has(c.id));
+
+            this.applyFilters();
+            this.isLoading = false;
+          },
+          error: (err) => {
+            // If upcoming fails, maybe just show enrolled?
+            console.error('Failed to load upcoming', err);
+            this.availableCourses = [];
+            this.applyFilters();
+            this.isLoading = false;
+          }
+        });
       },
       error: (err: HttpErrorResponse) => {
-        if (err.status === 404) {
-          this.courses = [];
-          this.filteredCourses = [];
-          this.errorMessage = '';
-        } else {
-          this.errorMessage = 'Error loading courses: ' + (err.error?.message || err.message);
-          this.toastService.error(this.errorMessage);
-        }
+        this.errorMessage = 'Error loading your courses.';
         this.isLoading = false;
       }
     });
@@ -60,41 +81,29 @@ export class MyCoursesComponent implements OnInit {
     this.applyFilters();
   }
 
-  onStatusFilterChange(status: string): void {
-    this.statusFilter = status;
-    this.applyFilters();
-  }
-
   applyFilters(): void {
-    let filtered = [...this.courses];
+    const term = this.searchTerm.toLowerCase().trim();
 
-    // Apply status filter
-    if (this.statusFilter !== 'all') {
-      filtered = filtered.filter(course => course.user_progress_status === this.statusFilter);
-    }
+    const filterFn = (course: any) => {
+      if (!term) return true;
+      return course.title.toLowerCase().includes(term) ||
+        course.description?.toLowerCase().includes(term);
+    };
 
-    // Apply search filter
-    if (this.searchTerm.trim()) {
-      const term = this.searchTerm.toLowerCase();
-      filtered = filtered.filter(course =>
-        course.title.toLowerCase().includes(term) ||
-        course.description?.toLowerCase().includes(term) ||
-        course.code?.toLowerCase().includes(term)
-      );
-    }
-
-    this.filteredCourses = filtered;
+    this.filteredActive = this.activeCourses.filter(filterFn);
+    this.filteredHistory = this.historyCourses.filter(filterFn);
+    this.filteredAvailable = this.availableCourses.filter(filterFn);
   }
 
   viewCourse(courseId: number): void {
-    this.router.navigate(['/courses', courseId]);
+    this.router.navigate(['/pages/course-content', courseId]); // Adjusted route if needed
   }
 
   enrollCourse(courseId: number): void {
     this.authService.enrollCourse(courseId).subscribe({
       next: () => {
-        this.toastService.success('Successfully enrolled in the course!');
-        this.loadUserCourses();
+        this.toastService.success('Successfully enrolled!');
+        this.loadData(); // Reload all
       },
       error: (err) => {
         this.toastService.error('Failed to enroll: ' + (err.error?.message || err.message));
@@ -102,20 +111,9 @@ export class MyCoursesComponent implements OnInit {
     });
   }
 
-  updateCourseStatus(courseId: number, status: string): void {
-    const progressData = { course_id: courseId, status };
-    this.authService.updateCourseProgress(progressData).subscribe({
-      next: () => {
-        this.toastService.success(`Course status updated to ${status}`);
-        this.loadUserCourses();
-      },
-      error: (err) => {
-        this.toastService.error('Failed to update course status: ' + err.error?.message);
-      }
-    });
+  isFull(course: any): boolean {
+    if (!course.max_attendees) return false;
+    return (course.enrolled_count || 0) >= course.max_attendees;
   }
 
-  isEnrolled(course: any): boolean {
-    return course.user_progress_status !== undefined && course.user_progress_status !== null;
-  }
 }

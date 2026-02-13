@@ -2,10 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '../../../service/auth.service';
-import { ToastService } from '../../../service/toast.service';
+import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { Course } from '../../../core/models/course.model';
+import { ApiResponse } from '../../../core/models/api-response.model';
 
 @Component({
   selector: 'app-course-form',
@@ -25,7 +27,7 @@ export class CourseFormComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private toastService: ToastService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.courseForm = this.fb.group({
@@ -48,7 +50,7 @@ export class CourseFormComponent implements OnInit {
         }
         return of(null);
       })
-    ).subscribe(course => {
+    ).subscribe((course: Course | null) => {
       if (course) {
         this.courseForm.patchValue(course);
       }
@@ -65,19 +67,19 @@ export class CourseFormComponent implements OnInit {
 
     if (this.isEditMode && this.courseId) {
       this.authService.adminUpdateCourse(this.courseId, courseData).subscribe({
-        next: () => {
+        next: (response: ApiResponse) => {
           this.toastService.success('Course updated successfully!');
           this.router.navigate(['/admin/courses']);
         },
-        error: (err) => this.toastService.error('Failed to update course: ' + err.error?.message)
+        error: (err: any) => this.toastService.error('Failed to update course: ' + err.error?.message)
       });
     } else {
       this.authService.adminCreateCourse(courseData).subscribe({
-        next: () => {
+        next: (response: ApiResponse) => {
           this.toastService.success('Course created successfully!');
           this.router.navigate(['/admin/courses']);
         },
-        error: (err) => this.toastService.error('Failed to create course: ' + err.error?.message)
+        error: (err: any) => this.toastService.error('Failed to create course: ' + err.error?.message)
       });
     }
   }

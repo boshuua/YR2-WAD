@@ -1,75 +1,92 @@
 <div class="user-dashboard-container">
-  <h1>My Courses</h1>
+  <h1>My Learning Dashboard</h1>
 
-  <!-- Search and Filter Section -->
-  <div *ngIf="!isLoading && courses.length > 0" class="filters-section">
+  <!-- Search Section -->
+  <div class="filters-section">
     <div class="search-box">
-      <input
-        type="text"
-        [(ngModel)]="searchTerm"
-        (ngModelChange)="onSearchChange($event)"
-        placeholder="Search courses..."
-        class="search-input"
-      />
-    </div>
-    <div class="filter-box">
-      <label for="status-filter">Status:</label>
-      <select
-        id="status-filter"
-        [(ngModel)]="statusFilter"
-        (ngModelChange)="onStatusFilterChange($event)"
-        class="filter-select"
-      >
-        <option value="all">All Courses</option>
-        <option value="not_started">Not Started</option>
-        <option value="in_progress">In Progress</option>
-        <option value="completed">Completed</option>
-      </select>
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange($event)"
+        placeholder="Search courses..." class="search-input" />
     </div>
   </div>
 
   <div *ngIf="isLoading" class="loading-message">Loading courses...</div>
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-  <div *ngIf="!isLoading && !errorMessage && filteredCourses.length > 0" class="course-list">
-    <div *ngFor="let course of filteredCourses" class="course-card">
-      <h3>{{ course.title }}</h3>
-      <p class="course-description">{{ course.description | slice:0:150 }}{{ course.description.length > 150 ? '...' : '' }}</p>
-      <div class="course-meta">
-        <span *ngIf="isEnrolled(course)" class="badge"
-          [ngClass]="{
-            'badge-info': course.user_progress_status === 'not_started',
-            'badge-warning': course.user_progress_status === 'in_progress',
-            'badge-success': course.user_progress_status === 'completed'
-          }">
-          {{ course.user_progress_status | titlecase }}
-        </span>
-        <span *ngIf="!isEnrolled(course)" class="badge badge-default">Not Enrolled</span>
-        <span *ngIf="course.score !== null" class="course-score">Score: {{ course.score }}%</span>
-      </div>
-      <div class="course-actions">
-        <!-- Not Enrolled -->
-        <button *ngIf="!isEnrolled(course)" class="btn-primary" (click)="enrollCourse(course.id)">Enroll Now</button>
+  <div *ngIf="!isLoading && !errorMessage">
 
-        <!-- Enrolled - Not Completed -->
-        <button *ngIf="isEnrolled(course) && course.user_progress_status !== 'completed'" class="btn-primary" (click)="viewCourse(course.id)">
-          Take Quiz
-        </button>
-        <span *ngIf="course.user_progress_status === 'in_progress'" class="progress-hint">Score 80%+ to complete</span>
-
-        <!-- Completed - No retake allowed -->
-        <div *ngIf="course.user_progress_status === 'completed'" class="completed-message">
-          ✓ Course Completed
+    <!-- 1. Active Training -->
+    <section class="course-section">
+      <h2>My Enrolled Training</h2>
+      <div *ngIf="filteredActive.length > 0; else noActive" class="course-list">
+        <div *ngFor="let course of filteredActive" class="course-card active-card">
+          <div class="card-header">
+            <h3>{{ course.title }}</h3>
+            <span class="badge badge-info">In Progress</span>
+          </div>
+          <p class="course-description">{{ course.description | slice:0:150 }}...</p>
+          <div class="course-meta">
+            <span *ngIf="course.enrolled_at">Enrolled: {{ course.enrolled_at | date }}</span>
+          </div>
+          <div class="course-actions">
+            <button class="btn-primary" (click)="viewCourse(course.id)">Continue Training</button>
+            <span class="progress-hint">Score: {{ course.score || 0 }}%</span>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+      <ng-template #noActive>
+        <p class="empty-section">You have no active training at the moment.</p>
+      </ng-template>
+    </section>
 
-  <div *ngIf="!isLoading && !errorMessage && courses.length > 0 && filteredCourses.length === 0" class="no-courses-message">
-    No courses match your search criteria.
-  </div>
+    <!-- 2. Available Training -->
+    <section class="course-section">
+      <h2>Available Training (Upcoming)</h2>
+      <div *ngIf="filteredAvailable.length > 0; else noAvailable" class="course-list">
+        <div *ngFor="let course of filteredAvailable" class="course-card available-card">
+          <div class="card-header">
+            <h3>{{ course.title }}</h3>
+            <span class="badge badge-default">Upcoming</span>
+          </div>
+          <p class="course-description">{{ course.description | slice:0:150 }}...</p>
+          <div class="course-meta">
+            <span class="date-badge">Starts: {{ course.start_date | date }}</span>
+            <span class="capacity-badge" [class.full]="isFull(course)">
+              {{ course.enrolled_count || 0 }} of {{ course.max_attendees }} spaces booked
+            </span>
+          </div>
+          <div class="course-actions">
+            <button *ngIf="!isFull(course)" class="btn-success" (click)="enrollCourse(course.id)">Enroll Now</button>
+            <button *ngIf="isFull(course)" class="btn-disabled" disabled>Course Full</button>
+          </div>
+        </div>
+      </div>
+      <ng-template #noAvailable>
+        <p class="empty-section">No upcoming courses available.</p>
+      </ng-template>
+    </section>
 
-  <div *ngIf="!isLoading && !errorMessage && courses.length === 0" class="no-courses-message">
-    No courses available yet. Check back later!
+    <!-- 3. Training History -->
+    <section class="course-section">
+      <h2>Training History</h2>
+      <div *ngIf="filteredHistory.length > 0; else noHistory" class="course-list">
+        <div *ngFor="let course of filteredHistory" class="course-card history-card">
+          <div class="card-header">
+            <h3>{{ course.title }}</h3>
+            <span class="badge badge-success">Completed</span>
+          </div>
+          <div class="course-meta">
+            <span>Completed: {{ course.completion_date | date }}</span>
+            <span class="score-badge">Final Score: {{ course.score }}%</span>
+          </div>
+          <div class="course-actions">
+            <span class="completed-msg">✓ Certificate Available</span>
+          </div>
+        </div>
+      </div>
+      <ng-template #noHistory>
+        <p class="empty-section">No completed training yet.</p>
+      </ng-template>
+    </section>
+
   </div>
 </div>
