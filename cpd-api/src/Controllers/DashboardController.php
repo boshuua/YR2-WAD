@@ -37,23 +37,23 @@ class DashboardController extends BaseController
                 $this->error("User not found.", 404);
             }
 
-            // 2. Fetch Enrolments (Active)
+            // 2. Fetch Enrolments (Active) - Exclude templates
             $stmtEnrol = $this->db->prepare("
                 SELECT c.id, c.title, ucp.status, ucp.enrolled_at, ucp.updated_at
                 FROM user_course_progress ucp
                 JOIN courses c ON ucp.course_id = c.id
-                WHERE ucp.user_id = :uid AND ucp.status != 'completed'
+                WHERE ucp.user_id = :uid AND ucp.status != 'completed' AND c.is_template = FALSE
                 ORDER BY ucp.enrolled_at DESC
             ");
             $stmtEnrol->execute([':uid' => $userId]);
             $enrolments = $stmtEnrol->fetchAll(PDO::FETCH_ASSOC);
 
-            // 3. Fetch Exam History (Completed)
+            // 3. Fetch Exam History (Completed) - Exclude templates
             $stmtExams = $this->db->prepare("
                 SELECT c.id, c.title, ucp.score, ucp.completion_date, ucp.hours_completed
                 FROM user_course_progress ucp
                 JOIN courses c ON ucp.course_id = c.id
-                WHERE ucp.user_id = :uid AND ucp.status = 'completed'
+                WHERE ucp.user_id = :uid AND ucp.status = 'completed' AND c.is_template = FALSE
                 AND (ucp.completion_date BETWEEN :start AND :end OR ucp.completion_date IS NULL)
                 ORDER BY ucp.completion_date DESC
             ");
