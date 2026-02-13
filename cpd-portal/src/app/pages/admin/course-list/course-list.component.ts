@@ -250,14 +250,29 @@ export class CourseListComponent implements OnInit {
     userId: null as number | null
   };
   users: any[] = [];
+  searchTerm: string = ''; // Search term for user filtering
   isEnrolling = false;
 
   openEnrollModal(courseId: number): void {
     this.enrollData.courseId = courseId;
     this.showEnrollModal = true;
+    this.searchTerm = ''; // Reset search
     if (this.users.length === 0) {
       this.loadUsers();
     }
+  }
+
+  // Filtered users for both Schedule and Enroll modals
+  get filteredUsers(): any[] {
+    if (!this.searchTerm) {
+      return this.users;
+    }
+    const lowerTerm = this.searchTerm.toLowerCase();
+    return this.users.filter(user =>
+      user.first_name.toLowerCase().includes(lowerTerm) ||
+      user.last_name.toLowerCase().includes(lowerTerm) ||
+      user.email.toLowerCase().includes(lowerTerm)
+    );
   }
 
   closeEnrollModal(): void {

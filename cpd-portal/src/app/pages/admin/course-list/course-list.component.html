@@ -43,7 +43,8 @@
               <span *ngIf="(course.enrolled_count || 0) >= course.max_attendees" class="badge badge-warning">FULL</span>
             </td>
             <td data-label="Actions" class="actions-cell">
-              <button class="edit-btn" (click)="editCourse(course.id)">Edit</button>
+              <!-- Edit Disabled for Scheduled Courses -->
+              <button class="edit-btn" disabled title="Cannot edit scheduled course properties">Edit</button>
               <button class="enroll-btn" (click)="openEnrollModal(course.id)">Enroll</button>
               <button class="delete-btn" (click)="promptDeleteCourse(course.id, course.title)">Delete</button>
             </td>
@@ -54,31 +55,7 @@
         <p class="no-data-param">No upcoming courses scheduled.</p>
       </ng-template>
 
-      <!-- Past Section -->
-      <h3 class="section-title" style="margin-top: 2rem;">Course History (Past)</h3>
-      <table *ngIf="pastCourses.length > 0; else noPast" class="past-table">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Dates</th>
-            <th>Enrolled</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let course of pastCourses">
-            <td data-label="Title">{{ course.title }}</td>
-            <td data-label="Dates">{{ course.start_date | date }}</td>
-            <td data-label="Enrolled">{{ course.enrolled_count || 0 }}</td>
-            <td data-label="Actions" class="actions-cell">
-              <button class="info-btn" (click)="editCourse(course.id)">View</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <ng-template #noPast>
-        <p class="no-data-param">No past courses found.</p>
-      </ng-template>
+      <!-- Past Section REMOVED as per request -->
 
     </div>
 
@@ -151,14 +128,19 @@
 
       <div class="form-group">
         <label>Assign to Users (Optional)</label>
+        <!-- User Search Input -->
+        <input type="text" [(ngModel)]="searchTerm" name="userSearch" placeholder="Search users by name or email..."
+          class="search-input">
+
         <div class="user-select-list">
-          <div *ngFor="let user of users" class="user-checkbox-item">
+          <div *ngFor="let user of filteredUsers" class="user-checkbox-item">
             <input type="checkbox" [id]="'user-'+user.id" (change)="toggleUserSelection(user.id, $event)"
               [checked]="scheduleData.userIds.includes(user.id)">
             <label [for]="'user-'+user.id">
               {{ user.first_name }} {{ user.last_name }} <span class="email-hint">({{ user.email }})</span>
             </label>
           </div>
+          <div *ngIf="filteredUsers.length === 0" class="no-users-found">No users found.</div>
         </div>
         <small class="hint">Selected users will be enrolled immediately.</small>
       </div>
@@ -180,12 +162,19 @@
     <form (ngSubmit)="enrollUser()">
       <div class="form-group">
         <label>Select User</label>
-        <select [(ngModel)]="enrollData.userId" name="userId" required>
+
+        <!-- User Search Input Filter -->
+        <input type="text" [(ngModel)]="searchTerm" name="enrollSearch" placeholder="Search for user..."
+          class="search-input" style="margin-bottom: 10px; width: 100%;">
+
+        <select [(ngModel)]="enrollData.userId" name="userId" required size="5" style="height: auto;">
           <option [ngValue]="null" disabled>-- Select User --</option>
-          <option *ngFor="let user of users" [value]="user.id">
+          <option *ngFor="let user of filteredUsers" [value]="user.id">
             {{ user.first_name }} {{ user.last_name }} ({{ user.email }})
           </option>
         </select>
+        <div *ngIf="filteredUsers.length === 0" class="no-users-found" style="margin-top:5px; color:#666;">No users
+          match your search.</div>
       </div>
 
       <div class="modal-actions">

@@ -160,7 +160,7 @@ class CourseController extends BaseController
                 throw new \Exception("Template not found.");
             }
 
-            $courseTitle = $newTitle ? $newTitle : $template['title'] . " (Scheduled)";
+            $courseTitle = $newTitle ? $newTitle : $template['title'];
 
             // 2. Insert Course
             $insertCourse = $this->db->prepare("
