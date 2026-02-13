@@ -178,8 +178,41 @@
 }
 
 .badge.in-progress {
-    background: #dbeafe;
     color: #1e40af;
+}
+
+/* Attachments Header & Button */
+.widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.widget-header h3 {
+    margin: 0;
+    border: none;
+    padding: 0;
+}
+
+.upload-btn {
+    background: #3b82f6;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: inline-flex;
+    /* Ensure it behaves like a button */
+    align-items: center;
+    font-weight: 500;
+}
+
+.upload-btn:hover {
+    background: #2563eb;
 }
 
 /* Attachments Table Styling */
@@ -301,6 +334,7 @@
     font-size: 0.8rem;
     color: #64748b;
     display: block;
+    margin-bottom: 0.25rem;
 }
 
 .progress-bar-container {

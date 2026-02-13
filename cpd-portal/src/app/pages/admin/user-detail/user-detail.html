@@ -36,7 +36,7 @@
 
                     <div *ngFor="let course of activeCourses" class="course-card">
                         <strong class="course-title">{{ course.title }}</strong>
-                        <!-- Removed Last Accessed Text per request -->
+                        <span class="lesson-progress">{{ getLessonProgressText(course) }} completed</span>
                         <div class="progress-bar-container">
                             <div class="progress-bar" [style.width.%]="getProgressPercentage(course)"></div>
                         </div>
