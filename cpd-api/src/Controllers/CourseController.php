@@ -747,6 +747,9 @@ class CourseController extends BaseController
         }
     }
 
+    /**
+     * Get courses for the authenticated user
+     */
     public function getUserCourses()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
@@ -758,15 +761,13 @@ class CourseController extends BaseController
         $userId = getCurrentUserId();
 
         try {
-            // Only return courses the user is ACTUALLY enrolled in (INNER JOIN)
-            // and exclude template courses
+            // Simplified query - removed score column (no longer exists)
             $query = "SELECT
                         c.id AS course_id,
                         c.title,
                         c.description,
                         ucp.status AS user_progress_status,
-                        ucp.completion_date,
-                        ucp.score
+                        ucp.completion_date
                       FROM courses c
                       INNER JOIN user_course_progress ucp ON c.id = ucp.course_id AND ucp.user_id = :user_id
                       WHERE c.is_template = FALSE
@@ -782,8 +783,7 @@ class CourseController extends BaseController
                     "title" => $row['title'],
                     "description" => html_entity_decode($row['description']),
                     "user_progress_status" => $row['user_progress_status'],
-                    "completion_date" => $row['completion_date'],
-                    "score" => $row['score']
+                    "completion_date" => $row['completion_date']
                 ];
             }
 
