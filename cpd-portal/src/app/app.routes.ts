@@ -58,6 +58,7 @@ export const routes: Routes = [
     ]
   },
 
+  { path: 'courses/:id/lesson/:lessonId', component: CourseContentComponent, data: { breadcrumb: 'Course Content' } },
   { path: 'courses/:id', component: CourseContentComponent, data: { breadcrumb: 'Course Content' } },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }

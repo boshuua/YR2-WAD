@@ -37,8 +37,9 @@ export class CourseContentComponent implements OnInit {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
+      const lessonId = params.get('lessonId');
       if (id) {
-        this.checkEnrollment(+id);
+        this.checkEnrollment(+id, lessonId ? +lessonId : null);
       } else {
         this.toastService.error('Course ID not found.');
         this.router.navigate(['/dashboard']);
@@ -46,7 +47,7 @@ export class CourseContentComponent implements OnInit {
     });
   }
 
-  checkEnrollment(courseId: number): void {
+  checkEnrollment(courseId: number, targetLessonId: number | null = null): void {
     this.authService.getUserCourses().subscribe({
       next: (courses: any[]) => {
         const course = courses.find(c => c.id === courseId || c.course_id === courseId);
@@ -64,7 +65,7 @@ export class CourseContentComponent implements OnInit {
         }
 
         this.isEnrolled = true;
-        this.loadCourseData(courseId);
+        this.loadCourseData(courseId, targetLessonId);
       },
       error: () => {
         this.toastService.error('Failed to verify enrollment status.');
@@ -73,7 +74,7 @@ export class CourseContentComponent implements OnInit {
     });
   }
 
-  loadCourseData(courseId: number): void {
+  loadCourseData(courseId: number, targetLessonId: number | null = null): void {
     this.isLoading = true;
 
     // Load Course Basic Info
@@ -89,6 +90,11 @@ export class CourseContentComponent implements OnInit {
 
             if (this.lessons.length === 0) {
               this.errorMessage = 'No training content available for this course.';
+            } else if (targetLessonId) {
+              const index = this.lessons.findIndex(l => l.id === targetLessonId);
+              if (index !== -1) {
+                this.currentLessonIndex = index;
+              }
             }
           },
           error: () => {
