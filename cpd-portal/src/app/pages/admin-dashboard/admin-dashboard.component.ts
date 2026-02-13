@@ -22,7 +22,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   currentToast: ToastConfig | null = null;
   private toastSubscription!: Subscription;
 
-  constructor(private router: Router, private toastService: ToastService) {}
+  constructor(private router: Router, private toastService: ToastService) { }
 
   ngOnInit(): void {
     this.loadUserInfo();
@@ -49,7 +49,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         this.userName = `${firstName} ${lastName}`.trim() || 'Admin User';
 
         // Set role based on access level
-        this.userRole = user.access_level === 'admin' ? 'Administrator' : 'User';
+        this.userRole = user?.access_level === 'admin' ? 'Administrator' : 'User';
 
         // Generate initials
         this.userInitials = this.getInitials(this.userName);

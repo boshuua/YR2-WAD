@@ -42,6 +42,12 @@ export class LoginComponent implements OnInit {
 
     this.authService.loginUser(credentials).subscribe({
       next: (response: AuthResponse) => {
+        if (!response.user) {
+          this.loadingService.hide();
+          this.errorMessage = 'Login failed: No user data received.';
+          return;
+        }
+
         sessionStorage.setItem('currentUser', JSON.stringify(response.user));
 
         // Use loading service to keep spinner up while getting CSRF

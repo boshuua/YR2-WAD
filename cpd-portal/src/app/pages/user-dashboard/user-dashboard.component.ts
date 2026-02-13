@@ -44,7 +44,7 @@ export class UserDashboardComponent implements OnInit {
         this.userName = `${firstName} ${lastName}`.trim() || 'User';
 
         // Set role based on access level
-        this.userRole = user.access_level === 'admin' ? 'Administrator' : 'Student';
+        this.userRole = user?.access_level === 'admin' ? 'Administrator' : 'Student';
 
         // Generate initials
         this.userInitials = this.getInitials(this.userName);
