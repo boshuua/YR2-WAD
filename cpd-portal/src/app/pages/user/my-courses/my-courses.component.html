@@ -88,5 +88,27 @@
       </ng-template>
     </section>
 
+    <!-- 4. Exam History -->
+    <section class="course-section exam-history-section">
+      <h2>MOT Exam History</h2>
+      <div *ngIf="examHistory.length > 0; else noExams" class="exam-list">
+        <div *ngFor="let exam of examHistory" class="exam-card" [class.passed]="exam.passed"
+          [class.failed]="!exam.passed">
+          <div class="exam-header">
+            <h3>{{ exam.title }}</h3>
+            <span class="exam-date">{{ exam.completion_date | date:'shortDate' }}</span>
+          </div>
+          <div class="exam-result">
+            <span class="exam-score">{{ exam.score }}%</span>
+            <span *ngIf="exam.passed" class="result-icon">✓</span>
+            <span *ngIf="!exam.passed" class="result-icon">✗</span>
+          </div>
+        </div>
+      </div>
+      <ng-template #noExams>
+        <p class="empty-section">No exams completed yet.</p>
+      </ng-template>
+    </section>
+
   </div>
 </div>

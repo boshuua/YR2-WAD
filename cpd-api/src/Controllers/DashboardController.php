@@ -51,10 +51,12 @@ class DashboardController extends BaseController
                 SELECT 
                     c.id,
                     c.title,
+                    c.category,
                     ucp.status,
                     ucp.enrolled_at,
                     ucp.completion_date,
                     ucp.hours_completed,
+                    ucp.score,
                     ucp.last_accessed_lesson_id,
                     COUNT(DISTINCT l.id) as total_lessons,
                     COUNT(DISTINCT CASE WHEN ulp.status = 'completed' THEN ulp.lesson_id END) as completed_lessons
@@ -64,7 +66,7 @@ class DashboardController extends BaseController
                 LEFT JOIN user_lesson_progress ulp ON l.id = ulp.lesson_id AND ulp.user_id = ucp.user_id
                 WHERE ucp.user_id = :uid 
                     AND c.is_template = FALSE
-                GROUP BY c.id, c.title, ucp.status, ucp.enrolled_at, ucp.completion_date, ucp.hours_completed, ucp.last_accessed_lesson_id
+                GROUP BY c.id, c.title, c.category, ucp.status, ucp.enrolled_at, ucp.completion_date, ucp.hours_completed, ucp.score, ucp.last_accessed_lesson_id
                 ORDER BY 
                     CASE 
                         WHEN ucp.status IN ('enrolled', 'in_progress') THEN ucp.enrolled_at
@@ -74,13 +76,32 @@ class DashboardController extends BaseController
             $stmtCourses->execute([':uid' => $userId]);
             $allCourses = $stmtCourses->fetchAll(PDO::FETCH_ASSOC);
 
-            // Split into active and completed
+            // Split into active, completed, and exams
             $activeCourses = [];
             $completedCourses = [];
+            $examHistory = [];
+
             $totalLessons = 0;
             $totalCompletedLessons = 0;
 
             foreach ($allCourses as $course) {
+                // If it's an assessment, add to exam history
+                if ($course['category'] === 'Assessment' || strpos($course['title'], 'Assessment') !== false) {
+                    // Only add to exam history if completed? Or all? User said "Exams History".
+                    // Usually history implies completed.
+                    // But if they are failing they might want to see it?
+                    // Let's add all assessments to exam history.
+                    $examHistory[] = [
+                        'id' => $course['id'],
+                        'title' => $course['title'],
+                        'status' => $course['status'],
+                        'completion_date' => $course['completion_date'],
+                        'score' => $course['score'],
+                        'passed' => $course['score'] >= 80
+                    ];
+                    continue; // Skip adding to active/completed lists
+                }
+
                 if ($course['status'] === 'completed') {
                     $completedCourses[] = [
                         'id' => $course['id'],
@@ -122,7 +143,7 @@ class DashboardController extends BaseController
                 "training_summary" => $trainingSummary,
                 "active_courses" => $activeCourses,
                 "completed_courses" => $completedCourses,
-                "exam_history" => [], // Reserved for future end-of-course assessments
+                "exam_history" => $examHistory,
                 "attachments" => $attachments
             ];
 

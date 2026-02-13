@@ -18,6 +18,7 @@ export class MyCoursesComponent implements OnInit {
   activeCourses: any[] = [];
   historyCourses: any[] = [];
   availableCourses: any[] = [];
+  examHistory: any[] = [];
 
   // filtered lists (if we keep search)
   filteredActive: any[] = [];
@@ -48,7 +49,14 @@ export class MyCoursesComponent implements OnInit {
       next: (userCourses: any[]) => {
         // Split into Active and History
         this.activeCourses = userCourses.filter(c => c.user_progress_status !== 'completed');
-        this.historyCourses = userCourses.filter(c => c.user_progress_status === 'completed');
+
+        // Filter completed courses
+        const completed = userCourses.filter(c => c.user_progress_status === 'completed');
+
+        this.historyCourses = completed.filter(c => c.category !== 'Assessment' && !c.title.includes('Assessment'));
+
+        this.examHistory = completed.filter(c => c.category === 'Assessment' || c.title.includes('Assessment'))
+          .map(c => ({ ...c, passed: (c.score >= 80) })); // Add passed flag if not from API (API usually sends score)
 
         // 2. Get Upcoming Courses
         this.authService.getUpcomingCourses().subscribe({

@@ -810,7 +810,9 @@ class CourseController extends BaseController
                         c.description,
                         ucp.status AS user_progress_status,
                         ucp.completion_date,
-                        ucp.last_accessed_lesson_id
+                        ucp.last_accessed_lesson_id,
+                        ucp.score,
+                        c.category
                       FROM courses c
                       INNER JOIN user_course_progress ucp ON c.id = ucp.course_id AND ucp.user_id = :user_id
                       WHERE c.is_template = FALSE
@@ -827,7 +829,9 @@ class CourseController extends BaseController
                     "description" => html_entity_decode($row['description']),
                     "user_progress_status" => $row['user_progress_status'],
                     "completion_date" => $row['completion_date'],
-                    "last_accessed_lesson_id" => $row['last_accessed_lesson_id']
+                    "last_accessed_lesson_id" => $row['last_accessed_lesson_id'],
+                    "score" => $row['score'],
+                    "category" => $row['category']
                 ];
             }
 
@@ -899,20 +903,28 @@ class CourseController extends BaseController
             log_activity($this->db, $userId, getCurrentUserEmail(), 'submit_quiz', "Quiz $statusText for course ID: $courseId with score: $score%");
 
             // Check if passing triggers auto-assignment
+            $assignResult = null;
             if ($score >= 80) {
-                $this->checkAuthAssign($userId, $courseId);
+                $assignResult = $this->checkAuthAssign($userId, $courseId);
             }
 
             $message = $score >= 80
                 ? "Congratulations! You passed the course with a score of {$score}%."
                 : "Quiz submitted with score of {$score}%. You need 80% or higher to complete the course.";
 
-            $this->json([
+            $response = [
                 "message" => $message,
                 "score" => $score,
                 "status" => $newStatus,
                 "passed" => $score >= 80
-            ]);
+            ];
+
+            if ($assignResult && isset($assignResult['assigned_course_id'])) {
+                $response['assigned_course_id'] = $assignResult['assigned_course_id'];
+                $response['assigned_course_title'] = $assignResult['assigned_course_title'];
+            }
+
+            $this->json($response);
 
         } catch (\Exception $e) {
             $this->error("Failed to submit quiz: " . $e->getMessage(), 500);

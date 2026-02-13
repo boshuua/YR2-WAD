@@ -389,3 +389,57 @@
     font-weight: 600;
     font-size: 0.75rem;
 }
+
+/* Exam History */
+.exam-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.exam-item:last-child {
+    border-bottom: none;
+}
+
+.exam-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.exam-info strong {
+    color: #334155;
+    font-size: 0.95rem;
+}
+
+.exam-date {
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+.exam-score {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.score-value {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.score-value.passed {
+    color: #16a34a;
+}
+
+.score-value.failed {
+    color: #dc2626;
+}
+
+.pass-icon {
+    color: #16a34a;
+    font-weight: bold;
+    font-size: 1.2rem;
+}

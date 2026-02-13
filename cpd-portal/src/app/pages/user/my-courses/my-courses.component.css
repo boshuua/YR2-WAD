@@ -302,3 +302,86 @@ h1 {
 .available-card {
   border-left: 4px solid var(--border-color);
 }
+
+/* Exam History Section */
+.exam-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.exam-card {
+  background-color: var(--white);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: var(--box-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-left: 4px solid var(--border-color);
+  transition: transform 0.2s;
+}
+
+.exam-card.passed {
+  border-left-color: var(--success-color);
+}
+
+.exam-card.failed {
+  border-left-color: var(--danger-color);
+}
+
+.exam-card:hover {
+  transform: translateY(-3px);
+}
+
+.exam-header {
+  margin-bottom: 1rem;
+}
+
+.exam-header h3 {
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+}
+
+.exam-date {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.exam-result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.exam-score {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.exam-card.passed .exam-score {
+  color: var(--success-color);
+}
+
+.exam-card.failed .exam-score {
+  color: var(--danger-color);
+}
+
+.result-icon {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.exam-card.passed .result-icon {
+  color: var(--success-color);
+}
+
+.exam-card.failed .result-icon {
+  color: var(--danger-color);
+}
