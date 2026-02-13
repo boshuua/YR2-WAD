@@ -84,5 +84,5 @@ try {
 } catch (Exception $e) {
     error_log("Save lesson progress error: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to save progress']);
+    echo json_encode(['error' => 'Failed to save progress: ' . $e->getMessage()]);
 }
