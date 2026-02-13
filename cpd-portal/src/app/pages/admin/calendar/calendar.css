@@ -8,6 +8,11 @@
     box-shadow: var(--box-shadow);
     overflow-x: auto;
     max-width: 100%;
+    box-sizing: border-box;
+}
+
+.calendar-container * {
+    box-sizing: border-box;
 }
 
 .calendar-header {

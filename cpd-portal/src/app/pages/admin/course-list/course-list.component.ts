@@ -34,7 +34,8 @@ export class CourseListComponent implements OnInit {
     templateId: null,
     startDate: '',
     endDate: '',
-    title: '' // Optional override
+    title: '', // Optional override
+    userId: null // Optional assignment
   };
   isScheduling = false;
 
@@ -109,12 +110,18 @@ export class CourseListComponent implements OnInit {
         this.showScheduleModal = true;
         this.loadingService.hide();
 
+        // Load users if not already loaded
+        if (this.users.length === 0) {
+          this.loadUsers();
+        }
+
         // Reset form
         this.scheduleData = {
           templateId: null,
           startDate: '',
           endDate: '',
-          title: ''
+          title: '',
+          userId: null
         };
       },
       error: (err) => {
@@ -141,7 +148,8 @@ export class CourseListComponent implements OnInit {
       template_id: this.scheduleData.templateId,
       start_date: this.scheduleData.startDate,
       end_date: this.scheduleData.endDate,
-      title: this.scheduleData.title || undefined
+      title: this.scheduleData.title || undefined,
+      user_id: this.scheduleData.userId || undefined
     };
 
     this.authService.adminCreateCourseFromTemplate(payload).subscribe({

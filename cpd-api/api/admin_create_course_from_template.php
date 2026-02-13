@@ -133,6 +133,20 @@ try {
         }
     }
 
+    // 6. Enroll User (if selected)
+    $userId = isset($data->user_id) ? intval($data->user_id) : null;
+    if ($userId) {
+        $enrollStmt = $db->prepare("
+            INSERT INTO user_course_progress (user_id, course_id, status, enrolled_at, hours_completed)
+            VALUES (:uid, :cid, 'not_started', :date, 0)
+        ");
+        $enrollStmt->execute([
+            ':uid' => $userId,
+            ':cid' => $newCourseId,
+            ':date' => $startDate
+        ]);
+    }
+
     $db->commit();
 
     log_activity($db, getCurrentUserId(), getCurrentUserEmail(), "Course Scheduled", "Created '$courseTitle' from template ID $templateId");

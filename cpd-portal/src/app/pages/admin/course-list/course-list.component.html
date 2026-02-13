@@ -94,6 +94,17 @@
           placeholder="Leave blank to use template title">
       </div>
 
+      <div class="form-group">
+        <label>Assign to User (Optional)</label>
+        <select [(ngModel)]="scheduleData.userId" name="userId">
+          <option [ngValue]="null">-- Skip Assignment --</option>
+          <option *ngFor="let user of users" [value]="user.id">
+            {{ user.first_name }} {{ user.last_name }} ({{ user.email }})
+          </option>
+        </select>
+        <small class="hint">The selected user will be enrolled immediately.</small>
+      </div>
+
       <div class="modal-actions">
         <button type="button" class="cancel-btn" (click)="closeScheduleModal()">Cancel</button>
         <button type="submit" class="confirm-btn" [disabled]="isScheduling">
