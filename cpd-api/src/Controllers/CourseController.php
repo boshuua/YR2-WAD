@@ -173,14 +173,17 @@ class CourseController extends BaseController
         }
     }
 
+    /**
+     * Copies lessons from a template course to a new course instance.
+     * Simplified - no longer copies questions/assessments.
+     */
     private function copyCourseContent($templateId, $newCourseId)
     {
-        // Copy Lessons
+        // Copy Lessons only
         $getLessons = $this->db->prepare("SELECT * FROM lessons WHERE course_id = :tid ORDER BY order_index ASC");
         $getLessons->execute([':tid' => $templateId]);
         $lessons = $getLessons->fetchAll(PDO::FETCH_ASSOC);
 
-        $lessonMap = [];
         foreach ($lessons as $lesson) {
             $insLesson = $this->db->prepare("
                 INSERT INTO lessons (course_id, title, content, order_index)
@@ -192,48 +195,6 @@ class CourseController extends BaseController
                 ':content' => $lesson['content'],
                 ':oi' => $lesson['order_index']
             ]);
-            $lessonMap[$lesson['id']] = $this->db->lastInsertId();
-        }
-
-        // Copy Questions
-        $getQuestions = $this->db->prepare("SELECT * FROM questions WHERE course_id = :tid");
-        $getQuestions->execute([':tid' => $templateId]);
-        $questions = $getQuestions->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($questions as $q) {
-            $newLessonId = null;
-            if ($q['lesson_id'] && isset($lessonMap[$q['lesson_id']])) {
-                $newLessonId = $lessonMap[$q['lesson_id']];
-            }
-
-            $insQ = $this->db->prepare("
-                INSERT INTO questions (course_id, lesson_id, question_text, question_type)
-                VALUES (:cid, :lid, :qtext, :qtype)
-            ");
-            $insQ->execute([
-                ':cid' => $newCourseId,
-                ':lid' => $newLessonId,
-                ':qtext' => $q['question_text'],
-                ':qtype' => $q['question_type']
-            ]);
-            $newQuestionId = $this->db->lastInsertId();
-
-            // Copy Options
-            $getOpts = $this->db->prepare("SELECT * FROM question_options WHERE question_id = :qid");
-            $getOpts->execute([':qid' => $q['id']]);
-            $options = $getOpts->fetchAll(PDO::FETCH_ASSOC);
-
-            foreach ($options as $opt) {
-                $insOpt = $this->db->prepare("
-                    INSERT INTO question_options (question_id, option_text, is_correct)
-                    VALUES (:qid, :text, :correct)
-                ");
-                $insOpt->execute([
-                    ':qid' => $newQuestionId,
-                    ':text' => $opt['option_text'],
-                    ':correct' => $opt['is_correct']
-                ]);
-            }
         }
     }
 
