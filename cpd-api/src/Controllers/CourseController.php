@@ -117,28 +117,6 @@ class CourseController extends BaseController
                         'assigned_course_title' => $assessmentTemplate['title']
                     ];
                 }
-                $targetTemplateTitle = 'MOT Class 1 & 2 Annual Assessment';
-            } elseif (strpos($title, 'MOT Class 4 & 7 Training') !== false) {
-                $targetTemplateTitle = 'MOT Class 4 & 7 Annual Assessment';
-            }
-
-            if ($targetTemplateTitle) {
-                // 3. Find the Annual Assessment Template
-                $templStmt = $this->db->prepare("SELECT id, title FROM courses WHERE title = :title AND is_template = TRUE LIMIT 1");
-                $templStmt->execute([':title' => $targetTemplateTitle]);
-                $assessmentTemplate = $templStmt->fetch(PDO::FETCH_ASSOC);
-
-                if ($assessmentTemplate) {
-                    $templateId = $assessmentTemplate['id'];
-                    $newCourseId = $this->createAutoInstanceAndEnroll($userId, $templateId);
-
-                    // Return info for frontend prompt
-                    return [
-                        'success' => true,
-                        'assigned_course_id' => $newCourseId,
-                        'assigned_course_title' => $assessmentTemplate['title']
-                    ];
-                }
             }
         } catch (\Exception $e) {
             // Log silent error, don't block response
