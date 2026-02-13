@@ -179,15 +179,11 @@ export class CourseContentComponent implements OnInit {
         this.toastService.success('Training completed successfully!');
 
         if (response.assigned_course_id) {
-          const startNow = confirm(`Training Completed.\n\nYou have been assigned "${response.assigned_course_title}".\n\nDo you want to start the assessment now?`);
-          if (startNow) {
-            this.router.navigate(['/courses', response.assigned_course_id]);
-          } else {
-            this.router.navigate(['/dashboard/my-courses']);
-          }
-        } else {
-          this.router.navigate(['/dashboard/my-courses']);
+          this.toastService.info(`You have been enrolled in "${response.assigned_course_title}". Check your My Courses page to start the assessment.`);
         }
+
+        // Always redirect to My Courses
+        this.router.navigate(['/dashboard/my-courses']);
       },
       error: (err) => {
         this.toastService.error('Failed to complete training.');

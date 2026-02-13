@@ -189,12 +189,11 @@ class CourseController extends BaseController
     }
 
     /**
-     * Copies lessons from a template course to a new course instance.
-     * Simplified - no longer copies questions/assessments.
+     * Copies lessons and questions from a template course to a new course instance.
      */
     private function copyCourseContent($templateId, $newCourseId)
     {
-        // Copy Lessons only
+        // Copy Lessons
         $getLessons = $this->db->prepare("SELECT * FROM lessons WHERE course_id = :tid ORDER BY order_index ASC");
         $getLessons->execute([':tid' => $templateId]);
         $lessons = $getLessons->fetchAll(PDO::FETCH_ASSOC);
@@ -210,6 +209,42 @@ class CourseController extends BaseController
                 ':content' => $lesson['content'],
                 ':oi' => $lesson['order_index']
             ]);
+        }
+
+        // Copy Quiz Questions
+        $getQuestions = $this->db->prepare("SELECT * FROM questions WHERE course_id = :tid ORDER BY id ASC");
+        $getQuestions->execute([':tid' => $templateId]);
+        $questions = $getQuestions->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($questions as $question) {
+            $insQuestion = $this->db->prepare("
+                INSERT INTO questions (course_id, question_text, question_type)
+                VALUES (:cid, :question, :type)
+            ");
+            $insQuestion->execute([
+                ':cid' => $newCourseId,
+                ':question' => $question['question_text'],
+                ':type' => $question['question_type']
+            ]);
+
+            $newQuestionId = $this->db->lastInsertId();
+
+            // Copy question options
+            $getOptions = $this->db->prepare("SELECT * FROM question_options WHERE question_id = :qid");
+            $getOptions->execute([':qid' => $question['id']]);
+            $options = $getOptions->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($options as $option) {
+                $insOption = $this->db->prepare("
+                    INSERT INTO question_options (question_id, option_text, is_correct)
+                    VALUES (:qid, :text, :correct)
+                ");
+                $insOption->execute([
+                    ':qid' => $newQuestionId,
+                    ':text' => $option['option_text'],
+                    ':correct' => $option['is_correct']
+                ]);
+            }
         }
     }
 
