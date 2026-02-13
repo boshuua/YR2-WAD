@@ -785,6 +785,8 @@ class CourseController extends BaseController
         $userId = getCurrentUserId();
 
         try {
+            // Only return courses the user is ACTUALLY enrolled in (INNER JOIN)
+            // and exclude template courses
             $query = "SELECT
                         c.id AS course_id,
                         c.title,
@@ -793,7 +795,8 @@ class CourseController extends BaseController
                         ucp.completion_date,
                         ucp.score
                       FROM courses c
-                      LEFT JOIN user_course_progress ucp ON c.id = ucp.course_id AND ucp.user_id = :user_id
+                      INNER JOIN user_course_progress ucp ON c.id = ucp.course_id AND ucp.user_id = :user_id
+                      WHERE c.is_template = FALSE
                       ORDER BY c.title ASC";
 
             $stmt = $this->db->prepare($query);
