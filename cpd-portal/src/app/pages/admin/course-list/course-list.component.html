@@ -95,14 +95,17 @@
       </div>
 
       <div class="form-group">
-        <label>Assign to User (Optional)</label>
-        <select [(ngModel)]="scheduleData.userId" name="userId">
-          <option [ngValue]="null">-- Skip Assignment --</option>
-          <option *ngFor="let user of users" [value]="user.id">
-            {{ user.first_name }} {{ user.last_name }} ({{ user.email }})
-          </option>
-        </select>
-        <small class="hint">The selected user will be enrolled immediately.</small>
+        <label>Assign to Users (Optional)</label>
+        <div class="user-select-list">
+          <div *ngFor="let user of users" class="user-checkbox-item">
+            <input type="checkbox" [id]="'user-'+user.id" (change)="toggleUserSelection(user.id, $event)"
+              [checked]="scheduleData.userIds.includes(user.id)">
+            <label [for]="'user-'+user.id">
+              {{ user.first_name }} {{ user.last_name }} <span class="email-hint">({{ user.email }})</span>
+            </label>
+          </div>
+        </div>
+        <small class="hint">Selected users will be enrolled immediately.</small>
       </div>
 
       <div class="modal-actions">

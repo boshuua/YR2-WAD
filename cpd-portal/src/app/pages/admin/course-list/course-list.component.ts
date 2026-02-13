@@ -35,7 +35,7 @@ export class CourseListComponent implements OnInit {
     startDate: '',
     endDate: '',
     title: '', // Optional override
-    userId: null // Optional assignment
+    userIds: [] as number[] // Multiple assignment
   };
   isScheduling = false;
 
@@ -121,7 +121,7 @@ export class CourseListComponent implements OnInit {
           startDate: '',
           endDate: '',
           title: '',
-          userId: null
+          userIds: []
         };
       },
       error: (err) => {
@@ -133,6 +133,14 @@ export class CourseListComponent implements OnInit {
 
   closeScheduleModal(): void {
     this.showScheduleModal = false;
+  }
+
+  toggleUserSelection(userId: number, event: any): void {
+    if (event.target.checked) {
+      this.scheduleData.userIds.push(userId);
+    } else {
+      this.scheduleData.userIds = this.scheduleData.userIds.filter(id => id !== userId);
+    }
   }
 
   scheduleCourse(): void {
@@ -149,7 +157,7 @@ export class CourseListComponent implements OnInit {
       start_date: this.scheduleData.startDate,
       end_date: this.scheduleData.endDate,
       title: this.scheduleData.title || undefined,
-      user_id: this.scheduleData.userId || undefined
+      user_ids: this.scheduleData.userIds
     };
 
     this.authService.adminCreateCourseFromTemplate(payload).subscribe({

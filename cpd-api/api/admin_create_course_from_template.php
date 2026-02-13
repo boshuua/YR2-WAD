@@ -134,17 +134,27 @@ try {
     }
 
     // 6. Enroll User (if selected)
-    $userId = isset($data->user_id) ? intval($data->user_id) : null;
-    if ($userId) {
+    // 6. Enroll Users (if selected)
+    $userIds = [];
+    if (isset($data->user_ids) && is_array($data->user_ids)) {
+        $userIds = $data->user_ids;
+    } elseif (isset($data->user_id) && $data->user_id) {
+        $userIds[] = intval($data->user_id);
+    }
+
+    if (!empty($userIds)) {
         $enrollStmt = $db->prepare("
             INSERT INTO user_course_progress (user_id, course_id, status, enrolled_at, hours_completed)
             VALUES (:uid, :cid, 'not_started', :date, 0)
         ");
-        $enrollStmt->execute([
-            ':uid' => $userId,
-            ':cid' => $newCourseId,
-            ':date' => $startDate
-        ]);
+
+        foreach ($userIds as $uid) {
+            $enrollStmt->execute([
+                ':uid' => $uid,
+                ':cid' => $newCourseId,
+                ':date' => $startDate
+            ]);
+        }
     }
 
     $db->commit();
