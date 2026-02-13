@@ -3,82 +3,42 @@
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
   <div *ngIf="!isLoading && !errorMessage && course">
-    
+
     <!-- HEADER -->
     <div class="course-header">
       <button class="btn-back" (click)="goBack()">← Back</button>
       <h1>{{ course.title }}</h1>
-      <div class="progress-bar-container">
-        <div class="progress-label">Annual Requirement: {{ course.required_hours }} Hours</div>
+      <div class="progress-info">
+        <span class="lesson-count">Lesson {{ currentLessonIndex + 1 }} of {{ lessons.length }}</span>
+        <span class="required-hours">Annual Requirement: {{ course.required_hours }} Hours</span>
       </div>
     </div>
 
-    <!-- VIEW: LESSON CONTENT -->
-    <div *ngIf="currentView === 'lesson' && currentLesson" class="content-card">
+    <!-- LESSON CONTENT -->
+    <div *ngIf="currentLesson" class="content-card">
       <div class="card-header">
         <h2>{{ currentLesson.title }}</h2>
       </div>
       <div class="card-body training-text" [innerHTML]="currentLesson.content"></div>
+
       <div class="card-actions">
-        <button class="btn-primary" (click)='nextSection()'>Continue to Checkpoint →</button>
+        <button *ngIf="currentLessonIndex > 0" class="btn-secondary" (click)="previousLesson()">
+          ← Previous
+        </button>
+
+        <button *ngIf="!isLastLesson" class="btn-primary" (click)="nextLesson()">
+          Next Lesson →
+        </button>
+
+        <button *ngIf="isLastLesson" class="btn-success" (click)="completeCourse()" [disabled]="isCompleting">
+          {{ isCompleting ? 'Completing...' : 'Complete Training ✓' }}
+        </button>
       </div>
     </div>
 
-    <!-- VIEW: CHECKPOINT QUIZ -->
-    <div *ngIf="currentView === 'checkpoint'" class="content-card">
-      <div class="card-header">
-        <h2>Knowledge Checkpoint</h2>
-        <p>You must answer correctly to proceed to the next section.</p>
-      </div>
-      <div class="card-body">
-        <div *ngFor="let q of currentLesson.checkpoint_quiz" class="question-block">
-          <p class="question-text">{{ q.question_text }}</p>
-          <div class="options-grid">
-            <div *ngFor="let opt of q.options" 
-                 class="option-item" 
-                 [class.selected]="isOptionSelected(q.id, opt.id)"
-                 (click)="toggleAnswer(q.id, opt.id)">
-              {{ opt.option_text }}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card-actions">
-        <button class="btn-primary" (click)="submitCheckpoint()">Verify Answer</button>
-      </div>
-    </div>
-
-    <!-- VIEW: FINAL ASSESSMENT -->
-    <div *ngIf="currentView === 'assessment'" class="content-card">
-      <div class="card-header">
-        <h2>Annual Assessment</h2>
-        <p>Complete this final test to log your training hours. Pass mark: 80%</p>
-      </div>
-      <div class="card-body">
-        <div *ngFor="let q of assessmentQuestions; let i = index" class="question-block">
-          <p class="question-text"><strong>Q{{i+1}}:</strong> {{ q.question_text }}</p>
-          <div class="options-grid">
-            <div *ngFor="let opt of q.options" 
-                 class="option-item" 
-                 [class.selected]="isOptionSelected(q.id, opt.id)"
-                 (click)="toggleAnswer(q.id, opt.id)">
-              {{ opt.option_text }}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card-actions">
-        <button class="btn-primary" (click)="submitFinalAssessment()">Submit Final Assessment</button>
-      </div>
-    </div>
-
-    <!-- VIEW: COMPLETED -->
-    <div *ngIf="currentView === 'completed'" class="content-card success-card">
+    <div *ngIf="lessons.length === 0 && !isLoading" class="content-card">
       <div class="card-body text-center">
-        <div class="success-icon">🏆</div>
-        <h2>Annual Training Completed</h2>
-        <p>Well done! You have successfully completed your annual training and assessment.</p>
-        <div class="final-score">Your Score: {{ quizScore }}%</div>
+        <p>No training content available for this course.</p>
         <button class="btn-primary" (click)="goBack()">Return to Dashboard</button>
       </div>
     </div>

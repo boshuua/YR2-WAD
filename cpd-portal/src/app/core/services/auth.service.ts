@@ -259,6 +259,18 @@ export class AuthService {
     );
   }
 
+  // Simplified: Complete course without quiz/score
+  completeCourse(courseId: number): Observable<ApiResponse> {
+    return this.ensureCsrfToken().pipe(
+      switchMap((csrfToken) =>
+        this.http.post<ApiResponse>(`${this.apiUrl}/complete_course.php`, { course_id: courseId }, {
+          withCredentials: true,
+          headers: new HttpHeaders({ 'X-CSRF-Token': csrfToken })
+        })
+      )
+    );
+  }
+
   assignCourse(data: { user_id: number, course_id: number }): Observable<ApiResponse> {
     return this.ensureCsrfToken().pipe(
       switchMap((csrfToken) =>

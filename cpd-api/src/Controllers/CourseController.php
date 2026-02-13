@@ -107,7 +107,7 @@ class CourseController extends BaseController
             }
         } catch (\Exception $e) {
             // Log silent error, don't block response
-            error_log("Auto-assign failed: " . $e->getMessage());
+            return ['success' => false, 'message' => $e->getMessage()];
         }
     }
 
@@ -911,6 +911,80 @@ class CourseController extends BaseController
 
         } catch (\Exception $e) {
             $this->error("Failed to submit quiz: " . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Complete a course (simplified - no quiz/score)
+     */
+    public function completeCourse(): void
+    {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['error' => 'Method Not Allowed']);
+            return;
+        }
+
+        $userId = $_SESSION['user_id'] ?? null;
+        if (!$userId) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        $courseId = $input['course_id'] ?? null;
+
+        if (!$courseId) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Missing course_id']);
+            return;
+        }
+
+        try {
+            // Get course info for hours
+            $courseStmt = $this->db->prepare("SELECT required_hours FROM courses WHERE id = :cid");
+            $courseStmt->execute([':cid' => $courseId]);
+            $course = $courseStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$course) {
+                throw new \Exception("Course not found");
+            }
+
+            // Update user progress to completed
+            $updateStmt = $this->db->prepare("
+                UPDATE user_course_progress 
+                SET status = 'completed', 
+                    completion_date = NOW(), 
+                    hours_completed = :hours,
+                    updated_at = NOW()
+                WHERE user_id = :uid AND course_id = :cid
+            ");
+
+            $updateStmt->execute([
+                ':uid' => $userId,
+                ':cid' => $courseId,
+                ':hours' => $course['required_hours']
+            ]);
+
+            if ($updateStmt->rowCount() === 0) {
+                throw new \Exception("No enrollment found or already completed");
+            }
+
+            echo json_encode([
+                'success' => true,
+                'message' => 'Course completed successfully!'
+            ]);
+
+        } catch (\Exception $e) {
+            error_log("Complete course error: " . $e->getMessage());
+            http_response_code(500);
+            echo json_encode([
+                'error' => 'Failed to complete course',
+                'message' => $e->getMessage()
+            ]);
         }
     }
 }
