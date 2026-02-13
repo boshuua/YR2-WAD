@@ -77,7 +77,10 @@ class AuthController extends BaseController
                     "email" => $email
                 );
 
-                $this->json($user_arr);
+                $this->json([
+                    'message' => 'Login successful',
+                    'user' => $user_arr
+                ]);
 
             } else {
                 // Increment Failures
