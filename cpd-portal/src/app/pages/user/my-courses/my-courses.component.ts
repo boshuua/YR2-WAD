@@ -96,7 +96,7 @@ export class MyCoursesComponent implements OnInit {
   }
 
   viewCourse(courseId: number): void {
-    this.router.navigate(['/pages/course-content', courseId]); // Adjusted route if needed
+    this.router.navigate(['/courses', courseId]);
   }
 
   enrollCourse(courseId: number): void {
