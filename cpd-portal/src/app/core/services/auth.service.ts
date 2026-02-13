@@ -259,14 +259,33 @@ export class AuthService {
     );
   }
 
-  // Simplified: Complete course without quiz/score
-  completeCourse(courseId: number): Observable<ApiResponse> {
+  completeCourse(courseId: number, hoursCompleted: number): Observable<ApiResponse> {
     return this.ensureCsrfToken().pipe(
       switchMap((csrfToken) =>
-        this.http.post<ApiResponse>(`${this.apiUrl}/complete_course.php`, { course_id: courseId }, {
-          withCredentials: true,
-          headers: new HttpHeaders({ 'X-CSRF-Token': csrfToken })
-        })
+        this.http.post<ApiResponse>(
+          `${this.apiUrl}/complete_course.php`,
+          { course_id: courseId, hours_completed: hoursCompleted },
+          {
+            withCredentials: true,
+            headers: new HttpHeaders({ 'X-CSRF-Token': csrfToken })
+          }
+        )
+      )
+    );
+  }
+
+  // Auto-save lesson progress
+  saveLessonProgress(courseId: number, lessonId: number): Observable<any> {
+    return this.ensureCsrfToken().pipe(
+      switchMap((csrfToken) =>
+        this.http.post<any>(
+          `${this.apiUrl}/save_lesson_progress.php`,
+          { course_id: courseId, lesson_id: lessonId },
+          {
+            withCredentials: true,
+            headers: new HttpHeaders({ 'X-CSRF-Token': csrfToken })
+          }
+        )
       )
     );
   }

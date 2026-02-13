@@ -23,6 +23,10 @@ export class CourseContentComponent implements OnInit {
   currentLessonIndex = 0;
   isCompleting = false;
 
+  // Auto-save state
+  isSaving = false;
+  saveStatus: 'idle' | 'saving' | 'saved' | 'error' = 'idle';
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -109,28 +113,70 @@ export class CourseContentComponent implements OnInit {
   }
 
   nextLesson(): void {
+    // Save current lesson progress before moving
+    this.saveProgress();
+
     if (this.currentLessonIndex < this.lessons.length - 1) {
       this.currentLessonIndex++;
     }
   }
 
   previousLesson(): void {
+    // Save current lesson progress before moving
+    this.saveProgress();
+
     if (this.currentLessonIndex > 0) {
       this.currentLessonIndex--;
     }
   }
 
-  completeCourse(): void {
+  // Auto-save lesson progress
+  saveProgress(): void {
+    if (!this.course || !this.currentLesson) return;
+
+    this.isSaving = true;
+    this.saveStatus = 'saving';
+
+    this.authService.saveLessonProgress(this.course.id, this.currentLesson.id).subscribe({
+      next: (response) => {
+        this.isSaving = false;
+        this.saveStatus = 'saved';
+
+        // Reset status after 2 seconds
+        setTimeout(() => {
+          if (this.saveStatus === 'saved') {
+            this.saveStatus = 'idle';
+          }
+        }, 2000);
+      },
+      error: (err) => {
+        this.isSaving = false;
+        this.saveStatus = 'error';
+        console.error('Failed to save progress:', err);
+      }
+    });
+  }
+
+  completeTraining(): void {
+    if (!this.course) return;
+
+    // Save final lesson before completing
+    this.saveProgress();
+
     this.isCompleting = true;
 
-    this.authService.completeCourse(this.course.id).subscribe({
+    // Simple hours calculation (could be customizable)
+    const hoursCompleted = 3;
+
+    this.authService.completeCourse(this.course.id, hoursCompleted).subscribe({
       next: () => {
-        this.toastService.success('Congratulations! You have completed this training course.');
+        this.toastService.success('Training completed successfully!');
         this.router.navigate(['/dashboard/my-courses']);
       },
       error: (err) => {
+        this.toastService.error('Failed to complete training.');
+        console.error(err);
         this.isCompleting = false;
-        this.toastService.error('Failed to complete course: ' + (err.error?.message || err.message));
       }
     });
   }

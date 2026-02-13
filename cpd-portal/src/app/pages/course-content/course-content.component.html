@@ -11,6 +11,15 @@
       <div class="progress-info">
         <span class="lesson-count">Lesson {{ currentLessonIndex + 1 }} of {{ lessons.length }}</span>
         <span class="required-hours">Annual Requirement: {{ course.required_hours }} Hours</span>
+        <span class="save-status" [ngClass]="{
+          'saving': saveStatus === 'saving',
+          'saved': saveStatus === 'saved',
+          'error': saveStatus === 'error'
+        }">
+          <span *ngIf="saveStatus === 'saving'">💾 Saving...</span>
+          <span *ngIf="saveStatus === 'saved'">✓ Saved</span>
+          <span *ngIf="saveStatus === 'error'">⚠ Save failed</span>
+        </span>
       </div>
     </div>
 
@@ -30,8 +39,8 @@
           Next Lesson →
         </button>
 
-        <button *ngIf="isLastLesson" class="btn-success" (click)="completeCourse()" [disabled]="isCompleting">
-          {{ isCompleting ? 'Completing...' : 'Complete Training ✓' }}
+        <button *ngIf="isLastLesson" class="btn-success" (click)="completeTraining()" [disabled]="isCompleting">
+          {{ isCompleting ? 'Completing...' : 'Complete Training' }}
         </button>
       </div>
     </div>
