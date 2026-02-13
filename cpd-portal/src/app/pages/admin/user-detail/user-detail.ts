@@ -17,8 +17,9 @@ import { environment } from '../../../../environments/environment';
 export class UserDetailComponent implements OnInit {
   userId: number | null = null;
   user: any = null;
-  enrolments: any[] = [];
-  examHistory: any[] = [];
+  activeCourses: any[] = []; // Renamed from enrolments
+  completedCourses: any[] = []; // New - completed training courses
+  examHistory: any[] = []; // Reserved for future assessments
   attachments: any[] = [];
   trainingSummary: any = null;
 
@@ -57,10 +58,11 @@ export class UserDetailComponent implements OnInit {
     this.authService.getUserDashboard(this.userId).subscribe({
       next: (data) => {
         this.user = data.user;
-        this.enrolments = data.enrolments;
-        this.examHistory = data.exam_history;
-        this.attachments = data.attachments;
-        this.trainingSummary = data.training_summary;
+        this.activeCourses = data.active_courses || [];
+        this.completedCourses = data.completed_courses || [];
+        this.examHistory = data.exam_history || [];
+        this.attachments = data.attachments || [];
+        this.trainingSummary = data.training_summary || {};
         this.isLoading = false;
         this.loadingService.hide();
       },
@@ -72,6 +74,16 @@ export class UserDetailComponent implements OnInit {
         console.error(err);
       }
     });
+  }
+
+  // Helper methods for progress display
+  getProgressPercentage(course: any): number {
+    if (!course.total_lessons || course.total_lessons === 0) return 0;
+    return Math.round((course.completed_lessons / course.total_lessons) * 100);
+  }
+
+  getLessonProgressText(course: any): string {
+    return `Lesson ${course.completed_lessons || 0} of ${course.total_lessons || 0}`;
   }
 
   editUser(): void {

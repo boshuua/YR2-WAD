@@ -41,10 +41,37 @@
             <!-- Training History Widget -->
             <section class="widget training-history">
                 <h3>MOT Training History</h3>
+
+                <!-- Active Courses Section -->
                 <div class="history-content">
-                    <h4>Total Active Courses</h4>
-                    <div class="history-stats">
-                        {{ trainingSummary?.active_courses_count || 0 }} Assigned
+                    <h4>Active Courses</h4>
+
+                    <div *ngIf="activeCourses.length === 0" class="no-data">No active courses</div>
+
+                    <div *ngFor="let course of activeCourses" class="course-card">
+                        <div class="course-info">
+                            <strong>{{ course.title }}</strong>
+                            <span class="lesson-progress">{{ getLessonProgressText(course) }} completed</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" [style.width.%]="getProgressPercentage(course)"></div>
+                        </div>
+                        <span class="percentage">{{ getProgressPercentage(course) }}%</span>
+                    </div>
+                </div>
+
+                <!-- Completed Courses Section -->
+                <div class="history-content completed-section">
+                    <h4>Completed Courses</h4>
+
+                    <div *ngIf="completedCourses.length === 0" class="no-data">No completed courses</div>
+
+                    <div *ngFor="let course of completedCourses" class="completed-course">
+                        <strong>{{ course.title }}</strong>
+                        <div class="completion-details">
+                            <span>Completed: {{ course.completion_date | date:'shortDate' }}</span>
+                            <span class="hours-badge">{{ course.hours_completed || 0 }} Hours</span>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -54,30 +81,14 @@
         <!-- Right Column -->
         <div class="dashboard-col-right">
 
-            <!-- Enrolments Widget Removed as requested -->
-
             <!-- Exam History Widget -->
             <section class="widget exam-history">
                 <h3>MOT Exam History</h3>
 
-                <div *ngIf="examHistory.length === 0" class="no-data">No data</div>
-
-                <table *ngIf="examHistory.length > 0" class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Exam</th>
-                            <th>Date</th>
-                            <th>Score</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let exam of examHistory">
-                            <td>{{ exam.title }}</td>
-                            <td>{{ exam.completion_date | date:'shortDate' }}</td>
-                            <td>{{ exam.score }}%</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="no-data exam-placeholder">
+                    <p>No assessments completed yet.</p>
+                    <p class="placeholder-note">End-of-course assessments will appear here in the future.</p>
+                </div>
             </section>
 
             <!-- Attachments Widget -->
