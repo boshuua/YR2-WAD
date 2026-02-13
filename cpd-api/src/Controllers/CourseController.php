@@ -31,8 +31,8 @@ class CourseController extends BaseController
         } else if ($type === 'library') {
             $sql .= " AND (c.is_template = TRUE OR c.is_locked = TRUE)";
         } else if ($type === 'template') {
-            // Strictly templates, used for scheduling dropdown
-            // HIDE "MOT Tester Annual Assessment" from this list so it can't be manually scheduled easily
+            // Strictly templates for scheduling dropdown
+            // Hide Annual Assessment (auto-assigned) but allow all other templates including locked ones
             $sql .= " AND c.is_template = TRUE AND c.title != 'MOT Tester Annual Assessment'";
         } else if ($type === 'active') {
             // Active usually means filtered instances (not templates)
