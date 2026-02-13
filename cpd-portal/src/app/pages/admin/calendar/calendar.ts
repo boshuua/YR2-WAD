@@ -160,25 +160,24 @@ export class CalendarComponent implements OnInit {
 
     this.daysInMonth.forEach(day => {
       day.assignments = []; // Clear previous
-      const dayDateStr = this.formatDateForInput(day.date);
+      const dayTime = day.date.getTime();
 
-      // Find courses starting on this day
-      // Note: This logic places the "Course Start" on the calendar.
-      // If we want to show duration, we'd check if date is within range.
-      // For now, let's show Start Date.
+      // Find courses active on this day (Start <= Day <= End)
+      const coursesActive = this.scheduledCourses.filter(c => {
+        if (!c.start_date || !c.end_date) return false;
 
-      const coursesStarting = this.scheduledCourses.filter(c => {
-        if (!c.start_date) return false;
-        const startDate = c.start_date.split(' ')[0].split('T')[0];
-        return startDate === dayDateStr;
+        const start = new Date(c.start_date).setHours(0, 0, 0, 0);
+        const end = new Date(c.end_date).setHours(23, 59, 59, 999);
+
+        return dayTime >= start && dayTime <= end;
       });
 
-      coursesStarting.forEach(c => {
+      coursesActive.forEach(c => {
         day.assignments.push({
           id: c.id,
-          user_id: 0, // Not relevant for course instance view
+          user_id: 0,
           course_id: c.id,
-          user_name: '', // Not relevant
+          user_name: '',
           course_title: c.title
         });
       });
