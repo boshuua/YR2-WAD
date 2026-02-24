@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { AuthService } from '../../../core/services/auth.service';
+import { CourseService } from '../../../core/services/course.service';
 import { FormsModule } from '@angular/forms';
+import { ActivityLog } from '../../../core/models/dashboard.model';
 
 @Component({
   selector: 'app-activity-log',
@@ -9,33 +10,29 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, FormsModule],
   templateUrl: './activity-log.component.html',
   styleUrls: ['./activity-log.component.css'],
-  providers: [DatePipe]
+  providers: [DatePipe],
 })
 export class ActivityLogComponent implements OnInit {
-  activityLog: any[] = [];
-  filteredLog: any[] = [];
+  activityLog: ActivityLog[] = [];
+  filteredLog: ActivityLog[] = [];
   isLoading = true;
   loadError = '';
 
-  // Make Math available in template
   Math = Math;
 
-  // Pagination
   currentPage = 1;
   itemsPerPage = 20;
 
-  // Filters
   searchTerm = '';
   filterAction = '';
   filterUser = '';
 
-  // Unique values for filters
   uniqueActions: string[] = [];
   uniqueUsers: string[] = [];
 
   constructor(
-    private authService: AuthService,
-    public datePipe: DatePipe
+    private courseService: CourseService,
+    public datePipe: DatePipe,
   ) {}
 
   ngOnInit(): void {
@@ -45,8 +42,7 @@ export class ActivityLogComponent implements OnInit {
   loadActivityLog(): void {
     this.isLoading = true;
     this.loadError = '';
-    // Load a larger dataset for the full log page
-    this.authService.getActivityLog(200).subscribe({
+    this.courseService.getActivityLog(200).subscribe({
       next: (logs) => {
         this.activityLog = logs;
         this.filteredLog = logs;
@@ -57,7 +53,7 @@ export class ActivityLogComponent implements OnInit {
         console.error('Failed to load activity log', err);
         this.loadError = 'Could not load activity log. Please try again later.';
         this.isLoading = false;
-      }
+      },
     });
   }
 
@@ -65,7 +61,7 @@ export class ActivityLogComponent implements OnInit {
     const actions = new Set<string>();
     const users = new Set<string>();
 
-    this.activityLog.forEach(log => {
+    this.activityLog.forEach((log) => {
       if (log.action) actions.add(log.action);
       if (log.user_email) users.add(log.user_email);
     });
@@ -75,8 +71,9 @@ export class ActivityLogComponent implements OnInit {
   }
 
   applyFilters(): void {
-    this.filteredLog = this.activityLog.filter(log => {
-      const matchesSearch = !this.searchTerm ||
+    this.filteredLog = this.activityLog.filter((log) => {
+      const matchesSearch =
+        !this.searchTerm ||
         (log.action && log.action.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
         (log.details && log.details.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
         (log.user_email && log.user_email.toLowerCase().includes(this.searchTerm.toLowerCase()));
@@ -87,7 +84,7 @@ export class ActivityLogComponent implements OnInit {
       return matchesSearch && matchesAction && matchesUser;
     });
 
-    this.currentPage = 1; // Reset to first page when filters change
+    this.currentPage = 1;
   }
 
   clearFilters(): void {
@@ -97,10 +94,9 @@ export class ActivityLogComponent implements OnInit {
     this.applyFilters();
   }
 
-  get paginatedLogs(): any[] {
+  get paginatedLogs(): ActivityLog[] {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    return this.filteredLog.slice(startIndex, endIndex);
+    return this.filteredLog.slice(startIndex, startIndex + this.itemsPerPage);
   }
 
   get totalPages(): number {
@@ -112,21 +108,15 @@ export class ActivityLogComponent implements OnInit {
   }
 
   nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-    }
+    if (this.currentPage < this.totalPages) this.currentPage++;
   }
 
   previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-    }
+    if (this.currentPage > 1) this.currentPage--;
   }
 
   goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-    }
+    if (page >= 1 && page <= this.totalPages) this.currentPage = page;
   }
 
   get visiblePageNumbers(): number[] {
@@ -134,15 +124,15 @@ export class ActivityLogComponent implements OnInit {
     const current = this.currentPage;
     const delta = 2;
 
-    const range = [];
-    const rangeWithDots = [];
+    const range: number[] = [];
+    const rangeWithDots: number[] = [];
 
     for (let i = Math.max(2, current - delta); i <= Math.min(total - 1, current + delta); i++) {
       range.push(i);
     }
 
     if (current - delta > 2) {
-      rangeWithDots.push(1, -1); // -1 represents ellipsis
+      rangeWithDots.push(1, -1);
     } else {
       rangeWithDots.push(1);
     }
@@ -160,19 +150,11 @@ export class ActivityLogComponent implements OnInit {
 
   getActionBadgeClass(action: string): string {
     if (!action) return 'badge-default';
-
     const actionLower = action.toLowerCase();
-
-    if (actionLower.includes('login') || actionLower.includes('logout')) {
-      return 'badge-info';
-    } else if (actionLower.includes('create') || actionLower.includes('add')) {
-      return 'badge-success';
-    } else if (actionLower.includes('delete') || actionLower.includes('remove')) {
-      return 'badge-danger';
-    } else if (actionLower.includes('update') || actionLower.includes('edit')) {
-      return 'badge-warning';
-    }
-
+    if (actionLower.includes('login') || actionLower.includes('logout')) return 'badge-info';
+    if (actionLower.includes('create') || actionLower.includes('add')) return 'badge-success';
+    if (actionLower.includes('delete') || actionLower.includes('remove')) return 'badge-danger';
+    if (actionLower.includes('update') || actionLower.includes('edit')) return 'badge-warning';
     return 'badge-default';
   }
 }

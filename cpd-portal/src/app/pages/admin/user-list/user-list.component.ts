@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../../core/services/auth.service';
+import { UserService } from '../../../core/services/user.service';
 import { RouterLink } from '@angular/router';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { ToastService } from '../../../core/services/toast.service';
@@ -13,7 +13,7 @@ import { User } from '../../../core/models/user.model';
   // Add ConfirmModalComponent to imports
   imports: [CommonModule, RouterLink, ConfirmModalComponent],
   templateUrl: './user-list.component.html',
-  styleUrls: ['./user-list.component.css']
+  styleUrls: ['./user-list.component.css'],
 })
 export class UserListComponent implements OnInit {
   users: User[] = [];
@@ -21,7 +21,11 @@ export class UserListComponent implements OnInit {
   userToDeleteId: number | null = null;
   userToDeleteName: string = '';
 
-  constructor(private authService: AuthService, private toastService: ToastService, private loadingService: LoadingService) { }
+  constructor(
+    private userService: UserService,
+    private toastService: ToastService,
+    private loadingService: LoadingService,
+  ) {}
 
   ngOnInit(): void {
     this.loadUsers();
@@ -30,7 +34,7 @@ export class UserListComponent implements OnInit {
   loadUsers(): void {
     this.loadingService.show();
     // *** Corrected: Call getUsers ***
-    this.authService.getUsers().subscribe({
+    this.userService.getUsers().subscribe({
       next: (data) => {
         this.users = data;
         this.loadingService.hide();
@@ -39,7 +43,7 @@ export class UserListComponent implements OnInit {
         this.loadingService.hide();
         console.error('Failed to load users', err);
         this.toastService.error('Error loading users: ' + (err.error?.message || err.message));
-      }
+      },
     });
   }
   promptDeleteUser(userId: number, userName: string): void {
@@ -53,20 +57,20 @@ export class UserListComponent implements OnInit {
   }
   confirmDelete(): void {
     if (this.userToDeleteId !== null) {
-      this.authService.adminDeleteUser(this.userToDeleteId).subscribe({
+      this.userService.adminDeleteUser(this.userToDeleteId).subscribe({
         next: (response) => {
           this.toastService.success(response.message || 'User deleted successfully!');
-          this.users = this.users.filter(user => user.id !== this.userToDeleteId);
+          this.users = this.users.filter((user) => user.id !== this.userToDeleteId);
           this.closeDeleteModal();
         },
         error: (err) => {
           console.error('Failed to delete user', err);
           this.toastService.error('Error deleting user: ' + (err.error?.message || err.message));
           this.closeDeleteModal();
-        }
+        },
       });
     } else {
-      console.error("User ID to delete is null");
+      console.error('User ID to delete is null');
       this.closeDeleteModal();
     }
   }

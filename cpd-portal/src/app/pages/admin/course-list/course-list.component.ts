@@ -1,64 +1,73 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '../../../core/services/auth.service';
+import { CourseService } from '../../../core/services/course.service';
+import { UserService } from '../../../core/services/user.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { ConfirmModalComponent } from '../../../shared/components/confirm-modal/confirm-modal.component';
 import { LoadingService } from '../../../core/services/loading.service';
+import { Course } from '../../../core/models/course.model';
+import { User } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-course-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmModalComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, ConfirmModalComponent],
   templateUrl: './course-list.component.html',
-  styleUrls: ['./course-list.component.css']
+  styleUrls: ['./course-list.component.css'],
 })
 export class CourseListComponent implements OnInit {
-  // Lists
-  upcomingCourses: any[] = [];
-  pastCourses: any[] = [];
-
-  // Library/Templates list (when tab is library)
-  libraryCourses: any[] = [];
-
-  // Original properties (Restored)
-  courses: any[] = [];
-  templates: any[] = [];
+  upcomingCourses: Course[] = [];
+  pastCourses: Course[] = [];
+  libraryCourses: Course[] = [];
+  courses: Course[] = [];
+  templates: Course[] = [];
   isLoading = true;
   errorMessage = '';
-  noCoursesFound: boolean = false;
+  noCoursesFound = false;
 
   currentTab: 'active' | 'library' = 'active';
 
   // Delete Modal
   showDeleteConfirmModal = false;
   courseToDeleteId: number | null = null;
-  courseToDeleteTitle: string = '';
+  courseToDeleteTitle = '';
 
   // Schedule Modal
   showScheduleModal = false;
-  scheduleData = {
-    templateId: null,
-    startDate: '',
-    endDate: '',
-    title: '', // Optional override
-    userIds: [] as number[] // Multiple assignment
-  };
+  scheduleForm!: FormGroup;
   isScheduling = false;
 
+  // Enroll Modal
+  showEnrollModal = false;
+  enrollCourseId: number | null = null;
+  enrollUserId: number | null = null;
+  users: User[] = [];
+  searchTerm = '';
+  isEnrolling = false;
+
   constructor(
-    private authService: AuthService,
+    private courseService: CourseService,
+    private userService: UserService,
     private toastService: ToastService,
     private router: Router,
-    private loadingService: LoadingService
-  ) { }
+    private loadingService: LoadingService,
+    private fb: FormBuilder,
+  ) {}
 
   ngOnInit(): void {
+    this.scheduleForm = this.fb.group({
+      templateId: [null, Validators.required],
+      startDate: ['', Validators.required],
+      endDate: ['', Validators.required],
+      title: [''],
+      userIds: [[]],
+    });
     this.loadCourses();
   }
 
-  // Updated to 'library'
   switchTab(tab: 'active' | 'library'): void {
     this.currentTab = tab;
     this.loadCourses();
@@ -74,29 +83,24 @@ export class CourseListComponent implements OnInit {
     this.pastCourses = [];
     this.libraryCourses = [];
 
-    // Map 'library' tab to API type 'library'
-    // Map 'active' to 'active'
     const apiType = this.currentTab === 'library' ? 'library' : 'active';
 
-    this.authService.getCourses(apiType as any).subscribe({
+    this.courseService.getCourses(apiType).subscribe({
       next: (data) => {
-        this.courses = data; // Keep raw for reference if needed
+        this.courses = data;
 
         if (this.currentTab === 'active') {
           const now = new Date();
-          // Split into Upcoming and Past
-          // Upcoming: Start Date >= Today OR End Date >= Today (Active)
-          // Past: End Date < Today
-          this.upcomingCourses = data.filter((c: any) => new Date(c.end_date) >= now || new Date(c.start_date) >= now);
-          this.pastCourses = data.filter((c: any) => new Date(c.end_date) < now);
+          this.upcomingCourses = data.filter(
+            (c) => new Date(c.end_date) >= now || new Date(c.start_date) >= now,
+          );
+          this.pastCourses = data.filter((c) => new Date(c.end_date) < now);
         } else {
           this.libraryCourses = data;
         }
 
         this.isLoading = false;
-        if (data.length === 0) {
-          this.noCoursesFound = true;
-        }
+        this.noCoursesFound = data.length === 0;
         this.loadingService.hide();
       },
       error: (err) => {
@@ -109,48 +113,40 @@ export class CourseListComponent implements OnInit {
           this.toastService.error(this.errorMessage);
         }
         this.isLoading = false;
-      }
+      },
     });
   }
 
   addCourse(): void {
-    // If in Active tab, open Schedule Modal
     if (this.currentTab === 'active') {
       this.openScheduleModal();
     } else {
-      // If in Template tab, go to Create Template page
-      // We need to pass a query param to tell the form it's a template
       this.router.navigate(['/admin/courses/new'], { queryParams: { isTemplate: true } });
     }
   }
 
   openScheduleModal(): void {
     this.loadingService.show();
-    // Fetch templates for the dropdown
-    this.authService.getCourses('template').subscribe({
+    this.courseService.getCourses('template').subscribe({
       next: (data) => {
         this.templates = data;
         this.showScheduleModal = true;
         this.loadingService.hide();
-
-        // Load users if not already loaded
         if (this.users.length === 0) {
           this.loadUsers();
         }
-
-        // Reset form
-        this.scheduleData = {
+        this.scheduleForm.reset({
           templateId: null,
           startDate: '',
           endDate: '',
           title: '',
-          userIds: []
-        };
+          userIds: [],
+        });
       },
-      error: (err) => {
+      error: () => {
         this.loadingService.hide();
         this.toastService.error('Failed to load templates for scheduling.');
-      }
+      },
     });
   }
 
@@ -158,16 +154,18 @@ export class CourseListComponent implements OnInit {
     this.showScheduleModal = false;
   }
 
-  toggleUserSelection(userId: number, event: any): void {
-    if (event.target.checked) {
-      this.scheduleData.userIds.push(userId);
+  toggleUserSelection(userId: number, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    const currentIds: number[] = this.scheduleForm.get('userIds')?.value ?? [];
+    if (checked) {
+      this.scheduleForm.patchValue({ userIds: [...currentIds, userId] });
     } else {
-      this.scheduleData.userIds = this.scheduleData.userIds.filter(id => id !== userId);
+      this.scheduleForm.patchValue({ userIds: currentIds.filter((id) => id !== userId) });
     }
   }
 
   scheduleCourse(): void {
-    if (!this.scheduleData.templateId || !this.scheduleData.startDate || !this.scheduleData.endDate) {
+    if (this.scheduleForm.invalid) {
       this.toastService.error('Please fill in all required fields.');
       return;
     }
@@ -175,27 +173,30 @@ export class CourseListComponent implements OnInit {
     this.isScheduling = true;
     this.loadingService.show();
 
+    const { templateId, startDate, endDate, title, userIds } = this.scheduleForm.value;
     const payload = {
-      template_id: this.scheduleData.templateId,
-      start_date: this.scheduleData.startDate,
-      end_date: this.scheduleData.endDate,
-      title: this.scheduleData.title || undefined,
-      user_ids: this.scheduleData.userIds
+      template_id: templateId,
+      start_date: startDate,
+      end_date: endDate,
+      title: title || undefined,
+      user_ids: userIds,
     };
 
-    this.authService.adminCreateCourseFromTemplate(payload).subscribe({
-      next: (res) => {
+    this.courseService.adminCreateCourseFromTemplate(payload).subscribe({
+      next: () => {
         this.toastService.success('Course scheduled successfully!');
         this.isScheduling = false;
         this.showScheduleModal = false;
         this.loadingService.hide();
-        this.loadCourses(); // Reload active list
+        this.loadCourses();
       },
       error: (err) => {
         this.isScheduling = false;
         this.loadingService.hide();
-        this.toastService.error('Failed to schedule course: ' + (err.error?.message || err.message));
-      }
+        this.toastService.error(
+          'Failed to schedule course: ' + (err.error?.message || err.message),
+        );
+      },
     });
   }
 
@@ -215,20 +216,19 @@ export class CourseListComponent implements OnInit {
 
   confirmDelete(): void {
     if (this.courseToDeleteId !== null) {
-      this.authService.adminDeleteCourse(this.courseToDeleteId).subscribe({
+      this.courseService.adminDeleteCourse(this.courseToDeleteId).subscribe({
         next: (response) => {
           this.toastService.success(response.message || 'Course deleted successfully!');
-          this.loadCourses(); // Reload the list after deletion
+          this.loadCourses();
           this.closeDeleteModal();
         },
         error: (err) => {
           console.error('Failed to delete course', err);
           this.toastService.error('Error deleting course: ' + (err.error?.message || err.message));
           this.closeDeleteModal();
-        }
+        },
       });
     } else {
-      console.error("Course ID to delete is null");
       this.closeDeleteModal();
     }
   }
@@ -243,60 +243,48 @@ export class CourseListComponent implements OnInit {
     this.courseToDeleteTitle = '';
   }
 
-  // --- Enroll Modal Logic ---
-  showEnrollModal = false;
-  enrollData = {
-    courseId: null as number | null,
-    userId: null as number | null
-  };
-  users: any[] = [];
-  searchTerm: string = ''; // Search term for user filtering
-  isEnrolling = false;
+  get filteredUsers(): User[] {
+    if (!this.searchTerm) return this.users;
+    const lowerTerm = this.searchTerm.toLowerCase();
+    return this.users.filter(
+      (user) =>
+        user.first_name.toLowerCase().includes(lowerTerm) ||
+        user.last_name.toLowerCase().includes(lowerTerm) ||
+        user.email.toLowerCase().includes(lowerTerm),
+    );
+  }
 
   openEnrollModal(courseId: number): void {
-    this.enrollData.courseId = courseId;
+    this.enrollCourseId = courseId;
     this.showEnrollModal = true;
-    this.searchTerm = ''; // Reset search
+    this.searchTerm = '';
     if (this.users.length === 0) {
       this.loadUsers();
     }
   }
 
-  // Filtered users for both Schedule and Enroll modals
-  get filteredUsers(): any[] {
-    if (!this.searchTerm) {
-      return this.users;
-    }
-    const lowerTerm = this.searchTerm.toLowerCase();
-    return this.users.filter(user =>
-      user.first_name.toLowerCase().includes(lowerTerm) ||
-      user.last_name.toLowerCase().includes(lowerTerm) ||
-      user.email.toLowerCase().includes(lowerTerm)
-    );
-  }
-
   closeEnrollModal(): void {
     this.showEnrollModal = false;
-    this.enrollData = { courseId: null, userId: null };
+    this.enrollCourseId = null;
+    this.enrollUserId = null;
   }
 
   loadUsers(): void {
     this.loadingService.show();
-    this.authService.getUsers().subscribe({
+    this.userService.getUsers().subscribe({
       next: (data) => {
         this.users = data;
         this.loadingService.hide();
       },
-      error: (err) => {
-        console.error('Failed to load users', err);
+      error: () => {
         this.loadingService.hide();
         this.toastService.error('Failed to load users');
-      }
+      },
     });
   }
 
   enrollUser(): void {
-    if (!this.enrollData.userId || !this.enrollData.courseId) {
+    if (!this.enrollUserId || !this.enrollCourseId) {
       this.toastService.error('Please select a user');
       return;
     }
@@ -304,30 +292,27 @@ export class CourseListComponent implements OnInit {
     this.isEnrolling = true;
     this.loadingService.show();
 
-    // Find course to get start date
-    const course = this.courses.find(c => c.id === this.enrollData.courseId);
-    // Default to today if not found, but scheduled courses usually have start_date
+    const course = this.courses.find((c) => c.id === this.enrollCourseId);
     const startDate = course ? course.start_date : new Date().toISOString().split('T')[0];
 
-    const payload = {
-      user_id: this.enrollData.userId,
-      course_id: this.enrollData.courseId,
-      start_date: startDate
-    };
-
-    // Assuming assignCourse exists in AuthService as seen in CalendarComponent
-    this.authService.assignCourse(payload).subscribe({
-      next: (res) => {
-        this.toastService.success('User enrolled successfully');
-        this.isEnrolling = false;
-        this.closeEnrollModal();
-        this.loadingService.hide();
-      },
-      error: (err) => {
-        this.isEnrolling = false;
-        this.loadingService.hide();
-        this.toastService.error('Enrollment failed: ' + (err.error?.message || err.message));
-      }
-    });
+    this.userService
+      .assignCourse({
+        user_id: this.enrollUserId,
+        course_id: this.enrollCourseId,
+        start_date: startDate,
+      })
+      .subscribe({
+        next: () => {
+          this.toastService.success('User enrolled successfully');
+          this.isEnrolling = false;
+          this.closeEnrollModal();
+          this.loadingService.hide();
+        },
+        error: (err) => {
+          this.isEnrolling = false;
+          this.loadingService.hide();
+          this.toastService.error('Enrollment failed: ' + (err.error?.message || err.message));
+        },
+      });
   }
 }

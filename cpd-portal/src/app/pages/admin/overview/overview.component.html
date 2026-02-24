@@ -28,7 +28,7 @@
       <li *ngFor="let entry of paginatedLogs">
         <div class="log-header">
           <span class="log-user">{{ entry.user_email || 'System' }}</span>
-          <span class="log-timestamp">{{ datePipe.transform(entry.timestamp, 'short') }}</span>
+          <span class="log-timestamp">{{ datePipe.transform(entry.created_at, 'short') }}</span>
         </div>
         <div class="log-body">
           <span class="log-action">{{ entry.action }}</span>

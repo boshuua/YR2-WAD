@@ -1,34 +1,43 @@
-import { Component, OnInit } from '@angular/core'; // Import OnInit
-import { CommonModule, DatePipe } from '@angular/common'; // Import DatePipe
-import { RouterLink } from '@angular/router'; // Import RouterLink
-import { AuthService } from '../../../core/services/auth.service'; // Adjust path if needed
+import { Component, OnInit } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { CourseService } from '../../../core/services/course.service';
+import { Course } from '../../../core/models/course.model';
+import { ActivityLog } from '../../../core/models/dashboard.model';
+
+interface CalendarDay {
+  day: number | null;
+  isToday: boolean;
+  isCurrentMonth: boolean;
+  courses: Course[];
+}
 
 @Component({
   selector: 'app-overview',
   standalone: true,
-  imports: [CommonModule, RouterLink], // Add RouterLink
+  imports: [CommonModule, RouterLink],
   templateUrl: './overview.component.html',
-  styleUrls: ['./overview.component.css'], // Reference the CSS file
-  providers: [DatePipe] // Add DatePipe to providers
+  styleUrls: ['./overview.component.css'],
+  providers: [DatePipe],
 })
-export class OverviewComponent implements OnInit { // Implement OnInit
-  // Properties for activity log
-  activityLog: any[] = [];
+export class OverviewComponent implements OnInit {
+  activityLog: ActivityLog[] = [];
   isLoadingLog = true;
   logLoadError = '';
   currentPage = 1;
   itemsPerPage = 5;
   totalLogs = 0;
 
-  // Calendar
   currentDate = new Date();
-  calendarDays: any[] = [];
-  currentMonth: string = '';
-  currentYear: number = 0;
-  courses: any[] = [];
+  calendarDays: CalendarDay[] = [];
+  currentMonth = '';
+  currentYear = 0;
+  courses: Course[] = [];
 
-  // Inject AuthService and DatePipe
-  constructor(private authService: AuthService, public datePipe: DatePipe) {} // Make datePipe public
+  constructor(
+    private courseService: CourseService,
+    public datePipe: DatePipe,
+  ) {}
 
   ngOnInit(): void {
     this.loadActivityLog();
@@ -36,7 +45,7 @@ export class OverviewComponent implements OnInit { // Implement OnInit
   }
 
   loadCourses(): void {
-    this.authService.getCourses().subscribe({
+    this.courseService.getCourses().subscribe({
       next: (courses) => {
         this.courses = courses;
         this.generateCalendar();
@@ -44,7 +53,7 @@ export class OverviewComponent implements OnInit { // Implement OnInit
       error: (err) => {
         console.error('Failed to load courses', err);
         this.generateCalendar();
-      }
+      },
     });
   }
 
@@ -61,40 +70,34 @@ export class OverviewComponent implements OnInit { // Implement OnInit
 
     this.calendarDays = [];
 
-    // Add empty cells for days before the first day of month
     for (let i = 0; i < firstDay; i++) {
       this.calendarDays.push({ day: null, isToday: false, isCurrentMonth: false, courses: [] });
     }
 
-    // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
-      const isToday = day === today.getDate() &&
-                      month === today.getMonth() &&
-                      year === today.getFullYear();
-
+      const isToday =
+        day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
       const currentDayDate = new Date(year, month, day);
       const coursesOnDay = this.getCoursesForDay(currentDayDate);
-
-      this.calendarDays.push({
-        day,
-        isToday,
-        isCurrentMonth: true,
-        courses: coursesOnDay
-      });
+      this.calendarDays.push({ day, isToday, isCurrentMonth: true, courses: coursesOnDay });
     }
   }
 
-  getCoursesForDay(date: Date): any[] {
-    return this.courses.filter(course => {
+  getCoursesForDay(date: Date): Course[] {
+    return this.courses.filter((course) => {
       if (!course.start_date || !course.end_date) return false;
 
-      const courseStart = new Date(course.start_date);
-      const courseEnd = new Date(course.end_date);
-
-      // Check if the date falls within the course date range
       const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-      const startOnly = new Date(courseStart.getFullYear(), courseStart.getMonth(), courseStart.getDate());
-      const endOnly = new Date(courseEnd.getFullYear(), courseEnd.getMonth(), courseEnd.getDate());
+      const startOnly = new Date(
+        new Date(course.start_date).getFullYear(),
+        new Date(course.start_date).getMonth(),
+        new Date(course.start_date).getDate(),
+      );
+      const endOnly = new Date(
+        new Date(course.end_date).getFullYear(),
+        new Date(course.end_date).getMonth(),
+        new Date(course.end_date).getDate(),
+      );
 
       return dateOnly >= startOnly && dateOnly <= endOnly;
     });
@@ -110,12 +113,10 @@ export class OverviewComponent implements OnInit { // Implement OnInit
     this.generateCalendar();
   }
 
-  // Method to load activity logs with pagination
   loadActivityLog(): void {
     this.isLoadingLog = true;
     this.logLoadError = '';
-    // Load more logs for pagination purposes
-    this.authService.getActivityLog(50).subscribe({
+    this.courseService.getActivityLog(50).subscribe({
       next: (logs) => {
         this.totalLogs = logs.length;
         this.activityLog = logs;
@@ -125,14 +126,13 @@ export class OverviewComponent implements OnInit { // Implement OnInit
         console.error('Failed to load activity log', err);
         this.logLoadError = 'Could not load activity log.';
         this.isLoadingLog = false;
-      }
+      },
     });
   }
 
-  get paginatedLogs(): any[] {
+  get paginatedLogs(): ActivityLog[] {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
-    return this.activityLog.slice(startIndex, endIndex);
+    return this.activityLog.slice(startIndex, startIndex + this.itemsPerPage);
   }
 
   get totalPages(): number {
@@ -140,15 +140,11 @@ export class OverviewComponent implements OnInit { // Implement OnInit
   }
 
   nextPage(): void {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-    }
+    if (this.currentPage < this.totalPages) this.currentPage++;
   }
 
   previousPage(): void {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-    }
+    if (this.currentPage > 1) this.currentPage--;
   }
 
   goToPage(page: number): void {

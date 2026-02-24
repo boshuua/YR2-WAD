@@ -3,6 +3,7 @@ import { LoginComponent } from './pages/login/login.component';
 import { AdminDashboardComponent } from './pages/admin-dashboard/admin-dashboard.component';
 import { UserDashboardComponent } from './pages/user-dashboard/user-dashboard.component';
 import { adminGuard } from './core/guards/admin-guard';
+import { authGuard } from './core/guards/auth.guard';
 
 // Import your admin page components
 import { OverviewComponent } from './pages/admin/overview/overview.component';
@@ -36,32 +37,64 @@ export const routes: Routes = [
       { path: 'users/new', component: UserCreateComponent, data: { breadcrumb: 'Create User' } },
       { path: 'users/:id', component: UserDetailComponent, data: { breadcrumb: 'User Dashboard' } },
       { path: 'users/edit/:id', component: UserEditComponent, data: { breadcrumb: 'Edit User' } },
-      { path: 'courses', component: CourseListComponent, data: { breadcrumb: 'Course Management' } },
-      { path: 'courses/new', component: CourseFormComponent, data: { breadcrumb: 'Create Course' } },
-      { path: 'courses/edit/:id', component: CourseFormComponent, data: { breadcrumb: 'Edit Course' } },
-      { path: 'courses/:id/questions', component: CourseQuestionsComponent, data: { breadcrumb: 'Manage Questions' } },
+      {
+        path: 'courses',
+        component: CourseListComponent,
+        data: { breadcrumb: 'Course Management' },
+      },
+      {
+        path: 'courses/new',
+        component: CourseFormComponent,
+        data: { breadcrumb: 'Create Course' },
+      },
+      {
+        path: 'courses/edit/:id',
+        component: CourseFormComponent,
+        data: { breadcrumb: 'Edit Course' },
+      },
+      {
+        path: 'courses/:id/questions',
+        component: CourseQuestionsComponent,
+        data: { breadcrumb: 'Manage Questions' },
+      },
       { path: 'calendar', component: CalendarComponent, data: { breadcrumb: 'Training Schedule' } }, // New Route
       { path: 'activity', component: ActivityLogComponent, data: { breadcrumb: 'Activity Log' } },
       { path: 'settings', component: AdminSettingsComponent, data: { breadcrumb: 'Settings' } },
-      { path: '', redirectTo: 'overview', pathMatch: 'full' } // Default admin page
-    ]
+      { path: '', redirectTo: 'overview', pathMatch: 'full' }, // Default admin page
+    ],
   },
 
   // User Dashboard Layout Route
   {
     path: 'dashboard',
     component: UserDashboardComponent,
+    canActivate: [authGuard],
     children: [
       { path: 'my-courses', component: MyCoursesComponent, data: { breadcrumb: 'My Courses' } },
       { path: 'calendar', component: UserCalendarComponent, data: { breadcrumb: 'Calendar' } },
       { path: 'settings', component: UserSettingsComponent, data: { breadcrumb: 'Settings' } },
-      { path: '', redirectTo: 'my-courses', pathMatch: 'full' }
-    ]
+      { path: '', redirectTo: 'my-courses', pathMatch: 'full' },
+    ],
   },
 
-  { path: 'quiz/:id', component: QuizComponent, data: { breadcrumb: 'Assessment' } },
-  { path: 'courses/:id/lesson/:lessonId', component: CourseContentComponent, data: { breadcrumb: 'Course Content' } },
-  { path: 'courses/:id', component: CourseContentComponent, data: { breadcrumb: 'Course Content' } },
+  {
+    path: 'quiz/:id',
+    component: QuizComponent,
+    canActivate: [authGuard],
+    data: { breadcrumb: 'Assessment' },
+  },
+  {
+    path: 'courses/:id/lesson/:lessonId',
+    component: CourseContentComponent,
+    canActivate: [authGuard],
+    data: { breadcrumb: 'Course Content' },
+  },
+  {
+    path: 'courses/:id',
+    component: CourseContentComponent,
+    canActivate: [authGuard],
+    data: { breadcrumb: 'Course Content' },
+  },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: '**', redirectTo: '/login' }
+  { path: '**', redirectTo: '/login' },
 ];

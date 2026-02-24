@@ -40,7 +40,7 @@
             <td data-label="Dates">{{ course.start_date | date }} - {{ course.end_date | date }}</td>
             <td data-label="Enrolled">
               {{ course.enrolled_count || 0 }} / {{ course.max_attendees }}
-              <span *ngIf="(course.enrolled_count || 0) >= course.max_attendees" class="badge badge-warning">FULL</span>
+              <span *ngIf="(course.enrolled_count || 0) >= (course.max_attendees ?? 0)" class="badge badge-warning">FULL</span>
             </td>
             <td data-label="Actions" class="actions-cell">
               <!-- Edit Disabled for Scheduled Courses -->
@@ -101,10 +101,10 @@
 <div class="modal-backdrop" *ngIf="showScheduleModal">
   <div class="modal-content">
     <h3>Schedule Course from Template</h3>
-    <form (ngSubmit)="scheduleCourse()">
+    <form [formGroup]="scheduleForm" (ngSubmit)="scheduleCourse()">
       <div class="form-group">
         <label>Select Template</label>
-        <select [(ngModel)]="scheduleData.templateId" name="templateId" required>
+        <select formControlName="templateId" required>
           <option [ngValue]="null" disabled>-- Select a Template --</option>
           <option *ngFor="let t of templates" [value]="t.id">{{ t.title }}</option>
         </select>
@@ -112,30 +112,28 @@
 
       <div class="form-group">
         <label>Start Date</label>
-        <input type="date" [(ngModel)]="scheduleData.startDate" name="startDate" required>
+        <input type="date" formControlName="startDate" required>
       </div>
 
       <div class="form-group">
         <label>End Date</label>
-        <input type="date" [(ngModel)]="scheduleData.endDate" name="endDate" required>
+        <input type="date" formControlName="endDate" required>
       </div>
 
       <div class="form-group">
         <label>Custom Title (Optional)</label>
-        <input type="text" [(ngModel)]="scheduleData.title" name="title"
-          placeholder="Leave blank to use template title">
+        <input type="text" formControlName="title" placeholder="Leave blank to use template title">
       </div>
 
       <div class="form-group">
         <label>Assign to Users (Optional)</label>
-        <!-- User Search Input -->
-        <input type="text" [(ngModel)]="searchTerm" name="userSearch" placeholder="Search users by name or email..."
+        <input type="text" [(ngModel)]="searchTerm" [ngModelOptions]="{standalone: true}" placeholder="Search users by name or email..."
           class="search-input">
 
         <div class="user-select-list">
           <div *ngFor="let user of filteredUsers" class="user-checkbox-item">
             <input type="checkbox" [id]="'user-'+user.id" (change)="toggleUserSelection(user.id, $event)"
-              [checked]="scheduleData.userIds.includes(user.id)">
+              [checked]="scheduleForm.get('userIds')?.value?.includes(user.id)">
             <label [for]="'user-'+user.id">
               {{ user.first_name }} {{ user.last_name }} <span class="email-hint">({{ user.email }})</span>
             </label>
@@ -147,7 +145,7 @@
 
       <div class="modal-actions">
         <button type="button" class="cancel-btn" (click)="closeScheduleModal()">Cancel</button>
-        <button type="submit" class="confirm-btn" [disabled]="isScheduling">
+        <button type="submit" class="confirm-btn" [disabled]="isScheduling || scheduleForm.invalid">
           {{ isScheduling ? 'Scheduling...' : 'Schedule Course' }}
         </button>
       </div>
@@ -164,10 +162,10 @@
         <label>Select User</label>
 
         <!-- User Search Input Filter -->
-        <input type="text" [(ngModel)]="searchTerm" name="enrollSearch" placeholder="Search for user..."
+        <input type="text" [(ngModel)]="searchTerm" [ngModelOptions]="{standalone: true}" placeholder="Search for user..."
           class="search-input" style="margin-bottom: 10px; width: 100%;">
 
-        <select [(ngModel)]="enrollData.userId" name="userId" required size="5" style="height: auto;">
+        <select [(ngModel)]="enrollUserId" [ngModelOptions]="{standalone: true}" required size="5" style="height: auto;">
           <option [ngValue]="null" disabled>-- Select User --</option>
           <option *ngFor="let user of filteredUsers" [value]="user.id">
             {{ user.first_name }} {{ user.last_name }} ({{ user.email }})

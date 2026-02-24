@@ -132,8 +132,8 @@
         <tr *ngFor="let entry of paginatedLogs">
           <td class="timestamp-cell">
             <div class="timestamp">
-              <div class="date">{{ datePipe.transform(entry.timestamp, 'MMM d, y') }}</div>
-              <div class="time">{{ datePipe.transform(entry.timestamp, 'h:mm:ss a') }}</div>
+              <div class="date">{{ datePipe.transform(entry.created_at, 'MMM d, y') }}</div>
+              <div class="time">{{ datePipe.transform(entry.created_at, 'h:mm:ss a') }}</div>
             </div>
           </td>
           <td class="user-cell">

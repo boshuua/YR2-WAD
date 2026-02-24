@@ -1,31 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import { CourseService } from '../../core/services/course.service';
 import { ToastService } from '../../core/services/toast.service';
-
-interface Question {
-  id: number;
-  question_text: string;
-  question_type: string;
-  options: QuestionOption[];
-}
-
-interface QuestionOption {
-  id: number;
-  option_text: string;
-  is_correct: boolean;
-}
+import { Course } from '../../core/models/course.model';
+import { Question } from '../../core/models/quiz.model';
 
 @Component({
   selector: 'app-quiz',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './quiz.html',
-  styleUrls: ['./quiz.css']
+  styleUrls: ['./quiz.css'],
 })
 export class QuizComponent implements OnInit {
-  course: any | null = null;
+  course: Course | null = null;
   questions: Question[] = [];
   currentQuestionIndex = 0;
   userAnswers: Map<number, number> = new Map(); // questionId => selectedOptionId
@@ -38,16 +27,15 @@ export class QuizComponent implements OnInit {
   passed = false;
   Math = Math; // Expose Math to template
 
-
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private authService: AuthService,
-    private toastService: ToastService
-  ) { }
+    private courseService: CourseService,
+    private toastService: ToastService,
+  ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
         this.loadQuiz(+id);
@@ -61,13 +49,11 @@ export class QuizComponent implements OnInit {
   loadQuiz(courseId: number): void {
     this.isLoading = true;
 
-    // Load course info
-    this.authService.getCourseById(courseId).subscribe({
+    this.courseService.getCourseById(courseId).subscribe({
       next: (course) => {
         this.course = course;
 
-        // Load questions
-        this.authService.getCourseQuestions(courseId).subscribe({
+        this.courseService.getCourseQuestions(courseId).subscribe({
           next: (questions) => {
             this.questions = questions;
             this.isLoading = false;
@@ -79,13 +65,13 @@ export class QuizComponent implements OnInit {
           error: () => {
             this.errorMessage = 'Failed to load questions.';
             this.isLoading = false;
-          }
+          },
         });
       },
       error: () => {
         this.errorMessage = 'Failed to load assessment details.';
         this.isLoading = false;
-      }
+      },
     });
   }
 
@@ -128,18 +114,18 @@ export class QuizComponent implements OnInit {
   submitQuiz(): void {
     if (!this.course) return;
 
-    // Check if all questions are answered
-    const unanswered = this.questions.filter(q => !this.userAnswers.has(q.id));
+    const unanswered = this.questions.filter((q) => !this.userAnswers.has(q.id));
     if (unanswered.length > 0) {
-      this.toastService.error(`Please answer all questions. ${unanswered.length} question(s) remaining.`);
+      this.toastService.error(
+        `Please answer all questions. ${unanswered.length} question(s) remaining.`,
+      );
       return;
     }
 
-    // Calculate score
     let correctAnswers = 0;
-    this.questions.forEach(question => {
+    this.questions.forEach((question) => {
       const selectedOptionId = this.userAnswers.get(question.id);
-      const selectedOption = question.options.find(opt => opt.id === selectedOptionId);
+      const selectedOption = question.options.find((opt) => opt.id === selectedOptionId);
 
       if (selectedOption && selectedOption.is_correct) {
         correctAnswers++;
@@ -151,8 +137,7 @@ export class QuizComponent implements OnInit {
 
     this.isSubmitting = true;
 
-    // Submit to backend
-    this.authService.submitQuiz(this.course.id, this.score).subscribe({
+    this.courseService.submitQuiz({ course_id: this.course.id, score: this.score }).subscribe({
       next: () => {
         this.quizCompleted = true;
         this.isSubmitting = false;
@@ -167,7 +152,7 @@ export class QuizComponent implements OnInit {
         this.toastService.error('Failed to submit quiz.');
         console.error(err);
         this.isSubmitting = false;
-      }
+      },
     });
   }
 

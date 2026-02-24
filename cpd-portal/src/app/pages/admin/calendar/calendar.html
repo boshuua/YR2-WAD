@@ -32,8 +32,8 @@
 
             <div class="day-content">
                 <!-- Placeholder for assignments if we load them later -->
-                <div *ngFor="let assignment of day.assignments" class="event-pill" [title]="assignment.course_title">
-                    {{ assignment.user_name ? (assignment.user_name + ' - ') : '' }}{{ assignment.course_title }}
+                <div *ngFor="let assignment of day.courses" class="event-pill" [title]="assignment.course_title">
+                    {{ assignment.course_title }}
                 </div>
             </div>
 
@@ -57,7 +57,7 @@
 
             <div class="form-group">
                 <label>Select User</label>
-                <select [(ngModel)]="assignmentData.userId" class="form-control">
+                <select [(ngModel)]="assignmentData.user_id" class="form-control">
                     <option [ngValue]="null" disabled>-- Select User --</option>
                     <option *ngFor="let u of users" [ngValue]="u.id">
                         {{ u.first_name }} {{ u.last_name }} ({{ u.email }})
@@ -67,7 +67,7 @@
 
             <div class="form-group">
                 <label>Select Course</label>
-                <select [(ngModel)]="assignmentData.courseId" class="form-control">
+                <select [(ngModel)]="assignmentData.course_id" class="form-control">
                     <option [ngValue]="null" disabled>-- Select Course --</option>
                     <option *ngFor="let c of courses" [ngValue]="c.id">
                         {{ c.title }} ({{ c.duration }} min)
@@ -79,7 +79,7 @@
         <div class="modal-footer">
             <button class="btn btn-secondary" (click)="closeModal()">Cancel</button>
             <button class="btn btn-primary" (click)="assignTraining()"
-                [disabled]="!assignmentData.userId || !assignmentData.courseId">Assign</button>
+                [disabled]="!assignmentData.user_id || !assignmentData.course_id">Assign</button>
         </div>
     </div>
 </div>
