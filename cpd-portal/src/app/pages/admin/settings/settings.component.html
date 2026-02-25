@@ -1,35 +1,140 @@
-<div class="form-panel">
-  <h2>Change Password</h2>
-  <form [formGroup]="passwordForm" (ngSubmit)="onSubmitPasswordChange()">
-    <div class="form-group">
-      <label for="currentPassword">Current Password</label>
-      <input id="currentPassword" type="password" formControlName="current_password" required>
-      <div *ngIf="passwordForm.get('current_password')?.invalid && (passwordForm.get('current_password')?.dirty || passwordForm.get('current_password')?.touched)" class="error-message">
-        <div *ngIf="passwordForm.get('current_password')?.errors?.['required']">Current Password is required.</div>
+<div class="settings-page">
+  <div class="settings-header">
+    <h2>Platform Settings</h2>
+    <p>Manage global configuration for your CPD Portal instance.</p>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <span>Loading settings...</span>
+  </div>
+
+  <form *ngIf="!isLoading" [formGroup]="settingsForm" (ngSubmit)="onSave()" class="settings-form">
+
+    <!-- Panel 1: Platform Customization -->
+    <div class="settings-panel">
+      <div class="panel-header">
+        <div class="panel-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M4.93 4.93a10 10 0 0 0 0 14.14"></path></svg>
+        </div>
+        <div>
+          <h3>Platform Customization</h3>
+          <p>Update your platform's branding and contact details.</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="site_name">Site Name</label>
+          <input id="site_name" type="text" formControlName="site_name" placeholder="CPD Portal">
+          <div *ngIf="settingsForm.get('site_name')?.invalid && settingsForm.get('site_name')?.touched" class="error-text">Site Name is required.</div>
+        </div>
+        <div class="form-group">
+          <label for="support_email">Support Email</label>
+          <input id="support_email" type="email" formControlName="support_email" placeholder="support@example.com">
+          <div *ngIf="settingsForm.get('support_email')?.invalid && settingsForm.get('support_email')?.touched" class="error-text">A valid support email is required.</div>
+        </div>
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="newPassword">New Password</label>
-      <input id="newPassword" type="password" formControlName="new_password" required>
-      <div *ngIf="passwordForm.get('new_password')?.invalid && (passwordForm.get('new_password')?.dirty || passwordForm.get('new_password')?.touched)" class="error-message">
-        <div *ngIf="passwordForm.get('new_password')?.errors?.['required']">New Password is required.</div>
-        <div *ngIf="passwordForm.get('new_password')?.errors?.['minlength']">New Password must be at least 6 characters long.</div>
+    <!-- Panel 2: Email Notifications -->
+    <div class="settings-panel">
+      <div class="panel-header">
+        <div class="panel-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+        </div>
+        <div>
+          <h3>Email Notifications</h3>
+          <p>Control which automated emails are sent by the system.</p>
+        </div>
+      </div>
+
+      <div class="toggle-group">
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <span class="toggle-label">Welcome Emails</span>
+            <span class="toggle-description">Send a welcome email with login credentials when a new user is created.</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="enable_welcome_emails" formControlName="enable_welcome_emails">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <span class="toggle-label">Password Reset Emails</span>
+            <span class="toggle-description">Send admin approval emails when a user requests a password reset.</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="enable_password_reset_emails" formControlName="enable_password_reset_emails">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="confirmPassword">Confirm New Password</label>
-      <input id="confirmPassword" type="password" formControlName="confirm_password" required>
-      <div *ngIf="passwordForm.get('confirm_password')?.invalid && (passwordForm.get('confirm_password')?.dirty || passwordForm.get('confirm_password')?.touched)" class="error-message">
-        <div *ngIf="passwordForm.get('confirm_password')?.errors?.['required']">Confirm New Password is required.</div>
-        <div *ngIf="passwordForm.get('confirm_password')?.errors?.['passwordMatch']">Passwords do not match.</div>
+    <!-- Panel 3: User Defaults -->
+    <div class="settings-panel">
+      <div class="panel-header">
+        <div class="panel-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <div>
+          <h3>User Defaults</h3>
+          <p>Configure default values applied when new users are created.</p>
+        </div>
+      </div>
+
+      <div class="form-group" style="max-width: 320px;">
+        <label for="default_access_level">Default Access Level</label>
+        <select id="default_access_level" formControlName="default_access_level">
+          <option value="user">User</option>
+          <option value="manager">Manager</option>
+          <option value="admin">Admin</option>
+        </select>
+        <span class="help-text">New accounts will be created with this role if not specified explicitly.</span>
       </div>
     </div>
 
+    <!-- Panel 4: Maintenance Mode -->
+    <div class="settings-panel maintenance-panel" [class.active]="settingsForm.get('maintenance_mode')?.value">
+      <div class="panel-header">
+        <div class="panel-icon danger-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        </div>
+        <div>
+          <h3>Maintenance Mode</h3>
+          <p>Temporarily block access for all non-administrator users.</p>
+        </div>
+      </div>
+
+      <div class="toggle-group">
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <span class="toggle-label">Enable Maintenance Mode</span>
+            <span class="toggle-description danger-text" *ngIf="settingsForm.get('maintenance_mode')?.value">
+              ⚠️ Maintenance mode is <strong>ON</strong>. All non-admin users are currently locked out.
+            </span>
+            <span class="toggle-description" *ngIf="!settingsForm.get('maintenance_mode')?.value">
+              Platform is running normally. Enable to lock out all non-admin users.
+            </span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="maintenance_mode" formControlName="maintenance_mode">
+            <span class="toggle-slider danger-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
     <div class="form-actions">
-      <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
-      <button type="submit" class="btn-primary">Change Password</button>
+      <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="isSaving">Cancel</button>
+      <button type="submit" class="btn-primary" [disabled]="isSaving">
+        <span *ngIf="!isSaving">Save Settings</span>
+        <span *ngIf="isSaving">Saving...</span>
+      </button>
     </div>
+
   </form>
 </div>
