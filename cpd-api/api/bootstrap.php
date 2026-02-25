@@ -5,7 +5,13 @@
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
-// 2. Autoloader (PSR-4 simplified)
+// 2. Composer Autoloader
+$composer_autoload = __DIR__ . '/../vendor/autoload.php';
+if (file_exists($composer_autoload)) {
+    require_once $composer_autoload;
+}
+
+// 2.1 PSR-4 simplified autoloader for App\\ namespace
 spl_autoload_register(function ($class) {
     // Project prefix
     $prefix = 'App\\';
