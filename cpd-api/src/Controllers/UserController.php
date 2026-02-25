@@ -5,6 +5,8 @@ namespace App\Controllers;
 
 use PDO;
 
+require_once __DIR__ . '/../../helpers/email_helper.php';
+
 class UserController extends BaseController
 {
 
@@ -76,6 +78,22 @@ class UserController extends BaseController
 
             if ($stmt->execute()) {
                 log_activity($this->db, getCurrentUserId(), getCurrentUserEmail(), "User Created", "Created user: {$email}");
+
+                // Send Welcome Email
+                $frontendUrl = $_ENV['CORS_ALLOWED_ORIGIN'] ?? 'http://localhost:4200';
+                $loginUrl = rtrim($frontendUrl, '/') . '/login';
+
+                $subject = "Welcome to CPD Portal";
+                $body = "
+                    <h2>Welcome, {$fname}!</h2>
+                    <p>An administrator has created an account for you on the CPD Portal.</p>
+                    <p><strong>URL:</strong> <a href='{$loginUrl}'>{$loginUrl}</a><br>
+                    <strong>Email:</strong> {$email}<br>
+                    <strong>Temporary Password:</strong> {$password}</p>
+                    <p style='color: red;'><strong>Important:</strong> We strongly recommend changing your password immediately after your first login.</p>
+                ";
+                sendEmail($this->db, $email, $subject, $body);
+
                 $this->json(["message" => "User created successfully."], 201);
             } else {
                 throw new \Exception("Insert failed");

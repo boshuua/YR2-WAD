@@ -793,6 +793,22 @@ class CourseController extends BaseController
                     $responseData['assigned_course_id'] = $assignResult['assigned_course_id'];
                     $responseData['assigned_course_title'] = $assignResult['assigned_course_title'];
                 }
+
+                // Send completion email
+                require_once __DIR__ . '/../../helpers/email_helper.php';
+                $courseStmt = $this->db->prepare("SELECT title FROM courses WHERE id = :id");
+                $courseStmt->execute([':id' => $courseId]);
+                $courseInfo = $courseStmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($courseInfo) {
+                    $subject = "Course Completed: " . $courseInfo['title'];
+                    $body = "
+                        <h2>Congratulations!</h2>
+                        <p>You have successfully completed the course: <strong>{$courseInfo['title']}</strong>.</p>
+                        <p>You can view your progress and certificate (if applicable) on your dashboard.</p>
+                    ";
+                    sendEmail($this->db, getCurrentUserEmail(), $subject, $body);
+                }
             }
 
             $this->json($responseData);

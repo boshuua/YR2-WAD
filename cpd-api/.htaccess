@@ -14,6 +14,14 @@ Options -Indexes
   Allow from all
 </FilesMatch>
 
+# Route API requests to Front Controller
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_URI} ^/api/.*\.php$ [NC]
+  RewriteCond %{REQUEST_URI} !^/api/index\.php$ [NC]
+  RewriteRule ^api/(.*\.php)$ api/index.php [L,QSA]
+</IfModule>
+
 # Set default charset
 AddDefaultCharset utf-8
 
