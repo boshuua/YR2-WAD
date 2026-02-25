@@ -11,33 +11,7 @@
 
   <form *ngIf="!isLoading" [formGroup]="settingsForm" (ngSubmit)="onSave()" class="settings-form">
 
-    <!-- Panel 1: Platform Customization -->
-    <div class="settings-panel">
-      <div class="panel-header">
-        <div class="panel-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path><path d="M4.93 4.93a10 10 0 0 0 0 14.14"></path></svg>
-        </div>
-        <div>
-          <h3>Platform Customization</h3>
-          <p>Update your platform's branding and contact details.</p>
-        </div>
-      </div>
 
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="site_name">Site Name</label>
-          <input id="site_name" type="text" formControlName="site_name" placeholder="CPD Portal">
-          <div *ngIf="settingsForm.get('site_name')?.invalid && settingsForm.get('site_name')?.touched" class="error-text">Site Name is required.</div>
-        </div>
-        <div class="form-group">
-          <label for="support_email">Support Email</label>
-          <input id="support_email" type="email" formControlName="support_email" placeholder="support@example.com">
-          <div *ngIf="settingsForm.get('support_email')?.invalid && settingsForm.get('support_email')?.touched" class="error-text">A valid support email is required.</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Panel 2: Email Notifications -->
     <div class="settings-panel">
       <div class="panel-header">
         <div class="panel-icon">
@@ -73,30 +47,7 @@
       </div>
     </div>
 
-    <!-- Panel 3: User Defaults -->
-    <div class="settings-panel">
-      <div class="panel-header">
-        <div class="panel-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-        </div>
-        <div>
-          <h3>User Defaults</h3>
-          <p>Configure default values applied when new users are created.</p>
-        </div>
-      </div>
-
-      <div class="form-group" style="max-width: 320px;">
-        <label for="default_access_level">Default Access Level</label>
-        <select id="default_access_level" formControlName="default_access_level">
-          <option value="user">User</option>
-          <option value="manager">Manager</option>
-          <option value="admin">Admin</option>
-        </select>
-        <span class="help-text">New accounts will be created with this role if not specified explicitly.</span>
-      </div>
-    </div>
-
-    <!-- Panel 4: Maintenance Mode -->
+    <!-- Panel 3: Maintenance Mode -->
     <div class="settings-panel maintenance-panel" [class.active]="settingsForm.get('maintenance_mode')?.value">
       <div class="panel-header">
         <div class="panel-icon danger-icon">
