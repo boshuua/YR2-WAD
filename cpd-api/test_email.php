@@ -12,6 +12,8 @@ $toEmail = 'admin@ws369808-wad.remote.ac'; // Change this if you want to test a 
 $subject = 'Terminal Test Email';
 $body = '<h1>It works!</h1><p>This is a test email sent from the command line via PHPMailer.</p>';
 
+echo "Using Host: " . ($_ENV['SMTP_HOST'] ?? 'NOT SET') . "\n";
+echo "Using Port: " . ($_ENV['SMTP_PORT'] ?? 'NOT SET') . "\n";
 echo "Attempting to send an email to {$toEmail}...\n";
 
 // Passing null for $db since we just want to test the email sending, not the activity logging
