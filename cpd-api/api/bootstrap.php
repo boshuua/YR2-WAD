@@ -64,7 +64,10 @@ require_once __DIR__ . '/../helpers/log_helper.php'; // Log helper
 // CSRF Check (Centralized)
 $method = $_SERVER['REQUEST_METHOD'] ?? 'CLI';
 $unsafe = in_array($method, ['POST', 'PUT', 'DELETE'], true);
-$path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
+// When using a Front Controller (index.php), the actual requested file is often the entire REQUEST_URI path
+$requestUri = $_SERVER['REQUEST_URI'] ?? '';
+$parsedUri = parse_url($requestUri);
+$path = $parsedUri['path'] ?? '';
 $endpoint = basename($path);
 
 // Allow login + csrf token bootstrap without CSRF header
