@@ -201,16 +201,19 @@ class AuthController extends BaseController
 
             $adminEmail = 'admin@ws369808-wad.remote.ac';
 
-            $subject = "Password Reset Request: " . $user['first_name'] . " " . $user['last_name'];
-            $body = "
-                <h2>Password Reset Request</h2>
-                <p>User <strong>{$user['first_name']} {$user['last_name']}</strong> ({$email}) has requested a password reset.</p>
-                <p>To approve this request and generate a new password for the user, please click the link below:</p>
-                <p><a href='{$approveUrl}' style='padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Approve Password Reset</a></p>
-                <p><em>If you ignore this email, the request will expire in 24 hours and the user's password will not be changed.</em></p>
-            ";
-
-            sendEmail($this->db, $adminEmail, $subject, $body);
+            // Only send if enabled
+            if (getSetting('enable_password_reset_emails', 'true') === 'true') {
+                $siteName = getSetting('site_name', 'CPD Portal');
+                $subject = "[{$siteName}] Password Reset Request: " . $user['first_name'] . " " . $user['last_name'];
+                $body = "
+                    <h2>Password Reset Request</h2>
+                    <p>User <strong>{$user['first_name']} {$user['last_name']}</strong> ({$email}) has requested a password reset.</p>
+                    <p>To approve this request and generate a new password for the user, please click the link below:</p>
+                    <p><a href='{$approveUrl}' style='padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Approve Password Reset</a></p>
+                    <p><em>If you ignore this email, the request will expire in 24 hours and the user's password will not be changed.</em></p>
+                ";
+                sendEmail($this->db, $adminEmail, $subject, $body);
+            }
 
             log_activity($this->db, $user['id'], $email, 'password_reset_requested', 'User requested a password reset. Admin notified.');
 

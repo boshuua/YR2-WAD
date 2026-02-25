@@ -13,6 +13,10 @@ class BaseController
     {
         $database = new Database();
         $this->db = $database->getConn();
+
+        // Expose $pdo globally so helpers (e.g. getSetting()) can access the connection
+        global $pdo;
+        $pdo = $this->db;
     }
 
     /**

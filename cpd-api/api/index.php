@@ -61,7 +61,11 @@ $routes = [
     // Attachments
     'upload_user_attachment.php' => ['App\Controllers\AttachmentController', 'upload'],
     'delete_user_attachment.php' => ['App\Controllers\AttachmentController', 'delete'],
-    'view_attachment.php' => ['App\Controllers\AttachmentController', 'view']
+    'view_attachment.php' => ['App\Controllers\AttachmentController', 'view'],
+
+    // System Settings
+    'get_settings.php' => ['App\Controllers\SettingsController', 'index'],
+    'admin_update_settings.php' => ['App\Controllers\SettingsController', 'update']
 ];
 
 // If the endpoint is empty or is exactly "index.php", return a standard status

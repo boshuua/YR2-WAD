@@ -51,7 +51,9 @@ class UserController extends BaseController
         $lname = sanitizeString($data->last_name);
         $email = filter_var($data->email, FILTER_SANITIZE_EMAIL);
         $password = $data->password;
-        $access = $data->access_level ?? 'user';
+        // Use provided access level or fall back to the global default configured in Settings
+        $defaultAccess = getSetting('default_access_level', 'user');
+        $access = $data->access_level ?? $defaultAccess;
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->error("Invalid email format.");
@@ -79,20 +81,23 @@ class UserController extends BaseController
             if ($stmt->execute()) {
                 log_activity($this->db, getCurrentUserId(), getCurrentUserEmail(), "User Created", "Created user: {$email}");
 
-                // Send Welcome Email
-                $frontendUrl = $_ENV['CORS_ALLOWED_ORIGIN'] ?? 'http://localhost:4200';
-                $loginUrl = rtrim($frontendUrl, '/') . '/login';
+                // Send Welcome Email (only if the global setting is enabled)
+                if (getSetting('enable_welcome_emails', 'true') === 'true') {
+                    $siteName = getSetting('site_name', 'CPD Portal');
+                    $frontendUrl = $_ENV['CORS_ALLOWED_ORIGIN'] ?? 'http://localhost:4200';
+                    $loginUrl = rtrim($frontendUrl, '/') . '/login';
 
-                $subject = "Welcome to CPD Portal";
-                $body = "
-                    <h2>Welcome, {$fname}!</h2>
-                    <p>An administrator has created an account for you on the CPD Portal.</p>
-                    <p><strong>URL:</strong> <a href='{$loginUrl}'>{$loginUrl}</a><br>
-                    <strong>Email:</strong> {$email}<br>
-                    <strong>Temporary Password:</strong> {$password}</p>
-                    <p style='color: red;'><strong>Important:</strong> We strongly recommend changing your password immediately after your first login.</p>
-                ";
-                sendEmail($this->db, $email, $subject, $body);
+                    $subject = "Welcome to {$siteName}";
+                    $body = "
+                        <h2>Welcome, {$fname}!</h2>
+                        <p>An administrator has created an account for you on {$siteName}.</p>
+                        <p><strong>URL:</strong> <a href='{$loginUrl}'>{$loginUrl}</a><br>
+                        <strong>Email:</strong> {$email}<br>
+                        <strong>Temporary Password:</strong> {$password}</p>
+                        <p style='color: red;'><strong>Important:</strong> We strongly recommend changing your password immediately after your first login.</p>
+                    ";
+                    sendEmail($this->db, $email, $subject, $body);
+                }
 
                 $this->json(["message" => "User created successfully."], 201);
             } else {

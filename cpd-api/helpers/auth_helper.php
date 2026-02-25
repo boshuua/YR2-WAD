@@ -8,12 +8,13 @@
 /**
  * Start session if not already started
  */
-function ensureSessionStarted() {
+function ensureSessionStarted()
+{
     if (session_status() === PHP_SESSION_NONE) {
 
         // Detect HTTPS (important for SameSite=None cookies)
         $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-            || (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443);
+            || (isset($_SERVER['SERVER_PORT']) && (int) $_SERVER['SERVER_PORT'] === 443);
 
         // In production cross-site requests, cookies must be SameSite=None; Secure
         // For local HTTP dev, Secure cookies won't work, so fall back to Lax.
@@ -39,7 +40,8 @@ function ensureSessionStarted() {
  *
  * @return bool
  */
-function isAuthenticated() {
+function isAuthenticated()
+{
     ensureSessionStarted();
     return isset($_SESSION['user_id']) && isset($_SESSION['access_level']);
 }
@@ -49,7 +51,8 @@ function isAuthenticated() {
  *
  * @return int|null
  */
-function getCurrentUserId() {
+function getCurrentUserId()
+{
     ensureSessionStarted();
     return $_SESSION['user_id'] ?? null;
 }
@@ -59,7 +62,8 @@ function getCurrentUserId() {
  *
  * @return string|null
  */
-function getCurrentUserAccessLevel() {
+function getCurrentUserAccessLevel()
+{
     ensureSessionStarted();
     return $_SESSION['access_level'] ?? null;
 }
@@ -69,7 +73,8 @@ function getCurrentUserAccessLevel() {
  *
  * @return string|null
  */
-function getCurrentUserEmail() {
+function getCurrentUserEmail()
+{
     ensureSessionStarted();
     return $_SESSION['email'] ?? null;
 }
@@ -79,18 +84,53 @@ function getCurrentUserEmail() {
  *
  * @return bool
  */
-function isAdmin() {
+function isAdmin()
+{
     return getCurrentUserAccessLevel() === 'admin';
 }
 
 /**
+ * Get a setting value from the system_settings table
+ * @param string $key
+ * @param string $default
+ * @return string
+ */
+function getSetting($key, $default = '')
+{
+    global $pdo;
+    if (!$pdo)
+        return $default;
+    try {
+        $stmt = $pdo->prepare("SELECT setting_value FROM system_settings WHERE setting_key = :key");
+        $stmt->execute([':key' => $key]);
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $row ? $row['setting_value'] : $default;
+    } catch (\Exception $e) {
+        return $default;
+    }
+}
+
+/**
  * Require authentication - exits with 401 if not authenticated
+ * Also enforces maintenance mode lockout.
  *
  * @param string $message Custom error message
  */
-function requireAuth($message = "Authentication required.") {
+function requireAuth($message = "Authentication required.")
+{
     if (!isAuthenticated()) {
         sendJsonResponse(["message" => $message], 401);
+    }
+
+    // Maintenance mode: block non-admins
+    if (!isAdmin()) {
+        $maintenance = getSetting('maintenance_mode', 'false');
+        if ($maintenance === 'true') {
+            sendJsonResponse([
+                "message" => "The platform is currently under maintenance. Please try again later.",
+                "maintenance" => true
+            ], 503);
+        }
     }
 }
 
@@ -99,7 +139,8 @@ function requireAuth($message = "Authentication required.") {
  *
  * @param string $message Custom error message
  */
-function requireAdmin($message = "Access Denied: Admin privileges required.") {
+function requireAdmin($message = "Access Denied: Admin privileges required.")
+{
     requireAuth();
 
     if (!isAdmin()) {
@@ -116,7 +157,8 @@ function requireAdmin($message = "Access Denied: Admin privileges required.") {
  * @param string $lastName
  * @param string $accessLevel
  */
-function setUserSession($userId, $email, $firstName, $lastName, $accessLevel) {
+function setUserSession($userId, $email, $firstName, $lastName, $accessLevel)
+{
     ensureSessionStarted();
 
     $_SESSION['user_id'] = $userId;
@@ -132,7 +174,8 @@ function setUserSession($userId, $email, $firstName, $lastName, $accessLevel) {
 /**
  * Clear user session (logout)
  */
-function clearUserSession() {
+function clearUserSession()
+{
     ensureSessionStarted();
 
     $_SESSION = array();
@@ -140,9 +183,14 @@ function clearUserSession() {
     // Destroy session cookie
     if (ini_get("session.use_cookies")) {
         $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000,
-            $params["path"], $params["domain"],
-            $params["secure"], $params["httponly"]
+        setcookie(
+            session_name(),
+            '',
+            time() - 42000,
+            $params["path"],
+            $params["domain"],
+            $params["secure"],
+            $params["httponly"]
         );
     }
 
@@ -154,7 +202,8 @@ function clearUserSession() {
  *
  * @return array
  */
-function getCurrentUserData() {
+function getCurrentUserData()
+{
     ensureSessionStarted();
 
     return [
