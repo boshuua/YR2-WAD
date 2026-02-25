@@ -20,12 +20,17 @@ export class AuthService {
   }
 
   forgotPassword(email: string): Observable<ApiResponse> {
-    return this.http.post<ApiResponse>(
-      `${this.apiUrl}/forgot_password.php`,
-      { email },
-      {
-        withCredentials: true,
-      },
+    return this.ensureCsrfToken().pipe(
+      switchMap((csrfToken) =>
+        this.http.post<ApiResponse>(
+          `${this.apiUrl}/forgot_password.php`,
+          { email },
+          {
+            withCredentials: true,
+            headers: new HttpHeaders({ 'X-CSRF-Token': csrfToken }),
+          },
+        ),
+      ),
     );
   }
 
