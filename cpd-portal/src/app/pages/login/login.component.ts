@@ -131,6 +131,7 @@ export class LoginComponent implements OnInit {
       },
       error: (err) => {
         this.isSubmittingForgot = false;
+        console.error('Forgot Password API Error:', err);
         this.forgotErrorMessage =
           err.error?.message ||
           'An error occurred while processing your request. Please try again.';
