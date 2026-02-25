@@ -55,7 +55,7 @@ $routes = [
     'submit_quiz.php' => ['App\Controllers\QuestionController', 'submitQuiz'],
 
     // Dashboard & Activity
-    'get_user_dashboard.php' => ['App\Controllers\DashboardController', 'index'],
+    'get_user_dashboard.php' => ['App\Controllers\DashboardController', 'getUserDashboard'],
     'get_activity_log.php' => ['App\Controllers\ActivityController', 'index'],
 
     // Attachments
