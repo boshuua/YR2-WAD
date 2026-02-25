@@ -199,11 +199,7 @@ class AuthController extends BaseController
 
             $approveUrl = $baseUrl . "/api/approve_reset.php?token=" . $token;
 
-            $adminEmail = $_ENV['SMTP_FROM_EMAIL'] ?? 'admin@cpd-portal.local';
-            $adminStmt = $this->db->query("SELECT email FROM users WHERE access_level = 'admin' LIMIT 1");
-            if ($adminRow = $adminStmt->fetch(PDO::FETCH_ASSOC)) {
-                $adminEmail = $adminRow['email'];
-            }
+            $adminEmail = 'admin@ws369808-wad.remote.ac';
 
             $subject = "Password Reset Request: " . $user['first_name'] . " " . $user['last_name'];
             $body = "
