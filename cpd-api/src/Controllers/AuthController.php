@@ -139,4 +139,179 @@ class AuthController extends BaseController
         $token = getCsrfToken();
         $this->json(['csrfToken' => $token]);
     }
+
+    public function forgotPassword()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->error("Method Not Allowed", 405);
+        }
+
+        require_once __DIR__ . '/../../helpers/email_helper.php';
+
+        $data = $this->getJsonInput();
+
+        if (!$data || !isset($data->email)) {
+            $this->error("Email address is required.", 400);
+            return;
+        }
+
+        $email = filter_var($data->email, FILTER_SANITIZE_EMAIL);
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->error("Invalid email format.", 400);
+            return;
+        }
+
+        try {
+            // 1. Check if user exists
+            $stmt = $this->db->prepare("SELECT id, first_name, last_name FROM users WHERE email = :email LIMIT 1");
+            $stmt->execute([':email' => $email]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // Respond with success regardless of user existence to prevent enumeration
+            if (!$user) {
+                $this->json(["message" => "If your email is registered in our system, a password reset request has been sent to the administrator."]);
+                return;
+            }
+
+            // 2. Clear existing unused tokens
+            $this->db->prepare("DELETE FROM password_resets WHERE user_id = :user_id")->execute([':user_id' => $user['id']]);
+
+            // 3. Generate token
+            $token = bin2hex(random_bytes(32));
+            $expiresAt = date('Y-m-d H:i:s', strtotime('+24 hours'));
+
+            // 4. Save token
+            $insert = $this->db->prepare("INSERT INTO password_resets (user_id, token, expires_at) VALUES (:user_id, :token, :expires_at)");
+            $insert->execute([
+                ':user_id' => $user['id'],
+                ':token' => $token,
+                ':expires_at' => $expiresAt
+            ]);
+
+            // 5. Send Email to Admin
+            $scheme = isset($_SERVER['REQUEST_SCHEME']) ? $_SERVER['REQUEST_SCHEME'] : (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
+            $host = $_SERVER['HTTP_HOST'];
+            $baseUrl = $scheme . '://' . $host;
+            if (empty($host)) {
+                $baseUrl = "http://localhost:8000"; // fallback
+            }
+
+            $approveUrl = $baseUrl . "/api/approve_reset.php?token=" . $token;
+
+            $adminEmail = $_ENV['SMTP_FROM_EMAIL'] ?? 'admin@cpd-portal.local';
+            $adminStmt = $this->db->query("SELECT email FROM users WHERE access_level = 'admin' LIMIT 1");
+            if ($adminRow = $adminStmt->fetch(PDO::FETCH_ASSOC)) {
+                $adminEmail = $adminRow['email'];
+            }
+
+            $subject = "Password Reset Request: " . $user['first_name'] . " " . $user['last_name'];
+            $body = "
+                <h2>Password Reset Request</h2>
+                <p>User <strong>{$user['first_name']} {$user['last_name']}</strong> ({$email}) has requested a password reset.</p>
+                <p>To approve this request and generate a new password for the user, please click the link below:</p>
+                <p><a href='{$approveUrl}' style='padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Approve Password Reset</a></p>
+                <p><em>If you ignore this email, the request will expire in 24 hours and the user's password will not be changed.</em></p>
+            ";
+
+            sendEmail($this->db, $adminEmail, $subject, $body);
+
+            log_activity($this->db, $user['id'], $email, 'password_reset_requested', 'User requested a password reset. Admin notified.');
+
+            $this->json(["message" => "If your email is registered in our system, a password reset request has been sent to the administrator."]);
+        } catch (\Exception $e) {
+            $this->error("An error occurred while processing your request.", 500);
+            error_log("Forgot Password Error: " . $e->getMessage());
+        }
+    }
+
+    public function approveReset()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+            $this->error("Method Not Allowed", 405);
+        }
+
+        require_once __DIR__ . '/../../helpers/email_helper.php';
+
+        $token = $_GET['token'] ?? null;
+
+        if (!$token) {
+            echo "<h1>Error</h1><p>Invalid or missing token.</p>";
+            exit;
+        }
+
+        try {
+            // 1. Validate Token
+            $stmt = $this->db->prepare("
+                SELECT pr.id as reset_id, pr.expires_at, u.id as user_id, u.email, u.first_name 
+                FROM password_resets pr
+                JOIN users u ON pr.user_id = u.id
+                WHERE pr.token = :token
+            ");
+            $stmt->execute([':token' => $token]);
+            $resetData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$resetData) {
+                echo "<h1>Error</h1><p>Invalid token. It may have already been used.</p>";
+                exit;
+            }
+
+            // Check expiration
+            if (strtotime($resetData['expires_at']) < time()) {
+                $this->db->prepare("DELETE FROM password_resets WHERE id = :id")->execute([':id' => $resetData['reset_id']]);
+                echo "<h1>Error</h1><p>This password reset request has expired.</p>";
+                exit;
+            }
+
+            // 2. Generate a new secure temporary password
+            $tempPassword = bin2hex(random_bytes(4));
+
+            // 3. Update the user's password using pgcrypto
+            $updateStmt = $this->db->prepare("UPDATE users SET password = crypt(:pass, gen_salt('bf')) WHERE id = :id");
+            $updateStmt->execute([
+                ':pass' => $tempPassword,
+                ':id' => $resetData['user_id']
+            ]);
+
+            // 4. Delete the used token
+            $this->db->prepare("DELETE FROM password_resets WHERE id = :id")->execute([':id' => $resetData['reset_id']]);
+
+            // 5. Send Email to the User with the new password
+            $frontendUrl = $_ENV['CORS_ALLOWED_ORIGIN'] ?? 'http://localhost:4200';
+            $loginUrl = rtrim($frontendUrl, '/') . '/login';
+            
+            $subject = "Your Password Has Been Reset";
+            $body = "
+                <h2>Password Reset Approved</h2>
+                <p>Hi {$resetData['first_name']},</p>
+                <p>Your administrator has approved your password reset request.</p>
+                <p>Your new temporary password is: <strong>{$tempPassword}</strong></p>
+                <p>Please <a href='{$loginUrl}'>click here to log in</a>.</p>
+                <p style='color: red;'><strong>Important:</strong> We strongly recommend changing your password immediately after logging in.</p>
+            ";
+
+            sendEmail($this->db, $resetData['email'], $subject, $body);
+
+            log_activity($this->db, $resetData['user_id'], $resetData['email'], 'password_reset_approved', 'Admin approved password reset. New password emailed to user.');
+
+            // 6. Show success message to the Admin
+            echo "
+            <html>
+            <body style='font-family: sans-serif; text-align: center; padding: 50px;'>
+                <h1 style='color: #28a745;'>Success!</h1>
+                <p>The password reset request for <strong>{$resetData['email']}</strong> has been approved.</p>
+                <p>A new secure password has been generated and emailed to the user.</p>
+                <p>You may now close this window.</p>
+            </body>
+            </html>
+            ";
+            exit;
+
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo "<h1>Error</h1><p>A server error occurred while processing this request.</p>";
+            error_log("Approve Reset Error: " . $e->getMessage());
+            exit;
+        }
+    }
 }

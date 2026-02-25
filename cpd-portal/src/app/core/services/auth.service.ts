@@ -19,6 +19,16 @@ export class AuthService {
     });
   }
 
+  forgotPassword(email: string): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(
+      `${this.apiUrl}/forgot_password.php`,
+      { email },
+      {
+        withCredentials: true,
+      },
+    );
+  }
+
   getMe(): Observable<{ user: User }> {
     return this.http.get<{ user: User }>(`${this.apiUrl}/me.php`, { withCredentials: true });
   }

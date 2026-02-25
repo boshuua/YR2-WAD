@@ -37,7 +37,7 @@
         </div>
 
         <div class="form-footer">
-          <a href="#" class="forgot-link">Forgot Password?</a>
+          <a href="javascript:void(0)" class="forgot-link" (click)="openForgotPassword()">Forgot Password?</a>
         </div>
 
         <div *ngIf="errorMessage" class="alert-error">
@@ -46,4 +46,37 @@
       </form>
     </div>
   </div>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal-backdrop" *ngIf="showForgotModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>Reset Password</h3>
+        <button class="btn-close" (click)="closeForgotPassword()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Enter your email address and we'll send a request to the administrator to reset your password.</p>
+        <div class="form-field">
+          <label>Email Address</label>
+          <input type="email" [formControl]="forgotEmailControl" placeholder="Enter your email" [class.error]="forgotEmailControl.invalid && forgotEmailControl.touched">
+          <div *ngIf="forgotEmailControl.invalid && forgotEmailControl.touched" class="error-text">
+            Valid email is required
+          </div>
+        </div>
+        <div *ngIf="forgotSuccessMessage" class="alert-success" style="margin-top:15px">
+          {{ forgotSuccessMessage }}
+        </div>
+        <div *ngIf="forgotErrorMessage" class="alert-error" style="margin-top:15px">
+          {{ forgotErrorMessage }}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeForgotPassword()">Cancel</button>
+        <button class="btn-submit" (click)="submitForgotPassword()" [disabled]="forgotEmailControl.invalid || isSubmittingForgot">
+          {{ isSubmittingForgot ? 'Sending...' : 'Request Reset' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>
