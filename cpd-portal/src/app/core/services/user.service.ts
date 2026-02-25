@@ -34,9 +34,19 @@ export class UserService {
   }
 
   getUserById(userId: number): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/get_users.php?id=${userId}`, {
-      withCredentials: true,
-    });
+    return this.http
+      .get<User[]>(`${this.apiUrl}/get_users.php`, {
+        withCredentials: true,
+      })
+      .pipe(
+        map((users) => {
+          const user = users.find((u) => u.id === userId);
+          if (!user) {
+            throw new Error(`User with ID ${userId} not found`);
+          }
+          return user;
+        }),
+      );
   }
 
   getUserDashboard(userId: number): Observable<UserDashboard> {
