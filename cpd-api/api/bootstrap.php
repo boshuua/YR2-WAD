@@ -69,7 +69,7 @@ $endpoint = basename($path);
 
 // Allow login + csrf token bootstrap without CSRF header
 // Exempt endpoints
-$csrfExempt = in_array($endpoint, ['user_login.php', 'csrf.php'], true);
+$csrfExempt = in_array($endpoint, ['user_login.php', 'csrf.php', 'forgot_password.php', 'approve_reset.php'], true);
 
 if ($unsafe && !$csrfExempt) {
     if (!isset($_SERVER['HTTP_X_CSRF_TOKEN'])) {
