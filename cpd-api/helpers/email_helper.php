@@ -57,6 +57,10 @@ function sendEmail($db, $toEmail, $subject, $body)
         log_activity($db, null, $toEmail, 'email_sent', "Subject: $subject | Body: " . substr(strip_tags($body), 0, 100) . "...");
     }
 
+    if (!$db && !$sent) {
+        return "Failed: " . $mail->ErrorInfo;
+    }
+
     return true; // We always return true to not block the user flow
 }
 ?>
