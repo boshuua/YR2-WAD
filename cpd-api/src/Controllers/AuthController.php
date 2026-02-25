@@ -220,7 +220,7 @@ class AuthController extends BaseController
 
             $this->json(["message" => "If your email is registered in our system, a password reset request has been sent to the administrator."]);
         } catch (\Exception $e) {
-            $this->error("An error occurred while processing your request.", 500);
+            $this->error("An error occurred: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine(), 500);
             error_log("Forgot Password Error: " . $e->getMessage());
         }
     }
@@ -279,7 +279,7 @@ class AuthController extends BaseController
             // 5. Send Email to the User with the new password
             $frontendUrl = $_ENV['CORS_ALLOWED_ORIGIN'] ?? 'http://localhost:4200';
             $loginUrl = rtrim($frontendUrl, '/') . '/login';
-            
+
             $subject = "Your Password Has Been Reset";
             $body = "
                 <h2>Password Reset Approved</h2>
