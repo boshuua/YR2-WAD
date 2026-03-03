@@ -216,7 +216,7 @@ class UserController extends BaseController
 
     public function updatePassword()
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') { // Usually POST or PUT
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $_SERVER['REQUEST_METHOD'] !== 'PUT') {
             $this->error("Method Not Allowed", 405);
         }
 

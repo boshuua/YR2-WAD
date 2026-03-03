@@ -1,50 +1,98 @@
 <div class="form-panel">
-  <h2>Edit User: {{ userForm.get('first_name')?.value }} {{ userForm.get('last_name')?.value }}</h2>
+  <div class="form-header">
+    <h2>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+      Edit User: {{ userForm.get('first_name')?.value }} {{ userForm.get('last_name')?.value }}
+    </h2>
+    <p class="subtitle">Update user details or reset their password</p>
+  </div>
 
-  <div *ngIf="isLoading">Loading user data...</div>
+  <div *ngIf="isLoading" class="loading-state">Loading user data...</div>
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
   <form *ngIf="!isLoading && !errorMessage" [formGroup]="userForm" (ngSubmit)="onSubmit()">
-    <div class="form-grid">
-      <div class="form-group">
-        <label for="firstName">First Name</label>
-        <input id="firstName" type="text" formControlName="first_name" required>
-        <div *ngIf="userForm.get('first_name')?.invalid && (userForm.get('first_name')?.dirty || userForm.get('first_name')?.touched)" class="error-message">
-          <div *ngIf="userForm.get('first_name')?.errors?.['required']">First Name is required.</div>
-        </div>
-      </div>
-      <div class="form-group">
-        <label for="lastName">Last Name</label>
-        <input id="lastName" type="text" formControlName="last_name">
-        <div *ngIf="userForm.get('last_name')?.invalid && (userForm.get('last_name')?.dirty || userForm.get('last_name')?.touched)" class="error-message">
-          <div *ngIf="userForm.get('last_name')?.errors?.['required']">Last Name is required.</div>
-        </div>
-      </div>
-    <div class="form-group">
-      <label for="jobTitle">Job Title</label>
-      <input id="jobTitle" type="text" formControlName="job_title">
-    </div>
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input id="email" type="email" formControlName="email" required>
-      <div *ngIf="userForm.get('email')?.invalid && (userForm.get('email')?.dirty || userForm.get('email')?.touched)" class="error-message">
-        <div *ngIf="userForm.get('email')?.errors?.['required']">Email is required.</div>
-        <div *ngIf="userForm.get('email')?.errors?.['email']">Please enter a valid email address.</div>
-      </div>
-    </div>
-          <div class="form-group">
-            <label for="accessLevel">Access Level</label>
-            <select id="accessLevel" formControlName="access_level" required>
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-            <div *ngIf="userForm.get('access_level')?.invalid && (userForm.get('access_level')?.dirty || userForm.get('access_level')?.touched)" class="error-message">
-              <div *ngIf="userForm.get('access_level')?.errors?.['required']">Access Level is required.</div>
-            </div>
+    
+    <div class="form-section">
+      <h3 class="section-title">Personal Information</h3>
+      
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label for="firstName">First Name *</label>
+          <input id="firstName" type="text" formControlName="first_name" required>
+          <div *ngIf="userForm.get('first_name')?.invalid && (userForm.get('first_name')?.dirty || userForm.get('first_name')?.touched)" class="error-message">
+            <div *ngIf="userForm.get('first_name')?.errors?.['required']">First Name is required.</div>
           </div>
-        </div>    <div class="form-actions">
-      <button type="button" class="btn-secondary" (click)="cancel()">Cancel</button>
-      <button type="submit" class="btn-primary">Update User</button>
+        </div>
+        
+        <div class="form-group">
+          <label for="lastName">Last Name *</label>
+          <input id="lastName" type="text" formControlName="last_name" required>
+          <div *ngIf="userForm.get('last_name')?.invalid && (userForm.get('last_name')?.dirty || userForm.get('last_name')?.touched)" class="error-message">
+            <div *ngIf="userForm.get('last_name')?.errors?.['required']">Last Name is required.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 class="section-title">Account Details</h3>
+      
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label for="email">Email Address *</label>
+          <input id="email" type="email" formControlName="email" required>
+          <div *ngIf="userForm.get('email')?.invalid && (userForm.get('email')?.dirty || userForm.get('email')?.touched)" class="error-message">
+            <div *ngIf="userForm.get('email')?.errors?.['required']">Email is required.</div>
+            <div *ngIf="userForm.get('email')?.errors?.['email']">Please enter a valid email address.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="jobTitle">Job Title</label>
+          <input id="jobTitle" type="text" formControlName="job_title" placeholder="e.g. Mechanic">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="accessLevel">Access Level *</label>
+        <select id="accessLevel" formControlName="access_level" required>
+          <option value="user">User</option>
+          <option value="admin">Administrator</option>
+        </select>
+        <div *ngIf="userForm.get('access_level')?.invalid && (userForm.get('access_level')?.dirty || userForm.get('access_level')?.touched)" class="error-message">
+          <div *ngIf="userForm.get('access_level')?.errors?.['required']">Access Level is required.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3 class="section-title">Security</h3>
+      <div class="form-group">
+        <label for="newPassword">Reset Password (Optional)</label>
+        <input id="newPassword" type="password" formControlName="new_password" placeholder="Enter new password to reset">
+        <small class="hint">Leave this blank if you do not wish to change the user's password.</small>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn-secondary" (click)="cancel()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+        Cancel
+      </button>
+      <button type="submit" class="btn-primary" [disabled]="userForm.invalid">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+          <polyline points="17 21 17 13 7 13 7 21"></polyline>
+          <polyline points="7 3 7 8 15 8"></polyline>
+        </svg>
+        Save Changes
+      </button>
     </div>
   </form>
 </div>
