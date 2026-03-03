@@ -38,7 +38,7 @@ $routes = [
     'assign_course.php' => ['App\Controllers\CourseController', 'assign'],
 
     // User Course Progress (Enrolment)
-    'get_user_courses.php' => ['App\Controllers\CourseController', 'userCourses'],
+    'get_user_courses.php' => ['App\Controllers\CourseController', 'getUserCourses'],
     'enroll_course.php' => ['App\Controllers\CourseController', 'enroll'],
     'update_course_progress.php' => ['App\Controllers\CourseController', 'updateProgress'],
     'complete_course.php' => ['App\Controllers\CourseController', 'completeCourse'],

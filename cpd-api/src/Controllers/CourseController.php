@@ -844,7 +844,6 @@ class CourseController extends BaseController
         $userId = getCurrentUserId();
 
         try {
-            // Simplified query - removed score column (no longer exists)
             $query = "SELECT
                         c.id AS course_id,
                         c.title,
@@ -852,7 +851,6 @@ class CourseController extends BaseController
                         ucp.status AS user_progress_status,
                         ucp.completion_date,
                         ucp.last_accessed_lesson_id,
-                        ucp.score,
                         c.category
                       FROM courses c
                       INNER JOIN user_course_progress ucp ON c.id = ucp.course_id AND ucp.user_id = :user_id
@@ -871,7 +869,6 @@ class CourseController extends BaseController
                     "user_progress_status" => $row['user_progress_status'],
                     "completion_date" => $row['completion_date'],
                     "last_accessed_lesson_id" => $row['last_accessed_lesson_id'],
-                    "score" => $row['score'],
                     "category" => $row['category']
                 ];
             }
