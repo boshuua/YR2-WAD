@@ -100,4 +100,45 @@ class LessonController extends BaseController
             $this->error("Database error: " . $e->getMessage(), 500);
         }
     }
+
+    public function saveProgress()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->error("Method Not Allowed", 405);
+        }
+
+        requireAuth();
+
+        $data = $this->getJsonInput();
+        if (!isset($data->course_id) || !isset($data->lesson_id)) {
+            $this->error("Missing course_id or lesson_id.");
+        }
+
+        $userId = getCurrentUserId();
+        $courseId = (int) $data->course_id;
+        $lessonId = (int) $data->lesson_id;
+
+        try {
+            // Update the last_accessed_lesson_id in user_course_progress
+            $stmt = $this->db->prepare("
+                UPDATE user_course_progress 
+                SET last_accessed_lesson_id = :lid, 
+                    updated_at = CURRENT_TIMESTAMP 
+                WHERE user_id = :uid AND course_id = :cid
+            ");
+            $stmt->execute([
+                ':lid' => $lessonId,
+                ':uid' => $userId,
+                ':cid' => $courseId
+            ]);
+
+            // Also ensure the lesson is marked as completed if needed, but the frontend
+            // usually calls update_lesson_progress for that.
+
+            $this->json(["message" => "Lesson progress saved."]);
+
+        } catch (\Exception $e) {
+            $this->error("Database error: " . $e->getMessage(), 500);
+        }
+    }
 }
