@@ -17,30 +17,41 @@ class CourseController extends BaseController
 
         $type = $_GET['type'] ?? 'all';
 
-        // Base Query
+        // Base Query - Optimized with Eager Loading (LEFT JOIN)
         $sql = "SELECT c.id, c.title, c.description, c.duration, c.category, c.status, 
-                       c.instructor_id, c.start_date, c.end_date, c.is_locked, c.is_template,
-                       c.max_attendees,
-                       (SELECT COUNT(*) FROM user_course_progress ucp WHERE ucp.course_id = c.id AND ucp.status != 'cancelled') as enrolled_count
-                FROM courses c
-                WHERE 1=1";
+                   c.instructor_id, c.start_date, c.end_date, c.is_locked, c.is_template,
+                   c.max_attendees,
+                   COALESCE(ucp_counts.enrolled_count, 0) as enrolled_count
+            FROM courses c
+            LEFT JOIN (
+                SELECT course_id, COUNT(*) as enrolled_count 
+                FROM user_course_progress 
+                WHERE status != 'cancelled' 
+                GROUP BY course_id
+            ) ucp_counts ON c.id = ucp_counts.course_id
+            WHERE 1=1";
 
         // Filter Logic
         if ($type === 'locked') {
             $sql .= " AND c.is_locked = TRUE";
-        } else if ($type === 'library') {
+        }
+        else if ($type === 'library') {
             $sql .= " AND (c.is_template = TRUE OR c.is_locked = TRUE)";
-        } else if ($type === 'template') {
+        }
+        else if ($type === 'template') {
             // Strictly templates for scheduling dropdown
             // Hide Annual Assessment (auto-assigned) but allow all other templates including locked ones
             $sql .= " AND c.is_template = TRUE AND c.title != 'MOT Tester Annual Assessment'";
-        } else if ($type === 'active') {
+        }
+        else if ($type === 'active') {
             // Active usually means filtered instances (not templates)
             $sql .= " AND c.is_template = FALSE AND c.is_locked = FALSE";
-        } else if ($type === 'upcoming') {
+        }
+        else if ($type === 'upcoming') {
             // Only future courses
             $sql .= " AND c.is_template = FALSE AND c.start_date >= CURRENT_DATE";
-        } else if ($type === 'past') {
+        }
+        else if ($type === 'past') {
             $sql .= " AND c.is_template = FALSE AND c.end_date < CURRENT_DATE";
         }
 
@@ -59,19 +70,21 @@ class CourseController extends BaseController
                 // Original code sent 404 with "No courses found." if empty array.
                 // Keeping consistent, though 200 [] is often better.
                 $this->error("No courses found.", 404);
-            } else {
+            }
+            else {
                 // Format booleans if needed (Postgres returns 't'/'f' sometimes depending on driver setup, 
                 // but fetchAll(PDO::FETCH_ASSOC) usually gives appropriate types if set up.
                 // Legacy extracted and cast (bool) $is_locked.
                 foreach ($courses as &$course) {
-                    $course['is_locked'] = (bool) ($course['is_locked'] === true || $course['is_locked'] === 't' || $course['is_locked'] === 1);
-                    $course['is_template'] = (bool) ($course['is_template'] === true || $course['is_template'] === 't' || $course['is_template'] === 1);
+                    $course['is_locked'] = (bool)($course['is_locked'] === true || $course['is_locked'] === 't' || $course['is_locked'] === 1);
+                    $course['is_template'] = (bool)($course['is_template'] === true || $course['is_template'] === 't' || $course['is_template'] === 1);
                     $course['description'] = html_entity_decode($course['description']);
                 }
                 $this->json($courses);
             }
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $this->error("Database error: " . $e->getMessage(), 500);
         }
     }
@@ -96,7 +109,8 @@ class CourseController extends BaseController
 
             if (strpos($title, 'MOT Class 1 & 2 Training') !== false) {
                 $targetTemplateTitle = 'MOT Class 1 & 2 Annual Assessment';
-            } elseif (strpos($title, 'MOT Class 4 & 7 Training') !== false) {
+            }
+            elseif (strpos($title, 'MOT Class 4 & 7 Training') !== false) {
                 $targetTemplateTitle = 'MOT Class 4 & 7 Annual Assessment';
             }
 
@@ -118,7 +132,8 @@ class CourseController extends BaseController
                     ];
                 }
             }
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             // Log silent error, don't block response
             return ['success' => false, 'message' => $e->getMessage()];
         }
@@ -297,10 +312,12 @@ class CourseController extends BaseController
             if ($stmt->execute()) {
                 log_activity($this->db, getCurrentUserId(), getCurrentUserEmail(), "Course Created", "Course: {$title}");
                 $this->json(["message" => "Course was created."], 201);
-            } else {
+            }
+            else {
                 throw new \Exception("Insert failed");
             }
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             log_activity($this->db, getCurrentUserId(), getCurrentUserEmail(), "Course Creation Failed", "Error: " . $e->getMessage());
             $this->error("Unable to create course: " . $e->getMessage(), 500);
         }
@@ -377,7 +394,8 @@ class CourseController extends BaseController
             $userIds = [];
             if (isset($data->user_ids) && is_array($data->user_ids)) {
                 $userIds = $data->user_ids;
-            } elseif (isset($data->user_id) && $data->user_id) {
+            }
+            elseif (isset($data->user_id) && $data->user_id) {
                 $userIds[] = intval($data->user_id);
             }
 
@@ -392,9 +410,9 @@ class CourseController extends BaseController
                         ':cid' => $newCourseId,
                         ':date' => $startDate
                     ]);
-                    // Logic to send email is in 'assign_course', but here we do bulk. 
-                    // Could call EmailService here if refactored. 
-                    // For now, logging creation is enough or basic implementation.
+                // Logic to send email is in 'assign_course', but here we do bulk. 
+                // Could call EmailService here if refactored. 
+                // For now, logging creation is enough or basic implementation.
                 }
             }
 
@@ -402,7 +420,8 @@ class CourseController extends BaseController
             log_activity($this->db, getCurrentUserId(), getCurrentUserEmail(), "Course Scheduled", "Created '$courseTitle' from template ID $templateId");
             $this->json(["message" => "Course scheduled successfully!", "course_id" => $newCourseId], 201);
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             if ($this->db->inTransaction()) {
                 $this->db->rollBack();
             }
@@ -418,7 +437,7 @@ class CourseController extends BaseController
 
         requireAdmin();
 
-        $courseId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+        $courseId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         if ($courseId <= 0) {
             $this->error("Invalid course ID provided.");
         }
@@ -475,21 +494,25 @@ class CourseController extends BaseController
                 if ($stmt->rowCount() > 0) {
                     log_activity($this->db, getCurrentUserId(), getCurrentUserEmail(), "Course Updated", "Course ID: {$courseId}, Title: {$title}");
                     $this->json(["message" => "Course updated successfully."]);
-                } else {
+                }
+                else {
                     // Check if exists
                     $check = $this->db->prepare("SELECT COUNT(*) FROM courses WHERE id = :id");
                     $check->execute([':id' => $courseId]);
                     if ($check->fetchColumn() > 0) {
                         $this->json(["message" => "No changes detected for the course."]);
-                    } else {
+                    }
+                    else {
                         $this->error("Course not found.", 404);
                     }
                 }
-            } else {
+            }
+            else {
                 throw new \Exception("Update failed");
             }
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             log_activity($this->db, getCurrentUserId(), getCurrentUserEmail(), "Course Update Failed", "Course ID: {$courseId}, Error: " . $e->getMessage());
             $this->error("Unable to update course: " . $e->getMessage(), 500);
         }
@@ -503,7 +526,7 @@ class CourseController extends BaseController
 
         requireAdmin();
 
-        $courseId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+        $courseId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         if ($courseId <= 0) {
             $this->error("Invalid course ID provided.");
         }
@@ -516,7 +539,8 @@ class CourseController extends BaseController
             if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $courseTitle = $row['title'];
             }
-        } catch (\Exception $ignore) {
+        }
+        catch (\Exception $ignore) {
         }
 
         try {
@@ -527,14 +551,17 @@ class CourseController extends BaseController
                 if ($stmt->rowCount() > 0) {
                     log_activity($this->db, getCurrentUserId(), getCurrentUserEmail(), 'Course Deleted', "Course ID: {$courseId}, Title: {$courseTitle}");
                     $this->json(["message" => "Course deleted successfully."]);
-                } else {
+                }
+                else {
                     log_activity($this->db, getCurrentUserId(), getCurrentUserEmail(), 'Course Deletion Failed', "Course ID: {$courseId} not found.");
                     $this->error("Course not found or already deleted.", 404);
                 }
-            } else {
+            }
+            else {
                 throw new \Exception("Delete execution failed");
             }
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             log_activity($this->db, getCurrentUserId(), getCurrentUserEmail(), 'Course Deletion Failed', "Course ID: {$courseId}, Error: " . $e->getMessage());
             $this->error("Unable to delete course: " . $e->getMessage(), 500);
         }
@@ -546,7 +573,7 @@ class CourseController extends BaseController
             $this->error("Method Not Allowed", 405);
         }
 
-        $courseId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+        $courseId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         if ($courseId <= 0) {
             $this->error("Invalid course ID provided.");
         }
@@ -574,10 +601,12 @@ class CourseController extends BaseController
                     "end_date" => $row['end_date']
                 ];
                 $this->json($course);
-            } else {
+            }
+            else {
                 $this->error("Course not found.", 404);
             }
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $this->error("Database error: " . $e->getMessage(), 500);
         }
     }
@@ -596,7 +625,7 @@ class CourseController extends BaseController
             $this->error("Course ID is required.");
         }
 
-        $courseId = (int) $input->course_id;
+        $courseId = (int)$input->course_id;
         $userId = getCurrentUserId();
 
         try {
@@ -647,7 +676,8 @@ class CourseController extends BaseController
             log_activity($this->db, $userId, $userEmail, 'enroll_course', "Enrolled in course ID: $courseId");
             $this->json(["message" => "Successfully enrolled in the course.", "course_id" => $courseId]);
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $this->error("Failed to enroll: " . $e->getMessage(), 500);
         }
     }
@@ -666,8 +696,8 @@ class CourseController extends BaseController
             $this->error("Missing required fields: user_id, course_id, start_date");
         }
 
-        $userId = (int) $data->user_id;
-        $courseId = (int) $data->course_id;
+        $userId = (int)$data->user_id;
+        $courseId = (int)$data->course_id;
         $scheduledDate = $data->start_date;
 
         try {
@@ -706,7 +736,8 @@ class CourseController extends BaseController
                 $upd->execute([':date' => $scheduledDate, ':id' => $existing['id']]);
                 sendEmail($this->db, $user['email'], $subject, $body);
                 $this->json(["message" => "Course assignment updated and email sent.", "course_id" => $courseId, "user_id" => $userId]);
-            } else {
+            }
+            else {
                 $ins = $this->db->prepare("
                     INSERT INTO user_course_progress (user_id, course_id, status, enrolled_at, hours_completed)
                     VALUES (:uid, :cid, 'not_started', :date, 0)
@@ -720,7 +751,8 @@ class CourseController extends BaseController
                 $this->json(["message" => "Course assigned and email sent.", "course_id" => $courseId, "user_id" => $userId], 201);
             }
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $this->error("Error assigning course: " . $e->getMessage(), 500);
         }
     }
@@ -739,7 +771,7 @@ class CourseController extends BaseController
         }
 
         $userId = getCurrentUserId();
-        $courseId = (int) $data->course_id;
+        $courseId = (int)$data->course_id;
         $status = $data->status;
         $score = $data->score ?? null;
 
@@ -768,7 +800,8 @@ class CourseController extends BaseController
                     ':uid' => $userId,
                     ':cid' => $courseId
                 ]);
-            } else {
+            }
+            else {
                 // Insert new progress record (simplified - no score)
                 $ins = $this->db->prepare("
                     INSERT INTO user_course_progress (user_id, course_id, status, completion_date)
@@ -813,7 +846,8 @@ class CourseController extends BaseController
 
             $this->json($responseData);
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $this->error("Database error: " . $e->getMessage(), 500);
         }
     }
@@ -866,11 +900,13 @@ class CourseController extends BaseController
 
             if (empty($courses)) {
                 $this->error("No courses found.", 404);
-            } else {
+            }
+            else {
                 $this->json($courses);
             }
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $this->error("Database error: " . $e->getMessage(), 500);
         }
     }
@@ -889,7 +925,7 @@ class CourseController extends BaseController
         }
 
         $userId = getCurrentUserId();
-        $courseId = (int) $input->course_id;
+        $courseId = (int)$input->course_id;
         $score = $input->score;
 
         if ($score < 0 || $score > 100) {
@@ -955,7 +991,8 @@ class CourseController extends BaseController
 
             $this->json($response);
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             $this->error("Failed to submit quiz: " . $e->getMessage(), 500);
         }
     }
@@ -1016,9 +1053,9 @@ class CourseController extends BaseController
             ]);
 
             if ($updateStmt->rowCount() === 0) {
-                // If rowCount is 0, it might be because it was already completed.
-                // We should still allow the checkAuthAssign to run if needed, or just return success.
-                // For now, let's assume it's fine.
+            // If rowCount is 0, it might be because it was already completed.
+            // We should still allow the checkAuthAssign to run if needed, or just return success.
+            // For now, let's assume it's fine.
             }
 
             // Check for Auto-Assignment
@@ -1036,7 +1073,8 @@ class CourseController extends BaseController
 
             echo json_encode($response);
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             error_log("Complete course error: " . $e->getMessage());
             http_response_code(500);
             echo json_encode([

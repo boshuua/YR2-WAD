@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -17,6 +17,7 @@ import { User } from '../../../core/models/user.model';
   imports: [CommonModule, ReactiveFormsModule, FormsModule, ConfirmModalComponent],
   templateUrl: './course-list.component.html',
   styleUrls: ['./course-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CourseListComponent implements OnInit {
   upcomingCourses: Course[] = [];
@@ -55,7 +56,8 @@ export class CourseListComponent implements OnInit {
     private router: Router,
     private loadingService: LoadingService,
     private fb: FormBuilder,
-  ) {}
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     this.scheduleForm = this.fb.group({
@@ -102,6 +104,7 @@ export class CourseListComponent implements OnInit {
         this.isLoading = false;
         this.noCoursesFound = data.length === 0;
         this.loadingService.hide();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.loadingService.hide();
@@ -113,6 +116,7 @@ export class CourseListComponent implements OnInit {
           this.toastService.error(this.errorMessage);
         }
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -142,10 +146,12 @@ export class CourseListComponent implements OnInit {
           title: '',
           userIds: [],
         });
+        this.cdr.markForCheck();
       },
       error: () => {
         this.loadingService.hide();
         this.toastService.error('Failed to load templates for scheduling.');
+        this.cdr.markForCheck();
       },
     });
   }
@@ -189,6 +195,7 @@ export class CourseListComponent implements OnInit {
         this.showScheduleModal = false;
         this.loadingService.hide();
         this.loadCourses();
+        this.cdr.markForCheck();
       },
       error: (err) => {
         this.isScheduling = false;
@@ -196,6 +203,7 @@ export class CourseListComponent implements OnInit {
         this.toastService.error(
           'Failed to schedule course: ' + (err.error?.message || err.message),
         );
+        this.cdr.markForCheck();
       },
     });
   }
@@ -221,11 +229,13 @@ export class CourseListComponent implements OnInit {
           this.toastService.success(response.message || 'Course deleted successfully!');
           this.loadCourses();
           this.closeDeleteModal();
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.error('Failed to delete course', err);
           this.toastService.error('Error deleting course: ' + (err.error?.message || err.message));
           this.closeDeleteModal();
+          this.cdr.markForCheck();
         },
       });
     } else {
@@ -241,6 +251,7 @@ export class CourseListComponent implements OnInit {
     this.showDeleteConfirmModal = false;
     this.courseToDeleteId = null;
     this.courseToDeleteTitle = '';
+    this.cdr.markForCheck();
   }
 
   get filteredUsers(): User[] {
@@ -275,10 +286,12 @@ export class CourseListComponent implements OnInit {
       next: (data) => {
         this.users = data;
         this.loadingService.hide();
+        this.cdr.markForCheck();
       },
       error: () => {
         this.loadingService.hide();
         this.toastService.error('Failed to load users');
+        this.cdr.markForCheck();
       },
     });
   }
@@ -307,11 +320,13 @@ export class CourseListComponent implements OnInit {
           this.isEnrolling = false;
           this.closeEnrollModal();
           this.loadingService.hide();
+          this.cdr.markForCheck();
         },
         error: (err) => {
           this.isEnrolling = false;
           this.loadingService.hide();
           this.toastService.error('Enrollment failed: ' + (err.error?.message || err.message));
+          this.cdr.markForCheck();
         },
       });
   }

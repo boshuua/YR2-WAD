@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -14,6 +14,7 @@ import { UserCourse } from '../../../core/models/dashboard.model';
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './my-courses.component.html',
   styleUrls: ['./my-courses.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MyCoursesComponent implements OnInit {
   activeCourses: UserCourse[] = [];
@@ -33,7 +34,8 @@ export class MyCoursesComponent implements OnInit {
     private courseService: CourseService,
     private toastService: ToastService,
     private router: Router,
-  ) {}
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     this.loadData();
@@ -63,18 +65,21 @@ export class MyCoursesComponent implements OnInit {
             this.availableCourses = allUpcoming.filter((c) => !enrolledIds.has(c.id));
             this.applyFilters();
             this.isLoading = false;
+            this.cdr.markForCheck();
           },
           error: (err) => {
             console.error('Failed to load upcoming', err);
             this.availableCourses = [];
             this.applyFilters();
             this.isLoading = false;
+            this.cdr.markForCheck();
           },
         });
       },
       error: (err: HttpErrorResponse) => {
         this.errorMessage = 'Error loading your courses.';
         this.isLoading = false;
+        this.cdr.markForCheck();
       },
     });
   }
@@ -106,6 +111,7 @@ export class MyCoursesComponent implements OnInit {
     this.filteredActive = this.activeCourses.filter(filterUserCourse);
     this.filteredHistory = this.historyCourses.filter(filterUserCourse);
     this.filteredAvailable = this.availableCourses.filter(filterCourse);
+    this.cdr.markForCheck();
   }
 
   viewCourse(courseId: number): void {

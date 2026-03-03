@@ -18,8 +18,8 @@
   max-width: 420px;
   background: var(--white);
   border-radius: var(--radius-lg);
-  box-shadow: var(--box-shadow-lg);
-  border: 1px solid var(--border-color-light);
+  box-shadow: var(--box-shadow);
+  border: 1px solid var(--border-color);
   overflow: hidden;
   animation: slideUp 0.4s ease-out;
 }
@@ -50,10 +50,10 @@
 }
 
 .app-name {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  letter-spacing: 0.2em;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
@@ -253,7 +253,7 @@
 
 .btn-submit {
   padding: 10px 20px;
-  background: #3942af;
+  background: var(--primary-color);
   color: white;
   border: none;
   border-radius: 4px;
@@ -263,12 +263,24 @@
 }
 
 .btn-submit:hover {
-  background: #2a3182;
+  background: var(--primary-hover);
 }
 
 .btn-submit:disabled {
-  background: #a5a9d6;
+  background: var(--gray-400);
   cursor: not-allowed;
+}
+
+.mot-footer {
+  background-color: var(--primary-color);
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.8rem;
+}
+
+.mot-footer p {
+  margin: 0;
 }
 
 .alert-success {

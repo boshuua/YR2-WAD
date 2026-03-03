@@ -9,7 +9,13 @@
     </div>
   </div>
 
-  <div *ngIf="isLoading" class="loading-message">Loading courses...</div>
+  <div *ngIf="isLoading" class="skeleton-container" style="padding: 1rem;">
+    <div class="skeleton-card" *ngFor="let i of [1,2,3]">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-text"></div>
+      <div class="skeleton skeleton-text short"></div>
+    </div>
+  </div>
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
   <div *ngIf="!isLoading && !errorMessage">
