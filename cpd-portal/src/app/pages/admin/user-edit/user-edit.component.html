@@ -15,47 +15,40 @@
 
   <form *ngIf="!isLoading && !errorMessage" [formGroup]="userForm" (ngSubmit)="onSubmit()">
     
-    <div class="form-section">
-      <h3 class="section-title">Personal Information</h3>
-      
-      <div class="form-grid-2">
-        <div class="form-group">
-          <label for="firstName">First Name *</label>
-          <input id="firstName" type="text" formControlName="first_name" required>
-          <div *ngIf="userForm.get('first_name')?.invalid && (userForm.get('first_name')?.dirty || userForm.get('first_name')?.touched)" class="error-message">
-            <div *ngIf="userForm.get('first_name')?.errors?.['required']">First Name is required.</div>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="lastName">Last Name *</label>
-          <input id="lastName" type="text" formControlName="last_name" required>
-          <div *ngIf="userForm.get('last_name')?.invalid && (userForm.get('last_name')?.dirty || userForm.get('last_name')?.touched)" class="error-message">
-            <div *ngIf="userForm.get('last_name')?.errors?.['required']">Last Name is required.</div>
-          </div>
+    <div class="form-grid-2">
+      <!-- Row 1 -->
+      <div class="form-group">
+        <label for="firstName">First Name *</label>
+        <input id="firstName" type="text" formControlName="first_name" required>
+        <div *ngIf="userForm.get('first_name')?.invalid && (userForm.get('first_name')?.dirty || userForm.get('first_name')?.touched)" class="error-message">
+          <div *ngIf="userForm.get('first_name')?.errors?.['required']">First Name is required.</div>
         </div>
       </div>
-    </div>
-
-    <div class="form-section">
-      <h3 class="section-title">Account Details</h3>
       
-      <div class="form-grid-2">
-        <div class="form-group">
-          <label for="email">Email Address *</label>
-          <input id="email" type="email" formControlName="email" required>
-          <div *ngIf="userForm.get('email')?.invalid && (userForm.get('email')?.dirty || userForm.get('email')?.touched)" class="error-message">
-            <div *ngIf="userForm.get('email')?.errors?.['required']">Email is required.</div>
-            <div *ngIf="userForm.get('email')?.errors?.['email']">Please enter a valid email address.</div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="jobTitle">Job Title</label>
-          <input id="jobTitle" type="text" formControlName="job_title" placeholder="e.g. Mechanic">
+      <div class="form-group">
+        <label for="lastName">Last Name *</label>
+        <input id="lastName" type="text" formControlName="last_name" required>
+        <div *ngIf="userForm.get('last_name')?.invalid && (userForm.get('last_name')?.dirty || userForm.get('last_name')?.touched)" class="error-message">
+          <div *ngIf="userForm.get('last_name')?.errors?.['required']">Last Name is required.</div>
         </div>
       </div>
 
+      <!-- Row 2 -->
+      <div class="form-group">
+        <label for="email">Email Address *</label>
+        <input id="email" type="email" formControlName="email" required>
+        <div *ngIf="userForm.get('email')?.invalid && (userForm.get('email')?.dirty || userForm.get('email')?.touched)" class="error-message">
+          <div *ngIf="userForm.get('email')?.errors?.['required']">Email is required.</div>
+          <div *ngIf="userForm.get('email')?.errors?.['email']">Please enter a valid email address.</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="jobTitle">Job Title</label>
+        <input id="jobTitle" type="text" formControlName="job_title" placeholder="e.g. Mechanic">
+      </div>
+
+      <!-- Row 3 -->
       <div class="form-group">
         <label for="accessLevel">Access Level *</label>
         <select id="accessLevel" formControlName="access_level" required>
@@ -66,14 +59,10 @@
           <div *ngIf="userForm.get('access_level')?.errors?.['required']">Access Level is required.</div>
         </div>
       </div>
-    </div>
 
-    <div class="form-section">
-      <h3 class="section-title">Security</h3>
       <div class="form-group">
         <label for="newPassword">Reset Password (Optional)</label>
         <input id="newPassword" type="password" formControlName="new_password" placeholder="Enter new password to reset">
-        <small class="hint">Leave this blank if you do not wish to change the user's password.</small>
       </div>
     </div>
 

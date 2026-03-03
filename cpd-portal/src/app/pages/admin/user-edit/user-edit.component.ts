@@ -80,12 +80,14 @@ export class UserEditComponent implements OnInit {
     }
 
     if (this.userForm.valid) {
-      const updateData = { ...this.userForm.value };
+      const updateData: any = { ...this.userForm.value };
       const newPassword = updateData.new_password;
       
       // Remove new_password from the main update payload
       delete updateData.new_password;
-      delete updateData.id;
+      
+      // The PHP backend still requires id in the payload
+      updateData.id = this.userId;
 
       // First update the basic user details
       this.userService.adminUpdateUser(this.userId, updateData).subscribe({
