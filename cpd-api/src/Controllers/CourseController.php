@@ -82,117 +82,6 @@ class CourseController extends BaseController
         }
     }
 
-    /**
-     * Helper to check if a completed course should trigger an auto-assignment.
-     */
-    private function checkAuthAssign($userId, $courseId)
-    {
-        try {
-            // 1. Get the completed course title
-            $stmt = $this->db->prepare("SELECT title FROM courses WHERE id = :id");
-            $stmt->execute([':id' => $courseId]);
-            $courseRaw = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!$courseRaw)
-                return;
-
-            $title = $courseRaw['title'];
-
-            // 2. Check if it's an MOT training course
-            $targetTemplateTitle = null;
-
-            if (strpos($title, 'MOT Class 1 & 2 Training') !== false) {
-                $targetTemplateTitle = 'MOT Class 1 & 2 Annual Assessment';
-            } elseif (strpos($title, 'MOT Class 4 & 7 Training') !== false) {
-                $targetTemplateTitle = 'MOT Class 4 & 7 Annual Assessment';
-            }
-
-            if ($targetTemplateTitle) {
-                // 3. Find the Annual Assessment Template
-                $templStmt = $this->db->prepare("SELECT id, title FROM courses WHERE title = :title AND is_template = TRUE LIMIT 1");
-                $templStmt->execute([':title' => $targetTemplateTitle]);
-                $assessmentTemplate = $templStmt->fetch(PDO::FETCH_ASSOC);
-
-                if ($assessmentTemplate) {
-                    $templateId = $assessmentTemplate['id'];
-                    $newCourseId = $this->createAutoInstanceAndEnroll($userId, $templateId);
-
-                    // Return info for frontend prompt
-                    return [
-                        'success' => true,
-                        'assigned_course_id' => $newCourseId,
-                        'assigned_course_title' => $assessmentTemplate['title']
-                    ];
-                }
-            }
-        } catch (\Exception $e) {
-            // Log silent error, don't block response
-            return ['success' => false, 'message' => $e->getMessage()];
-        }
-    }
-
-    private function createAutoInstanceAndEnroll($userId, $templateId)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM courses WHERE id = :id");
-        $stmt->execute([':id' => $templateId]);
-        $template = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$template)
-            return;
-
-        // Set dates: Start NOW, End +1 Month?
-        $startDate = date('Y-m-d');
-        $endDate = date('Y-m-d', strtotime('+1 month'));
-        $newTitle = $template['title'] . " - " . date('M Y');
-
-        // Helper to convert empty strings to NULL
-        $toNullIfEmpty = function ($value) {
-            return ($value === '' || $value === null) ? null : $value;
-        };
-
-        // Insert Course (removed instructor_id - not needed)
-        $insertCourse = $this->db->prepare("
-             INSERT INTO courses 
-             (title, description, content, duration, required_hours, category, status, is_template, start_date, end_date, is_locked)
-             VALUES 
-             (:title, :desc, :content, :duration, :req_hours, :cat, 'published', FALSE, :start, :end, FALSE)
-         ");
-
-        $insertCourse->execute([
-            ':title' => $newTitle,
-            ':desc' => $toNullIfEmpty($template['description']),
-            ':content' => $toNullIfEmpty($template['content']),
-            ':duration' => $template['duration'],
-            ':req_hours' => $template['required_hours'],
-            ':cat' => $toNullIfEmpty($template['category']),
-            ':start' => $startDate,
-            ':end' => $endDate
-        ]);
-
-        $newCourseId = $this->db->lastInsertId();
-
-        // Copy Questions
-        $this->copyCourseContent($templateId, $newCourseId);
-
-        // Enroll User
-        $enrollStmt = $this->db->prepare("
-             INSERT INTO user_course_progress (user_id, course_id, status, enrolled_at, hours_completed)
-             VALUES (:uid, :cid, 'not_started', NOW(), 0)
-         ");
-        $enrollStmt->execute([
-            ':uid' => $userId,
-            ':cid' => $newCourseId
-        ]);
-
-        require_once __DIR__ . '/../../helpers/email_helper.php';
-        $uStmt = $this->db->prepare("SELECT email FROM users WHERE id = :id");
-        $uStmt->execute([':id' => $userId]);
-        $user = $uStmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($user) {
-            sendEmail($this->db, $user['email'], "Annual Assessment Assigned", "You have completed your training and validated for the Annual Assessment.");
-        }
-
-        return $newCourseId;
-    }
 
     /**
      * Copies lessons and questions from a template course to a new course instance.
@@ -796,16 +685,9 @@ class CourseController extends BaseController
 
             log_activity($this->db, $userId, getCurrentUserEmail(), 'Course Progress Updated', "Course ID: {$courseId}, Status: {$status}");
 
-            // Check if completion triggers auto-assignment
             $responseData = ["message" => "Course progress updated successfully."];
 
             if ($status === 'completed') {
-                $assignResult = $this->checkAuthAssign($userId, $courseId);
-                if ($assignResult && isset($assignResult['assigned_course_id'])) {
-                    $responseData['assigned_course_id'] = $assignResult['assigned_course_id'];
-                    $responseData['assigned_course_title'] = $assignResult['assigned_course_title'];
-                }
-
                 // Send completion email
                 require_once __DIR__ . '/../../helpers/email_helper.php';
                 $courseStmt = $this->db->prepare("SELECT title FROM courses WHERE id = :id");
@@ -940,12 +822,6 @@ class CourseController extends BaseController
             $statusText = $score >= 80 ? "passed" : "attempted";
             log_activity($this->db, $userId, getCurrentUserEmail(), 'submit_quiz', "Quiz $statusText for course ID: $courseId with score: $score%");
 
-            // Check if passing triggers auto-assignment
-            $assignResult = null;
-            if ($score >= 80) {
-                $assignResult = $this->checkAuthAssign($userId, $courseId);
-            }
-
             $message = $score >= 80
                 ? "Congratulations! You passed the course with a score of {$score}%."
                 : "Quiz submitted with score of {$score}%. You need 80% or higher to complete the course.";
@@ -956,11 +832,6 @@ class CourseController extends BaseController
                 "status" => $newStatus,
                 "passed" => $score >= 80
             ];
-
-            if ($assignResult && isset($assignResult['assigned_course_id'])) {
-                $response['assigned_course_id'] = $assignResult['assigned_course_id'];
-                $response['assigned_course_title'] = $assignResult['assigned_course_title'];
-            }
 
             $this->json($response);
 
@@ -1026,22 +897,13 @@ class CourseController extends BaseController
 
             if ($updateStmt->rowCount() === 0) {
                 // If rowCount is 0, it might be because it was already completed.
-                // We should still allow the checkAuthAssign to run if needed, or just return success.
                 // For now, let's assume it's fine.
             }
-
-            // Check for Auto-Assignment
-            $assignResult = $this->checkAuthAssign($userId, $courseId);
 
             $response = [
                 'success' => true,
                 'message' => 'Course completed successfully!'
             ];
-
-            if ($assignResult && isset($assignResult['assigned_course_id'])) {
-                $response['assigned_course_id'] = $assignResult['assigned_course_id'];
-                $response['assigned_course_title'] = $assignResult['assigned_course_title'];
-            }
 
             echo json_encode($response);
 

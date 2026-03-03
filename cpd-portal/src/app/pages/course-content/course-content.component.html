@@ -40,7 +40,12 @@
         </button>
 
         <button *ngIf="isLastLesson" class="btn-success" (click)="completeTraining()" [disabled]="isCompleting">
-          {{ isCompleting ? 'Completing...' : 'Complete Training' }}
+          <ng-container *ngIf="hasAssessment">
+            {{ isCompleting ? 'Loading Assessment...' : 'Take Assessment →' }}
+          </ng-container>
+          <ng-container *ngIf="!hasAssessment">
+            {{ isCompleting ? 'Completing...' : 'Complete Training' }}
+          </ng-container>
         </button>
       </div>
     </div>

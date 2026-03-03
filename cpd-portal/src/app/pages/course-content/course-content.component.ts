@@ -22,6 +22,7 @@ export class CourseContentComponent implements OnInit {
   isLoading = true;
   errorMessage = '';
   isEnrolled = false;
+  hasAssessment = false;
 
   // Navigation State
   currentLessonIndex = 0;
@@ -84,6 +85,16 @@ export class CourseContentComponent implements OnInit {
     this.courseService.getCourseById(courseId).subscribe({
       next: (data) => {
         this.course = data;
+
+        // Check for Assessment
+        this.courseService.getCourseQuestions(courseId).subscribe({
+          next: (questions) => {
+            this.hasAssessment = questions && questions.length > 0;
+          },
+          error: () => {
+            this.hasAssessment = false;
+          }
+        });
 
         this.courseService.getCourseLessons(courseId).subscribe({
           next: (lessons) => {
@@ -165,24 +176,17 @@ export class CourseContentComponent implements OnInit {
     this.saveProgress();
     this.isCompleting = true;
 
+    if (this.hasAssessment) {
+      this.router.navigate(['/quiz', this.course.id]);
+      return;
+    }
+
     const hoursCompleted = 3;
 
     this.courseService.completeCourse(this.course.id, hoursCompleted).subscribe({
       next: (response: ApiResponse) => {
         this.toastService.success('Training completed successfully!');
-
-        if (response['assigned_course_id']) {
-          const startNow = confirm(
-            `Training Completed.\n\nYou have been assigned "${response['assigned_course_title']}".\n\nDo you want to start the assessment now?`,
-          );
-          if (startNow) {
-            this.router.navigate(['/quiz', response['assigned_course_id']]);
-          } else {
-            this.router.navigate(['/dashboard/my-courses']);
-          }
-        } else {
-          this.router.navigate(['/dashboard/my-courses']);
-        }
+        this.router.navigate(['/dashboard/my-courses']);
       },
       error: (err) => {
         this.toastService.error('Failed to complete training.');
