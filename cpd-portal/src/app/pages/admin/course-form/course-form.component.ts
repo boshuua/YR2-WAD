@@ -38,6 +38,7 @@ export class CourseFormComponent implements OnInit {
       start_date: ['', Validators.required],
       end_date: ['', Validators.required],
       status: ['published'],
+      max_attendees: [20, [Validators.required, Validators.min(1)]],
     });
 
     this.route.paramMap
