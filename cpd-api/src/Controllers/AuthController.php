@@ -23,9 +23,20 @@ class AuthController extends BaseController
         }
 
         $email = $data->email;
-        $password = $data->password; // In production, sanitize further if needed, but parameter binding handles SQLi
+        $password = $data->password;
 
-        // 1. Fetch User (and check lockout)
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Anti-bruteforce check via session FIRST
+        if (isset($_SESSION['lockout_until']) && $_SESSION['lockout_until'] > time()) {
+            $wait = ceil(($_SESSION['lockout_until'] - time()) / 60);
+            $this->error("Account locked due to too many failed attempts. Please try again in $wait minutes.", 401);
+            return;
+        }
+
+        // 1. Fetch User (and check DB lockout)
         $query = "SELECT id, first_name, last_name, password, access_level, failed_login_attempts, lockout_until FROM users WHERE email = :email LIMIT 1";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':email', $email);
@@ -88,7 +99,17 @@ class AuthController extends BaseController
             }
 
         } else {
-            log_activity($this->db, null, $email, 'login_failed', 'Invalid credentials (User not found)');
+            // User not found. Track via session to prevent enumeration / brute force
+            $_SESSION['failed_attempts'] = isset($_SESSION['failed_attempts']) ? $_SESSION['failed_attempts'] + 1 : 1;
+
+            if ($_SESSION['failed_attempts'] >= 3) {
+                $_SESSION['lockout_until'] = time() + (5 * 60); // 5 minutes
+                log_activity($this->db, null, $email, 'login_lockout', 'Session locked IP due to 3 failed attempts (invalid user).');
+                $this->error("Account locked due to too many failed attempts. Please try again in 5 minutes.", 401);
+                return;
+            }
+
+            log_activity($this->db, null, $email, 'login_failed', 'Invalid credentials (User not found) - attempt ' . $_SESSION['failed_attempts']);
             $this->error("Login failed. Invalid credentials.", 401);
         }
     }
@@ -97,11 +118,11 @@ class AuthController extends BaseController
     {
         $attempts = $row['failed_login_attempts'] + 1;
         $lockout = null;
-        $msg = "Invalid credentials.";
+        $msg = "Login failed. Invalid credentials."; // Keep error generic
 
         if ($attempts >= 3) {
             $lockout = date('Y-m-d H:i:s', strtotime('+5 minutes'));
-            $msg = "Invalid credentials. Account locked for 5 minutes.";
+            $msg = "Account locked due to too many failed attempts. Please try again in 5 minutes.";
             log_activity($this->db, $row['id'], $email, 'login_lockout', "Account locked after 3 failed attempts.");
         } else {
             log_activity($this->db, $row['id'], $email, 'login_failed', "Failed attempt $attempts/3");
