@@ -20,7 +20,8 @@
           formControlName="question_text"
           rows="3"
           placeholder="Enter your question here..."
-          required></textarea>
+          required
+        ></textarea>
       </div>
 
       <div class="form-group">
@@ -34,30 +35,47 @@
       <div class="form-group">
         <label>Answer Options *</label>
         <div formArrayName="options" class="options-list">
-          <div *ngFor="let option of options.controls; let i = index" [formGroupName]="i" class="option-item">
+          <div
+            *ngFor="let option of options.controls; let i = index"
+            [formGroupName]="i"
+            class="option-item"
+          >
             <input
               type="text"
               formControlName="option_text"
               placeholder="Option {{ i + 1 }}"
               [readonly]="isTrueFalse()"
-              required>
+              required
+            />
             <label class="checkbox-label">
-              <input type="checkbox" formControlName="is_correct">
+              <input type="checkbox" formControlName="is_correct" />
               Correct
             </label>
-            <button type="button" class="remove-option-btn" (click)="removeOption(i)" *ngIf="options.length > 2 && !isTrueFalse()">
+            <button
+              type="button"
+              class="remove-option-btn"
+              (click)="removeOption(i)"
+              *ngIf="options.length > 2 && !isTrueFalse()"
+            >
               ×
             </button>
           </div>
         </div>
-        <button type="button" class="add-option-btn" (click)="addOption()" *ngIf="options.length < 6 && !isTrueFalse()">
+        <button
+          type="button"
+          class="add-option-btn"
+          (click)="addOption()"
+          *ngIf="options.length < 6 && !isTrueFalse()"
+        >
           + Add Option
         </button>
       </div>
 
       <div class="form-actions">
         <button type="button" class="btn-secondary" (click)="toggleAddForm()">Cancel</button>
-        <button type="submit" class="btn-primary" [disabled]="questionForm.invalid">Create Question</button>
+        <button type="submit" class="btn-primary" [disabled]="questionForm.invalid">
+          Create Question
+        </button>
       </div>
     </form>
   </div>
@@ -78,9 +96,15 @@
           <button class="delete-btn" (click)="promptDeleteQuestion(question.id)">Delete</button>
         </div>
         <p class="question-text">{{ question.question_text }}</p>
-        <div class="question-type-badge">{{ question.question_type === 'multiple_choice' ? 'Multiple Choice' : 'True/False' }}</div>
+        <div class="question-type-badge">
+          {{ question.question_type === 'multiple_choice' ? 'Multiple Choice' : 'True/False' }}
+        </div>
         <div class="options-display">
-          <div *ngFor="let option of question.options" class="option-display" [class.correct]="option.is_correct">
+          <div
+            *ngFor="let option of question.options"
+            class="option-display"
+            [class.correct]="option.is_correct"
+          >
             <span class="option-icon">{{ option.is_correct ? '✓' : '○' }}</span>
             {{ option.option_text }}
           </div>
@@ -97,5 +121,6 @@
   confirmButtonText="Delete Question"
   cancelButtonText="Cancel"
   (confirmed)="confirmDelete()"
-  (cancelled)="cancelDelete()">
+  (cancelled)="cancelDelete()"
+>
 </app-confirm-modal>

@@ -9,27 +9,34 @@ import { Observable } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './breadcrumb.component.html',
-  styleUrls: ['./breadcrumb.component.css']
+  styleUrls: ['./breadcrumb.component.css'],
 })
 export class BreadcrumbComponent {
   public breadcrumbs$: Observable<any[]>;
 
-  constructor(private router: Router, private activatedRoute: ActivatedRoute) {
+  constructor(
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+  ) {
     this.breadcrumbs$ = this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd),
+      filter((event) => event instanceof NavigationEnd),
       startWith(null), // Emit immediately on load
-      map(() => this.createBreadcrumbs(this.activatedRoute.root))
+      map(() => this.createBreadcrumbs(this.activatedRoute.root)),
     );
   }
 
-  private createBreadcrumbs(route: ActivatedRoute, url: string = '', breadcrumbs: any[] = []): any[] {
+  private createBreadcrumbs(
+    route: ActivatedRoute,
+    url: string = '',
+    breadcrumbs: any[] = [],
+  ): any[] {
     const children: ActivatedRoute[] = route.children;
     if (children.length === 0) {
       return breadcrumbs;
     }
 
     for (const child of children) {
-      const routeURL: string = child.snapshot.url.map(segment => segment.path).join('/');
+      const routeURL: string = child.snapshot.url.map((segment) => segment.path).join('/');
       let newUrl = url;
       if (routeURL !== '') {
         newUrl += `/${routeURL}`;
@@ -39,7 +46,7 @@ export class BreadcrumbComponent {
       if (data.hasOwnProperty('breadcrumb')) {
         breadcrumbs.push({
           label: data['breadcrumb'],
-          url: newUrl
+          url: newUrl,
         });
       }
       return this.createBreadcrumbs(child, newUrl, breadcrumbs);

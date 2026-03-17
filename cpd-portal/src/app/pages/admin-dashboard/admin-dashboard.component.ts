@@ -1,17 +1,24 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { ToastNotificationComponent } from '../../shared/components/toast-notification/toast-notification.component';
 import { ToastService, ToastConfig } from '../../core/services/toast.service';
-import { Subscription } from 'rxjs';
+import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, BreadcrumbComponent, ToastNotificationComponent],
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    BreadcrumbComponent,
+    ToastNotificationComponent,
+  ],
   templateUrl: './admin-dashboard.component.html',
-  styleUrls: ['./admin-dashboard.component.css']
+  styleUrls: ['./admin-dashboard.component.css'],
 })
 export class AdminDashboardComponent implements OnInit, OnDestroy {
   isSidebarCollapsed = false;
@@ -21,20 +28,33 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   currentToast: ToastConfig | null = null;
   private toastSubscription!: Subscription;
+  private routerSubscription!: Subscription;
 
-  constructor(private router: Router, private toastService: ToastService) { }
+  constructor(
+    private router: Router,
+    private toastService: ToastService,
+  ) {}
 
   ngOnInit(): void {
     this.loadUserInfo();
 
     // Start with sidebar collapsed on mobile devices
     if (typeof window !== 'undefined') {
-      this.isSidebarCollapsed = window.innerWidth <= 768;
+      this.isSidebarCollapsed = window.innerWidth <= 1024;
     }
 
-    this.toastSubscription = this.toastService.getToastEvents().subscribe(config => {
+    this.toastSubscription = this.toastService.getToastEvents().subscribe((config) => {
       this.currentToast = config;
     });
+
+    // Auto-close sidebar on navigation (Mobile)
+    this.routerSubscription = this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        if (typeof window !== 'undefined' && window.innerWidth <= 1024) {
+          this.isSidebarCollapsed = true;
+        }
+      });
   }
 
   loadUserInfo(): void {
@@ -61,12 +81,15 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     if (this.toastSubscription) {
       this.toastSubscription.unsubscribe();
     }
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   getInitials(name: string): string {
     return name
       .split(' ')
-      .map(n => n[0])
+      .map((n) => n[0])
       .join('');
   }
 

@@ -1,4 +1,49 @@
-<div class="calendar-panel">
-  <h2>My Calendar</h2>
-  <p>This is where the course calendar will be displayed.</p>
+<div class="calendar-container">
+  <!-- Calendar Header and Controls -->
+  <div class="calendar-header">
+    <div class="calendar-title">
+      <h2>{{ currentDate | date: 'MMMM yyyy' }}</h2>
+      <div class="calendar-controls">
+        <button class="btn-today" (click)="today()">Today</button>
+        <div class="nav-buttons">
+          <button class="nav-btn" (click)="prevMonth()"><i class="fas fa-chevron-left"></i></button>
+          <button class="nav-btn" (click)="nextMonth()"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Days of Week Header -->
+  <div class="calendar-grid-header">
+    <div *ngFor="let day of weekDays" class="weekday-label">{{ day }}</div>
+  </div>
+
+  <!-- Calendar Grid -->
+  <div class="calendar-grid">
+    <!-- Background Day Cells (Explicitly positioned) -->
+    <div
+      *ngFor="let day of daysInMonth; let i = index"
+      class="calendar-day"
+      [class.not-current-month]="!day.isCurrentMonth"
+      [class.today]="day.isToday"
+      [style.grid-row]="Math.floor(i / 7) + 1"
+      [style.grid-column]="(i % 7) + 1"
+    >
+      <div class="day-number">{{ day.date | date: 'd' }}</div>
+    </div>
+
+    <!-- Course Segments (Overlays) -->
+    <div
+      *ngFor="let segment of courseSegments"
+      class="course-segment"
+      [class]="'status-' + segment.status"
+      [title]="segment.title"
+      [style.grid-row]="segment.gridRow"
+      [style.grid-column-start]="segment.gridColumnStart"
+      [style.grid-column-end]="segment.gridColumnEnd"
+      [style.margin-top.px]="32 + segment.lane * 24"
+    >
+      <span class="segment-title">{{ segment.title }}</span>
+    </div>
+  </div>
 </div>

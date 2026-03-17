@@ -1,36 +1,54 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { Subscription, filter } from 'rxjs';
 
 @Component({
   selector: 'app-user-dashboard',
   standalone: true,
   imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
   templateUrl: './user-dashboard.component.html',
-  styleUrls: ['./user-dashboard.component.css']
+  styleUrls: ['./user-dashboard.component.css'],
 })
-export class UserDashboardComponent implements OnInit {
+export class UserDashboardComponent implements OnInit, OnDestroy {
   isSidebarCollapsed = false;
   userName: string = 'User';
   userRole: string = 'User';
   userInitials: string = 'U';
+  private routerSubscription!: Subscription;
 
   constructor(
     private authService: AuthService,
     private toastService: ToastService,
-    private router: Router
-  ) { }
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     this.loadUserInfo();
 
     // Start with sidebar collapsed on mobile devices
     if (typeof window !== 'undefined') {
-      this.isSidebarCollapsed = window.innerWidth <= 768;
+      this.isSidebarCollapsed = window.innerWidth <= 1024;
+    }
+
+    // Auto-close sidebar on navigation (Mobile)
+    this.routerSubscription = this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe(() => {
+        if (typeof window !== 'undefined' && window.innerWidth <= 1024) {
+          this.isSidebarCollapsed = true;
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
     }
   }
+
 
   loadUserInfo(): void {
     if (typeof sessionStorage !== 'undefined') {
@@ -55,7 +73,7 @@ export class UserDashboardComponent implements OnInit {
   getInitials(name: string): string {
     return name
       .split(' ')
-      .map(n => n[0])
+      .map((n) => n[0])
       .join('');
   }
 

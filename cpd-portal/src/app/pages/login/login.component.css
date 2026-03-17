@@ -293,7 +293,6 @@
 }
 
 @keyframes shake {
-
   0%,
   100% {
     transform: translateX(0);
@@ -323,4 +322,19 @@
     padding-left: 1rem;
     padding-right: 1rem;
   }
+
+  .app-name {
+    font-size: 1.5rem;
+  }
+
+  .btn-login {
+    padding: 1.25rem;
+    font-size: 1.125rem;
+  }
+
+  .modal-container {
+    width: 95%;
+    margin: 1rem;
+  }
 }
+

@@ -4,13 +4,18 @@
   <!-- Search Section -->
   <div class="filters-section">
     <div class="search-box">
-      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange($event)"
-        placeholder="Search courses..." class="search-input" />
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange($event)"
+        placeholder="Search courses..."
+        class="search-input"
+      />
     </div>
   </div>
 
-  <div *ngIf="isLoading" class="skeleton-container" style="padding: 1rem;">
-    <div class="skeleton-card" *ngFor="let i of [1,2,3]">
+  <div *ngIf="isLoading" class="skeleton-container" style="padding: 1rem">
+    <div class="skeleton-card" *ngFor="let i of [1, 2, 3]">
       <div class="skeleton skeleton-title"></div>
       <div class="skeleton skeleton-text"></div>
       <div class="skeleton skeleton-text short"></div>
@@ -19,7 +24,6 @@
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
   <div *ngIf="!isLoading && !errorMessage">
-
     <!-- 1. Active Training -->
     <section class="course-section">
       <h2>My Enrolled Training</h2>
@@ -29,7 +33,7 @@
             <h3>{{ course.title }}</h3>
             <span class="badge badge-info">In Progress</span>
           </div>
-          <p class="course-description">{{ course.description | slice:0:150 }}...</p>
+          <p class="course-description">{{ course.description | slice: 0 : 150 }}...</p>
           <div class="course-meta">
             <span *ngIf="course.enrolled_at">Enrolled: {{ course.enrolled_at | date }}</span>
           </div>
@@ -53,7 +57,7 @@
             <h3>{{ course.title }}</h3>
             <span class="badge badge-default">Upcoming</span>
           </div>
-          <p class="course-description">{{ course.description | slice:0:150 }}...</p>
+          <p class="course-description">{{ course.description | slice: 0 : 150 }}...</p>
           <div class="course-meta">
             <span class="date-badge">Starts: {{ course.start_date | date }}</span>
             <span class="capacity-badge" [class.full]="isFull(course)">
@@ -61,7 +65,9 @@
             </span>
           </div>
           <div class="course-actions">
-            <button *ngIf="!isFull(course)" class="btn-success" (click)="enrollCourse(course.id)">Enroll Now</button>
+            <button *ngIf="!isFull(course)" class="btn-success" (click)="enrollCourse(course.id)">
+              Enroll Now
+            </button>
             <button *ngIf="isFull(course)" class="btn-disabled" disabled>Course Full</button>
           </div>
         </div>
@@ -98,11 +104,15 @@
     <section class="course-section exam-history-section">
       <h2>MOT Exam History</h2>
       <div *ngIf="examHistory.length > 0; else noExams" class="exam-list">
-        <div *ngFor="let exam of examHistory" class="exam-card" [class.passed]="exam.passed"
-          [class.failed]="!exam.passed">
+        <div
+          *ngFor="let exam of examHistory"
+          class="exam-card"
+          [class.passed]="exam.passed"
+          [class.failed]="!exam.passed"
+        >
           <div class="exam-header">
             <h3>{{ exam.title }}</h3>
-            <span class="exam-date">{{ exam.completion_date | date:'shortDate' }}</span>
+            <span class="exam-date">{{ exam.completion_date | date: 'shortDate' }}</span>
           </div>
           <div class="exam-result">
             <span class="exam-score">{{ exam.score }}%</span>
@@ -115,6 +125,5 @@
         <p class="empty-section">No exams completed yet.</p>
       </ng-template>
     </section>
-
   </div>
 </div>

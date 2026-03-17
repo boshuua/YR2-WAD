@@ -93,7 +93,7 @@ export class CourseContentComponent implements OnInit {
           },
           error: () => {
             this.hasAssessment = false;
-          }
+          },
         });
 
         this.courseService.getCourseLessons(courseId).subscribe({

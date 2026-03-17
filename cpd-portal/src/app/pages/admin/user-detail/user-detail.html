@@ -1,154 +1,176 @@
 <div class="dashboard-container">
-
-    <!-- Header Section -->
-    <header class="dashboard-header" *ngIf="user">
-        <div class="user-info">
-            <button class="back-btn" (click)="goBack()">← Back</button>
-            <h1>{{ user.first_name }} {{ user.last_name }} <span class="user-id">(ID: {{ user.id }})</span></h1>
-            <span class="user-role badge" [class.admin]="user.access_level === 'admin'">
-                {{ user.access_level | titlecase }}
-            </span>
-        </div>
-
-        <div class="header-actions">
-            <!-- Period Selector Removed -->
-            <button class="action-btn edit-profile" (click)="editUser()">Edit Profile</button>
-            <!-- Register/Open User Buttons Removed -->
-        </div>
-    </header>
-
-    <div *ngIf="isLoading" class="loading-state">Loading dashboard...</div>
-
-    <div class="dashboard-grid" *ngIf="!isLoading && user">
-
-        <!-- Left Column -->
-        <div class="dashboard-col-left">
-
-            <!-- Training History Widget -->
-            <section class="widget training-history">
-                <h3>MOT Training History</h3>
-
-                <!-- Active Courses Section -->
-                <div class="history-content">
-                    <h4>Active Courses</h4>
-
-                    <div *ngIf="activeCourses.length === 0" class="no-data">No active courses</div>
-
-                    <div *ngFor="let course of activeCourses" class="course-card">
-                        <strong class="course-title">{{ course.title }}</strong>
-                        <span class="lesson-progress">{{ getLessonProgressText(course) }} completed</span>
-                        <div class="progress-bar-container">
-                            <div class="progress-bar" [style.width.%]="getProgressPercentage(course)"></div>
-                        </div>
-                        <span class="percentage">{{ getProgressPercentage(course) }}%</span>
-                    </div>
-                </div>
-
-
-                <!-- Completed Courses Section -->
-                <div class="history-content completed-section">
-                    <h4>Completed Courses</h4>
-
-                    <div *ngIf="completedCourses.length === 0" class="no-data">No completed courses</div>
-
-                    <div *ngFor="let course of completedCourses" class="completed-course">
-                        <strong>{{ course.title }}</strong>
-                        <div class="completion-details">
-                            <span>Completed: {{ course.completion_date | date:'shortDate' }}</span>
-                            <span class="hours-badge">{{ course.hours_completed || 0 }} Hours</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-        </div>
-
-        <!-- Right Column -->
-        <div class="dashboard-col-right">
-
-            <!-- Exam History Widget -->
-            <section class="widget exam-history">
-                <h3>MOT Exam History</h3>
-
-                <div *ngIf="examHistory.length === 0" class="no-data exam-placeholder">
-                    <p>No assessments completed yet.</p>
-                    <p class="placeholder-note">End-of-course assessments will appear here in the future.</p>
-                </div>
-
-                <div *ngFor="let exam of examHistory" class="exam-item">
-                    <div class="exam-info">
-                        <strong>{{ exam.title }}</strong>
-                        <span class="exam-date">{{ exam.completion_date | date:'shortDate' }}</span>
-                    </div>
-                    <div class="exam-score">
-                        <span class="score-value" [class.passed]="exam.passed" [class.failed]="!exam.passed">
-                            {{ exam.score }}%
-                        </span>
-                        <span *ngIf="exam.passed" class="pass-icon">✓</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Attachments Widget -->
-            <section class="widget attachments">
-                <div class="widget-header">
-                    <h3>Attachments</h3>
-                    <label class="upload-btn">
-                        + Upload
-                        <input type="file" (change)="onFileSelected($event)" [disabled]="isUploading" hidden>
-                    </label>
-                </div>
-
-                <div *ngIf="isUploading" class="uploading-indicator">Uploading...</div>
-
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>File Name</th>
-                            <th>Type</th>
-                            <th>Date</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr *ngFor="let file of attachments">
-                            <td>
-                                <a [href]="getAttachmentUrl(file.id)" target="_blank" class="file-link">{{
-                                    file.file_name }}</a>
-                            </td>
-                            <td><span class="badge">{{ file.file_type | uppercase }}</span></td>
-                            <td>{{ file.created_at | date:'shortDate' }}</td>
-                            <td class="actions-cell">
-                                <a [href]="getAttachmentUrl(file.id)" target="_blank" class="icon-btn view-btn"
-                                    title="View">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                        <circle cx="12" cy="12" r="3"></circle>
-                                    </svg>
-                                </a>
-                                <button class="icon-btn delete-btn" (click)="deleteAttachment(file.id)" title="Delete">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path
-                                            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                        </path>
-                                        <line x1="10" y1="11" x2="10" y2="17"></line>
-                                        <line x1="14" y1="11" x2="14" y2="17"></line>
-                                    </svg>
-                                </button>
-                            </td>
-                        </tr>
-                        <tr *ngIf="attachments.length === 0 && !isUploading">
-                            <td colspan="4" class="text-center">No attachments found</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
-
-
-        </div>
+  <!-- Header Section -->
+  <header class="dashboard-header" *ngIf="user">
+    <div class="user-info">
+      <button class="back-btn" (click)="goBack()">← Back</button>
+      <h1>
+        {{ user.first_name }} {{ user.last_name }} <span class="user-id">(ID: {{ user.id }})</span>
+      </h1>
+      <span class="user-role badge" [class.admin]="user.access_level === 'admin'">
+        {{ user.access_level | titlecase }}
+      </span>
     </div>
+
+    <div class="header-actions">
+      <!-- Period Selector Removed -->
+      <button class="action-btn edit-profile" (click)="editUser()">Edit Profile</button>
+      <!-- Register/Open User Buttons Removed -->
+    </div>
+  </header>
+
+  <div *ngIf="isLoading" class="loading-state">Loading dashboard...</div>
+
+  <div class="dashboard-grid" *ngIf="!isLoading && user">
+    <!-- Left Column -->
+    <div class="dashboard-col-left">
+      <!-- Training History Widget -->
+      <section class="widget training-history">
+        <h3>MOT Training History</h3>
+
+        <!-- Active Courses Section -->
+        <div class="history-content">
+          <h4>Active Courses</h4>
+
+          <div *ngIf="activeCourses.length === 0" class="no-data">No active courses</div>
+
+          <div *ngFor="let course of activeCourses" class="course-card">
+            <strong class="course-title">{{ course.title }}</strong>
+            <span class="lesson-progress">{{ getLessonProgressText(course) }} completed</span>
+            <div class="progress-bar-container">
+              <div class="progress-bar" [style.width.%]="getProgressPercentage(course)"></div>
+            </div>
+            <span class="percentage">{{ getProgressPercentage(course) }}%</span>
+          </div>
+        </div>
+
+        <!-- Completed Courses Section -->
+        <div class="history-content completed-section">
+          <h4>Completed Courses</h4>
+
+          <div *ngIf="completedCourses.length === 0" class="no-data">No completed courses</div>
+
+          <div *ngFor="let course of completedCourses" class="completed-course">
+            <strong>{{ course.title }}</strong>
+            <div class="completion-details">
+              <span>Completed: {{ course.completion_date | date: 'shortDate' }}</span>
+              <span class="hours-badge">{{ course.hours_completed || 0 }} Hours</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Right Column -->
+    <div class="dashboard-col-right">
+      <!-- Exam History Widget -->
+      <section class="widget exam-history">
+        <h3>MOT Exam History</h3>
+
+        <div *ngIf="examHistory.length === 0" class="no-data exam-placeholder">
+          <p>No assessments completed yet.</p>
+          <p class="placeholder-note">End-of-course assessments will appear here in the future.</p>
+        </div>
+
+        <div *ngFor="let exam of examHistory" class="exam-item">
+          <div class="exam-info">
+            <strong>{{ exam.title }}</strong>
+            <span class="exam-date">{{ exam.completion_date | date: 'shortDate' }}</span>
+          </div>
+          <div class="exam-score">
+            <span class="score-value" [class.passed]="exam.passed" [class.failed]="!exam.passed">
+              {{ exam.score }}%
+            </span>
+            <span *ngIf="exam.passed" class="pass-icon">✓</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Attachments Widget -->
+      <section class="widget attachments">
+        <div class="widget-header">
+          <h3>Attachments</h3>
+          <label class="upload-btn">
+            + Upload
+            <input type="file" (change)="onFileSelected($event)" [disabled]="isUploading" hidden />
+          </label>
+        </div>
+
+        <div *ngIf="isUploading" class="uploading-indicator">Uploading...</div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>File Name</th>
+              <th>Type</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let file of attachments">
+              <td>
+                <a [href]="getAttachmentUrl(file.id)" target="_blank" class="file-link">{{
+                  file.file_name
+                }}</a>
+              </td>
+              <td>
+                <span class="badge">{{ file.file_type | uppercase }}</span>
+              </td>
+              <td>{{ file.created_at | date: 'shortDate' }}</td>
+              <td class="actions-cell">
+                <a
+                  [href]="getAttachmentUrl(file.id)"
+                  target="_blank"
+                  class="icon-btn view-btn"
+                  title="View"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </a>
+                <button
+                  class="icon-btn delete-btn"
+                  (click)="deleteAttachment(file.id)"
+                  title="Delete"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path
+                      d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                    ></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                  </svg>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="attachments.length === 0 && !isUploading">
+              <td colspan="4" class="text-center">No attachments found</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+</div>

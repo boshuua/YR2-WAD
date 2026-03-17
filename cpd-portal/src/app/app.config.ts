@@ -5,5 +5,5 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { csrfInterceptor } from './core/interceptors/csrf.interceptor';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideRouter(routes), provideHttpClient(withInterceptors([csrfInterceptor]))]
+  providers: [provideRouter(routes), provideHttpClient(withInterceptors([csrfInterceptor]))],
 };

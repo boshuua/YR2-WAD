@@ -10,12 +10,25 @@
   </div>
 
   <form *ngIf="!isLoading" [formGroup]="settingsForm" (ngSubmit)="onSave()" class="settings-form">
-
-
     <div class="settings-panel">
       <div class="panel-header">
         <div class="panel-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+            ></path>
+            <polyline points="22,6 12,13 2,6"></polyline>
+          </svg>
         </div>
         <div>
           <h3>Email Notifications</h3>
@@ -27,20 +40,32 @@
         <div class="toggle-item">
           <div class="toggle-info">
             <span class="toggle-label">Welcome Emails</span>
-            <span class="toggle-description">Send a welcome email with login credentials when a new user is created.</span>
+            <span class="toggle-description"
+              >Send a welcome email with login credentials when a new user is created.</span
+            >
           </div>
           <label class="toggle-switch">
-            <input type="checkbox" id="enable_welcome_emails" formControlName="enable_welcome_emails">
+            <input
+              type="checkbox"
+              id="enable_welcome_emails"
+              formControlName="enable_welcome_emails"
+            />
             <span class="toggle-slider"></span>
           </label>
         </div>
         <div class="toggle-item">
           <div class="toggle-info">
             <span class="toggle-label">Password Reset Emails</span>
-            <span class="toggle-description">Send admin approval emails when a user requests a password reset.</span>
+            <span class="toggle-description"
+              >Send admin approval emails when a user requests a password reset.</span
+            >
           </div>
           <label class="toggle-switch">
-            <input type="checkbox" id="enable_password_reset_emails" formControlName="enable_password_reset_emails">
+            <input
+              type="checkbox"
+              id="enable_password_reset_emails"
+              formControlName="enable_password_reset_emails"
+            />
             <span class="toggle-slider"></span>
           </label>
         </div>
@@ -48,10 +73,29 @@
     </div>
 
     <!-- Panel 3: Maintenance Mode -->
-    <div class="settings-panel maintenance-panel" [class.active]="settingsForm.get('maintenance_mode')?.value">
+    <div
+      class="settings-panel maintenance-panel"
+      [class.active]="settingsForm.get('maintenance_mode')?.value"
+    >
       <div class="panel-header">
         <div class="panel-icon danger-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polygon
+              points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"
+            ></polygon>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
         </div>
         <div>
           <h3>Maintenance Mode</h3>
@@ -63,15 +107,19 @@
         <div class="toggle-item">
           <div class="toggle-info">
             <span class="toggle-label">Enable Maintenance Mode</span>
-            <span class="toggle-description danger-text" *ngIf="settingsForm.get('maintenance_mode')?.value">
-              ⚠️ Maintenance mode is <strong>ON</strong>. All non-admin users are currently locked out.
+            <span
+              class="toggle-description danger-text"
+              *ngIf="settingsForm.get('maintenance_mode')?.value"
+            >
+              ⚠️ Maintenance mode is <strong>ON</strong>. All non-admin users are currently locked
+              out.
             </span>
             <span class="toggle-description" *ngIf="!settingsForm.get('maintenance_mode')?.value">
               Platform is running normally. Enable to lock out all non-admin users.
             </span>
           </div>
           <label class="toggle-switch">
-            <input type="checkbox" id="maintenance_mode" formControlName="maintenance_mode">
+            <input type="checkbox" id="maintenance_mode" formControlName="maintenance_mode" />
             <span class="toggle-slider danger-slider"></span>
           </label>
         </div>
@@ -80,12 +128,13 @@
 
     <!-- Form Actions -->
     <div class="form-actions">
-      <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="isSaving">Cancel</button>
+      <button type="button" class="btn-secondary" (click)="cancel()" [disabled]="isSaving">
+        Cancel
+      </button>
       <button type="submit" class="btn-primary" [disabled]="isSaving">
         <span *ngIf="!isSaving">Save Settings</span>
         <span *ngIf="isSaving">Saving...</span>
       </button>
     </div>
-
   </form>
 </div>

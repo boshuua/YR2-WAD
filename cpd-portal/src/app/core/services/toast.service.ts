@@ -8,18 +8,22 @@ export interface ToastConfig {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ToastService {
   private toastSubject = new Subject<ToastConfig>();
 
-  constructor() { }
+  constructor() {}
 
   getToastEvents(): Observable<ToastConfig> {
     return this.toastSubject.asObservable();
   }
 
-  show(message: string, type: 'success' | 'error' | 'info' = 'info', duration: number = 3000): void {
+  show(
+    message: string,
+    type: 'success' | 'error' | 'info' = 'info',
+    duration: number = 3000,
+  ): void {
     this.toastSubject.next({ message, type, duration });
   }
 

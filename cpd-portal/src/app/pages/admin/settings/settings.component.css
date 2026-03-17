@@ -1,5 +1,5 @@
 .settings-page {
-  max-width: 860px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -99,23 +99,25 @@ label {
   margin-bottom: 0.5rem;
 }
 
-input[type="text"],
-input[type="email"],
+input[type='text'],
+input[type='email'],
+input[type='password'],
 select {
   padding: 0.75rem 1rem;
-  border: 2px solid var(--border-color);
+  border: 1px solid var(--gray-200);
   border-radius: var(--radius-md);
-  font-size: 0.9375rem;
-  background: var(--background-color);
+  font-size: 1rem;
+  background: var(--white);
   color: var(--text-primary);
-  transition: border-color 0.2s;
+  transition: all var(--transition-fast);
   font-family: inherit;
 }
 
-input:focus, select:focus {
+input:focus,
+select:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  box-shadow: 0 0 0 4px rgba(103, 168, 217, 0.15);
 }
 
 .help-text {
@@ -183,23 +185,26 @@ input:focus, select:focus {
 .toggle-slider {
   position: absolute;
   cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: #cbd5e1;
-  transition: .3s;
+  transition: 0.3s;
   border-radius: 34px;
 }
 
 .toggle-slider:before {
   position: absolute;
-  content: "";
+  content: '';
   height: 20px;
   width: 20px;
   left: 3px;
   bottom: 3px;
   background-color: white;
-  transition: .3s;
+  transition: 0.3s;
   border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 
 input:checked + .toggle-slider {
@@ -240,7 +245,11 @@ input:checked + .toggle-slider:before {
   animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* Form Actions */
 .form-actions {
@@ -263,16 +272,23 @@ button {
 .btn-primary {
   background: var(--primary-color);
   color: white;
+  box-shadow: 0 4px 14px 0 rgba(103, 168, 217, 0.39);
 }
 
-.btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
+.btn-primary:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(103, 168, 217, 0.23);
+}
 
 .btn-secondary {
   background: var(--secondary-color);
   color: white;
 }
 
-.btn-secondary:hover:not(:disabled) { background: var(--secondary-hover); }
+.btn-secondary:hover:not(:disabled) {
+  background: var(--secondary-hover);
+}
 
 button:disabled {
   opacity: 0.6;
@@ -280,7 +296,13 @@ button:disabled {
 }
 
 @media (max-width: 640px) {
-  .form-grid { grid-template-columns: 1fr; }
-  .settings-panel { padding: 1.25rem; }
-  .panel-header { flex-direction: column; }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .settings-panel {
+    padding: 1.25rem;
+  }
+  .panel-header {
+    flex-direction: column;
+  }
 }

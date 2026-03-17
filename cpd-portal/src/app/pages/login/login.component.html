@@ -11,10 +11,18 @@
         <div class="form-field">
           <label for="email">Email Address</label>
           <div class="input-wrapper">
-            <input id="email" type="email" formControlName="email" placeholder="Enter your email"
-              [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="Enter your email"
+              [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+            />
           </div>
-          <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="error-text">
+          <div
+            *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
+            class="error-text"
+          >
             Valid email is required
           </div>
         </div>
@@ -22,22 +30,32 @@
         <div class="form-field">
           <label for="password">Password</label>
           <div class="input-wrapper">
-            <input id="password" type="password" formControlName="password" placeholder="Enter your password"
-              [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+            <input
+              id="password"
+              type="password"
+              formControlName="password"
+              placeholder="Enter your password"
+              [class.error]="
+                loginForm.get('password')?.invalid && loginForm.get('password')?.touched
+              "
+            />
           </div>
-          <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="error-text">
+          <div
+            *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+            class="error-text"
+          >
             Password is required
           </div>
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn-login" [disabled]="loginForm.invalid">
-            LOGIN
-          </button>
+          <button type="submit" class="btn-login" [disabled]="loginForm.invalid">LOGIN</button>
         </div>
 
         <div class="form-footer">
-          <a href="javascript:void(0)" class="forgot-link" (click)="openForgotPassword()">Forgot Password?</a>
+          <a href="javascript:void(0)" class="forgot-link" (click)="openForgotPassword()"
+            >Forgot Password?</a
+          >
         </div>
 
         <div *ngIf="errorMessage" class="alert-error">
@@ -60,28 +78,39 @@
         <button class="btn-close" (click)="closeForgotPassword()">&times;</button>
       </div>
       <div class="modal-body">
-        <p>Enter your email address and we'll send a request to the administrator to reset your password.</p>
+        <p>
+          Enter your email address and we'll send a request to the administrator to reset your
+          password.
+        </p>
         <div class="form-field">
           <label>Email Address</label>
-          <input type="email" [formControl]="forgotEmailControl" placeholder="Enter your email" [class.error]="forgotEmailControl.invalid && forgotEmailControl.touched">
+          <input
+            type="email"
+            [formControl]="forgotEmailControl"
+            placeholder="Enter your email"
+            [class.error]="forgotEmailControl.invalid && forgotEmailControl.touched"
+          />
           <div *ngIf="forgotEmailControl.invalid && forgotEmailControl.touched" class="error-text">
             Valid email is required
           </div>
         </div>
-        <div *ngIf="forgotSuccessMessage" class="alert-success" style="margin-top:15px">
+        <div *ngIf="forgotSuccessMessage" class="alert-success" style="margin-top: 15px">
           {{ forgotSuccessMessage }}
         </div>
-        <div *ngIf="forgotErrorMessage" class="alert-error" style="margin-top:15px">
+        <div *ngIf="forgotErrorMessage" class="alert-error" style="margin-top: 15px">
           {{ forgotErrorMessage }}
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" (click)="closeForgotPassword()">Cancel</button>
-        <button class="btn-submit" (click)="submitForgotPassword()" [disabled]="forgotEmailControl.invalid || isSubmittingForgot">
+        <button
+          class="btn-submit"
+          (click)="submitForgotPassword()"
+          [disabled]="forgotEmailControl.invalid || isSubmittingForgot"
+        >
           {{ isSubmittingForgot ? 'Sending...' : 'Request Reset' }}
         </button>
       </div>
     </div>
   </div>
-
 </div>

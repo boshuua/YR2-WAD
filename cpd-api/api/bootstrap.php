@@ -41,10 +41,11 @@ spl_autoload_register(function ($class) {
 require_once __DIR__ . '/../helpers/env_helper.php';
 
 // Load Environment variables early
-// (Assumes .env is loaded by env_helper or handled there)
+loadEnv();
 
 // 4. CORS Handling
-$allowed_origin = "https://ws369808-wad.remote.ac"; // In production, this might come from env
+// Use the environment variable for allowed origin, with a fallback for production
+$allowed_origin = env('CORS_ALLOWED_ORIGIN', 'https://ws369808-wad.remote.ac');
 header("Access-Control-Allow-Origin: $allowed_origin");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS");

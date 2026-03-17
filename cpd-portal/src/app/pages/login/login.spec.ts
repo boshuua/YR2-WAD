@@ -9,13 +9,16 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {
   credentials = { email: '', password: '' };
   errorMessage = '';
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) {}
 
   onLogin() {
     this.authService.loginUser(this.credentials).subscribe({
@@ -37,13 +40,13 @@ export class LoginComponent {
           },
           error: () => {
             this.errorMessage = 'Unable to initialize session security. Please try again.';
-          }
+          },
         });
       },
       error: (error: any) => {
         console.error('Login failed', error);
         this.errorMessage = error.error.message || 'An unknown error occurred.';
-      }
+      },
     });
   }
 }

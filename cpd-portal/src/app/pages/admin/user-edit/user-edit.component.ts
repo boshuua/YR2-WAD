@@ -34,7 +34,7 @@ export class UserEditComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       job_title: [''],
       access_level: ['user', Validators.required],
-      new_password: [''] // Optional password update
+      new_password: [''], // Optional password update
     });
 
     this.route.paramMap
@@ -58,7 +58,7 @@ export class UserEditComponent implements OnInit {
               last_name: user.last_name,
               email: user.email,
               job_title: user.job_title,
-              access_level: user.access_level
+              access_level: user.access_level,
             });
           } else {
             this.errorMessage = 'User not found.';
@@ -82,10 +82,10 @@ export class UserEditComponent implements OnInit {
     if (this.userForm.valid) {
       const updateData: any = { ...this.userForm.value };
       const newPassword = updateData.new_password;
-      
+
       // Remove new_password from the main update payload
       delete updateData.new_password;
-      
+
       // The PHP backend still requires id in the payload
       updateData.id = this.userId;
 
@@ -94,19 +94,24 @@ export class UserEditComponent implements OnInit {
         next: () => {
           // If a new password was provided, update it too
           if (newPassword && newPassword.trim() !== '') {
-            this.userService.adminUpdatePassword({
-              user_id: this.userId!,
-              new_password: newPassword
-            }).subscribe({
-              next: () => {
-                this.toastService.success('User and password updated successfully');
-                this.router.navigate(['/admin/users']);
-              },
-              error: (err: any) => {
-                this.toastService.error('User details updated, but password change failed: ' + (err.error?.message || 'Unknown error'));
-                this.router.navigate(['/admin/users']);
-              }
-            });
+            this.userService
+              .adminUpdatePassword({
+                user_id: this.userId!,
+                new_password: newPassword,
+              })
+              .subscribe({
+                next: () => {
+                  this.toastService.success('User and password updated successfully');
+                  this.router.navigate(['/admin/users']);
+                },
+                error: (err: any) => {
+                  this.toastService.error(
+                    'User details updated, but password change failed: ' +
+                      (err.error?.message || 'Unknown error'),
+                  );
+                  this.router.navigate(['/admin/users']);
+                },
+              });
           } else {
             this.toastService.success('User updated successfully');
             this.router.navigate(['/admin/users']);

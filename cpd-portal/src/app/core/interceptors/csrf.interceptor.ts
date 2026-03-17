@@ -9,14 +9,14 @@ export const csrfInterceptor: HttpInterceptorFn = (req, next) => {
   const token = sessionStorage.getItem(CSRF_STORAGE_KEY) ?? '';
 
   let nextReq = req.clone({
-    withCredentials: true
+    withCredentials: true,
   });
 
   if (isUnsafe && token) {
     nextReq = nextReq.clone({
       setHeaders: {
-        'X-CSRF-Token': token
-      }
+        'X-CSRF-Token': token,
+      },
     });
   }
 

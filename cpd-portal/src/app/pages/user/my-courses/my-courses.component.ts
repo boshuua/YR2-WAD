@@ -34,8 +34,8 @@ export class MyCoursesComponent implements OnInit {
     private courseService: CourseService,
     private toastService: ToastService,
     private router: Router,
-    private cdr: ChangeDetectorRef
-  ) { }
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -132,7 +132,7 @@ export class MyCoursesComponent implements OnInit {
 
   isFull(course: Course): boolean {
     if (!course.max_attendees) return false;
-    return (course.spaces_booked ?? 0) >= course.max_attendees;
+    return (course.enrolled_count ?? 0) >= course.max_attendees;
   }
 
   getResumeLink(course: UserCourse): (string | number)[] {

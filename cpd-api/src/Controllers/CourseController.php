@@ -134,10 +134,15 @@ class CourseController extends BaseController
                     INSERT INTO question_options (question_id, option_text, is_correct)
                     VALUES (:qid, :text, :correct)
                 ");
+
+                // Explicitly cast to integer (0 or 1) for PostgreSQL boolean compatibility
+                // This prevents PDO from sending an empty string for 'false'
+                $isCorrect = ($option['is_correct'] === true || $option['is_correct'] === 't' || $option['is_correct'] === 1) ? 1 : 0;
+
                 $insOption->execute([
                     ':qid' => $newQuestionId,
                     ':text' => $option['option_text'],
-                    ':correct' => $option['is_correct']
+                    ':correct' => $isCorrect
                 ]);
             }
         }
@@ -240,7 +245,8 @@ class CourseController extends BaseController
                 return ($value === '' || $value === null) ? null : $value;
             };
 
-            // 2. Insert Course (removed instructor_id - not needed)
+            // 2. Insert Course
+            // We hardcode FALSE for is_template and is_locked to avoid PDO boolean binding issues with PostgreSQL
             $insertCourse = $this->db->prepare("
                 INSERT INTO courses 
                 (title, description, content, duration, required_hours, category, status, is_template, start_date, end_date, is_locked)
@@ -258,10 +264,6 @@ class CourseController extends BaseController
                 ':start' => $startDate,
                 ':end' => $endDate
             ];
-
-            // DEBUG: Log parameters to help identify the issue
-            error_log("INSERT PARAMS: " . json_encode($params));
-            error_log("TEMPLATE DATA: " . json_encode($template));
 
             $insertCourse->execute($params);
 
@@ -289,9 +291,6 @@ class CourseController extends BaseController
                         ':cid' => $newCourseId,
                         ':date' => $startDate
                     ]);
-                    // Logic to send email is in 'assign_course', but here we do bulk. 
-                    // Could call EmailService here if refactored. 
-                    // For now, logging creation is enough or basic implementation.
                 }
             }
 

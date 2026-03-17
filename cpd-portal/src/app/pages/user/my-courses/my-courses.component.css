@@ -1,18 +1,30 @@
 .user-dashboard-container {
-  max-width: 1000px;
-  margin: 2rem auto;
-  padding: 2rem;
+  max-width: 1200px;
+  margin: 1.5rem auto;
+  padding: 1.5rem;
   background-color: var(--white);
   border-radius: var(--radius-lg);
   box-shadow: var(--box-shadow);
   border: 1px solid var(--border-color);
 }
 
+@media (max-width: 768px) {
+  .user-dashboard-container {
+    margin: 0.5rem;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+  }
+}
+
 h1 {
-  font-size: 2.5rem;
+  font-size: 2rem;
   color: var(--text-primary);
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   text-align: center;
+}
+
+@media (max-width: 768px) {
+  h1 { font-size: 1.5rem; }
 }
 
 /* Filters Section */
@@ -25,7 +37,7 @@ h1 {
 
 .search-box {
   flex: 1;
-  min-width: 250px;
+  min-width: 200px;
 }
 
 .search-input {
@@ -84,13 +96,20 @@ h1 {
 
 .course-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .course-list {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
 
 .course-card {
   background-color: var(--background-secondary);
-  padding: 1.5rem;
+  padding: 1.25rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-color);
   box-shadow: var(--box-shadow-sm);

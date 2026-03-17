@@ -167,6 +167,81 @@ class UserController extends BaseController
         }
     }
 
+    public function updateSelf()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'PUT' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->error("Method Not Allowed", 405);
+        }
+
+        requireAuth();
+        $id = getCurrentUserId();
+
+        $data = $this->getJsonInput();
+        if (!isset($data->first_name) || !isset($data->last_name) || !isset($data->email)) {
+            $this->error("Missing required fields.");
+        }
+
+        $fname = sanitizeString($data->first_name);
+        $lname = sanitizeString($data->last_name);
+        $email = filter_var($data->email, FILTER_SANITIZE_EMAIL);
+
+        // Check email uniqueness
+        $check = $this->db->prepare("SELECT id FROM users WHERE email = :email AND id != :id");
+        $check->execute([':email' => $email, ':id' => $id]);
+        if ($check->rowCount() > 0) {
+            $this->error("Email already exists.", 409);
+        }
+
+        try {
+            $stmt = $this->db->prepare("UPDATE users SET first_name = :fname, last_name = :lname, email = :email WHERE id = :id");
+            $stmt->execute([':fname' => $fname, ':lname' => $lname, ':email' => $email, ':id' => $id]);
+            log_activity($this->db, $id, $email, "Profile Updated", "User updated their own profile.");
+            $this->json(["message" => "Profile updated successfully."]);
+        } catch (\Exception $e) {
+            $this->error("Update failed: " . $e->getMessage(), 500);
+        }
+    }
+
+    public function updateSelfPassword()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'PUT' && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->error("Method Not Allowed", 405);
+        }
+
+        requireAuth();
+        $id = getCurrentUserId();
+        $data = $this->getJsonInput();
+
+        if (!isset($data->current_password) || !isset($data->new_password)) {
+            $this->error("Current and new passwords are required.");
+        }
+
+        try {
+            // 1. Verify current password
+            $stmt = $this->db->prepare("SELECT password FROM users WHERE id = :id");
+            $stmt->execute([':id' => $id]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $verifyStmt = $this->db->prepare("SELECT (password = crypt(:input_pass, password)) as is_valid FROM users WHERE id = :id");
+            $verifyStmt->execute([':input_pass' => $data->current_password, ':id' => $id]);
+            $res = $verifyStmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!($res['is_valid'] === true || $res['is_valid'] === 't')) {
+                $this->error("Incorrect current password.", 401);
+            }
+
+            // 2. Update to new password
+            $upd = $this->db->prepare("UPDATE users SET password = crypt(:pass, gen_salt('bf')) WHERE id = :id");
+            $upd->execute([':pass' => $data->new_password, ':id' => $id]);
+
+            log_activity($this->db, $id, getCurrentUserEmail(), "Password Changed", "User changed their own password.");
+            $this->json(["message" => "Password changed successfully."]);
+
+        } catch (\Exception $e) {
+            $this->error("Password update failed: " . $e->getMessage(), 500);
+        }
+    }
+
     public function delete()
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'DELETE') {

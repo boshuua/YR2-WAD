@@ -47,7 +47,6 @@ export class UserListComponent implements OnInit {
     });
   }
   promptDeleteUser(userId: number, userName: string): void {
-    console.log('Prompting delete for user ID:', userId);
     this.userToDeleteId = userId;
     this.userToDeleteName = userName;
     // Try this:

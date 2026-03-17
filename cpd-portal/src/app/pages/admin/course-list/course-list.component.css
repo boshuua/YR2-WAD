@@ -161,7 +161,6 @@ td .delete-btn:hover {
   color: var(--danger-color);
 }
 
-
 /* === MOBILE RESPONSIVE TABLE (CARD VIEW) === */
 @media screen and (max-width: 768px) {
   .panel-header {
@@ -304,7 +303,9 @@ td .delete-btn:hover {
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 500px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1);
   animation: modalSlideIn 0.3s ease-out;
 }
 
@@ -424,7 +425,7 @@ td .delete-btn:hover {
   background-color: var(--gray-50);
 }
 
-.user-checkbox-item input[type="checkbox"] {
+.user-checkbox-item input[type='checkbox'] {
   width: 1rem;
   height: 1rem;
   margin: 0;

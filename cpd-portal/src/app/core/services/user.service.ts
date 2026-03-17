@@ -103,6 +103,32 @@ export class UserService {
     );
   }
 
+  updateSelf(userData: Partial<User>): Observable<ApiResponse> {
+    return this.ensureCsrfToken().pipe(
+      switchMap((csrfToken) =>
+        this.http.put<ApiResponse>(`${this.apiUrl}/update_self.php`, userData, {
+          withCredentials: true,
+          headers: new HttpHeaders({ 'X-CSRF-Token': csrfToken }),
+        }),
+      ),
+    );
+  }
+
+  updateSelfPassword(passwordData: {
+    current_password: string;
+    new_password: string;
+  }): Observable<ApiResponse> {
+    return this.ensureCsrfToken().pipe(
+      switchMap((csrfToken) =>
+        this.http.put<ApiResponse>(`${this.apiUrl}/update_self_password.php`, passwordData, {
+          withCredentials: true,
+          headers: new HttpHeaders({ 'X-CSRF-Token': csrfToken }),
+        }),
+      ),
+    );
+  }
+
+
   uploadUserAttachment(userId: number, file: File): Observable<ApiResponse> {
     const formData = new FormData();
     formData.append('user_id', userId.toString());

@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './toast-notification.component.html',
-  styleUrls: ['./toast-notification.component.css']
+  styleUrls: ['./toast-notification.component.css'],
 })
 export class ToastNotificationComponent implements OnInit, OnDestroy {
   @Input() message: string = '';

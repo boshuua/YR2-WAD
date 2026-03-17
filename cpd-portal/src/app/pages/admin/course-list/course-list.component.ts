@@ -56,8 +56,8 @@ export class CourseListComponent implements OnInit {
     private router: Router,
     private loadingService: LoadingService,
     private fb: FormBuilder,
-    private cdr: ChangeDetectorRef
-  ) { }
+    private cdr: ChangeDetectorRef,
+  ) {}
 
   ngOnInit(): void {
     this.scheduleForm = this.fb.group({

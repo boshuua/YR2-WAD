@@ -63,13 +63,13 @@
 }
 
 .save-status.saved {
-  background: #E8F5E9;
-  color: #2E7D32;
+  background: #e8f5e9;
+  color: #2e7d32;
 }
 
 .save-status.error {
-  background: #FFEBEE;
-  color: #C62828;
+  background: #ffebee;
+  color: #c62828;
 }
 
 /* Content Card */
@@ -179,3 +179,51 @@
 .text-center {
   text-align: center;
 }
+
+/* === MOBILE RESPONSIVENESS === */
+@media (max-width: 768px) {
+  .course-content-container {
+    padding: 10px;
+  }
+
+  .course-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+  }
+
+  .course-header h1 {
+    font-size: 22px;
+  }
+
+  .progress-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .card-header {
+    padding: 15px 20px;
+  }
+
+  .card-body {
+    padding: 20px 15px;
+  }
+
+  .training-text {
+    font-size: 15px;
+  }
+
+  .option-item {
+    padding: 12px 15px;
+  }
+
+  .card-actions {
+    padding: 15px;
+    justify-content: stretch;
+  }
+
+  .card-actions button {
+    width: 100%;
+  }
+}
+

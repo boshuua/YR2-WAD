@@ -16,6 +16,15 @@ interface CalendarDay {
   courses: { id: number; course_id: number; course_title: string }[];
 }
 
+interface CourseSegment {
+  id: number;
+  title: string;
+  gridRow: number;
+  gridColumnStart: number;
+  gridColumnEnd: number;
+  lane: number;
+}
+
 @Component({
   selector: 'app-admin-calendar',
   standalone: true,
@@ -25,10 +34,13 @@ interface CalendarDay {
   providers: [DatePipe],
 })
 export class CalendarComponent implements OnInit {
+  Math = Math;
   currentDate = new Date();
   daysInMonth: CalendarDay[] = [];
+  courseSegments: CourseSegment[] = [];
   weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+  // ... existing members ...
   showModal = false;
 
   users: User[] = [];
@@ -150,19 +162,86 @@ export class CalendarComponent implements OnInit {
   mapCoursesToCalendar(): void {
     if (!this.daysInMonth.length || !this.scheduledCourses.length) return;
 
-    this.daysInMonth.forEach((day) => {
-      day.courses = [];
-      const dayTime = day.date.getTime();
+    this.courseSegments = [];
+    const laneMap = new Map<string, number>(); // key: "row-col", value: lane mask or similar
 
-      const coursesActive = this.scheduledCourses.filter((c) => {
-        if (!c.start_date || !c.end_date) return false;
-        const start = new Date(c.start_date).setHours(0, 0, 0, 0);
-        const end = new Date(c.end_date).setHours(23, 59, 59, 999);
-        return dayTime >= start && dayTime <= end;
+    // We'll track which lanes are occupied in each row/col
+    const rowLanes: boolean[][][] = Array.from(
+      { length: 7 },
+      () => Array.from({ length: 8 }, () => []), // 7 rows (max), 8 cols (1-indexed), list of occupied lanes
+    );
+
+    this.scheduledCourses.forEach((course) => {
+      if (!course.start_date || !course.end_date) return;
+
+      const start = new Date(course.start_date);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(course.end_date);
+      end.setHours(23, 59, 59, 999);
+
+      // Find indices in daysInMonth
+      const indices = this.daysInMonth
+        .map((day, idx) => ({ day, idx }))
+        .filter((item) => item.day.date >= start && item.day.date <= end)
+        .map((item) => item.idx);
+
+      if (indices.length === 0) return;
+
+      // Group into continuous segments per row
+      let currentSegment: { row: number; startCol: number; endCol: number } | null = null;
+      const segments: { row: number; startCol: number; endCol: number }[] = [];
+
+      indices.forEach((idx) => {
+        const row = Math.floor(idx / 7) + 1;
+        const col = (idx % 7) + 1;
+
+        if (!currentSegment || currentSegment.row !== row || currentSegment.endCol !== col - 1) {
+          if (currentSegment) segments.push(currentSegment);
+          currentSegment = { row, startCol: col, endCol: col };
+        } else {
+          currentSegment.endCol = col;
+        }
       });
+      if (currentSegment) segments.push(currentSegment);
 
-      coursesActive.forEach((c) => {
-        day.courses.push({ id: c.id, course_id: c.id, course_title: c.title });
+      // Assign lane for the whole course (simplification: same lane across all its segments if possible)
+      let lane = 0;
+      let laneFound = false;
+      while (!laneFound) {
+        let conflict = false;
+        segments.forEach((seg) => {
+          for (let c = seg.startCol; c <= seg.endCol; c++) {
+            if (rowLanes[seg.row] && rowLanes[seg.row][c] && rowLanes[seg.row][c][lane]) {
+              conflict = true;
+              break;
+            }
+          }
+          if (conflict) return;
+        });
+
+        if (!conflict) {
+          laneFound = true;
+        } else {
+          lane++;
+        }
+      }
+
+      // Mark lanes as occupied and add segments
+      segments.forEach((seg) => {
+        for (let c = seg.startCol; c <= seg.endCol; c++) {
+          if (!rowLanes[seg.row]) rowLanes[seg.row] = [];
+          if (!rowLanes[seg.row][c]) rowLanes[seg.row][c] = [];
+          rowLanes[seg.row][c][lane] = true;
+        }
+
+        this.courseSegments.push({
+          id: course.id,
+          title: course.title,
+          gridRow: seg.row,
+          gridColumnStart: seg.startCol,
+          gridColumnEnd: seg.endCol + 1,
+          lane: lane,
+        });
       });
     });
   }

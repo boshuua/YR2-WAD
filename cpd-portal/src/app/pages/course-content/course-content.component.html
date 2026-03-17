@@ -3,19 +3,23 @@
   <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
   <div *ngIf="!isLoading && !errorMessage && course">
-
     <!-- HEADER -->
     <div class="course-header">
       <button class="btn-back" (click)="goBack()">← Back</button>
       <h1>{{ course.title }}</h1>
       <div class="progress-info">
-        <span class="lesson-count">Lesson {{ currentLessonIndex + 1 }} of {{ lessons.length }}</span>
+        <span class="lesson-count"
+          >Lesson {{ currentLessonIndex + 1 }} of {{ lessons.length }}</span
+        >
         <span class="required-hours">Annual Requirement: {{ course.required_hours }} Hours</span>
-        <span class="save-status" [ngClass]="{
-          'saving': saveStatus === 'saving',
-          'saved': saveStatus === 'saved',
-          'error': saveStatus === 'error'
-        }">
+        <span
+          class="save-status"
+          [ngClass]="{
+            saving: saveStatus === 'saving',
+            saved: saveStatus === 'saved',
+            error: saveStatus === 'error',
+          }"
+        >
           <span *ngIf="saveStatus === 'saving'">💾 Saving...</span>
           <span *ngIf="saveStatus === 'saved'">✓ Saved</span>
           <span *ngIf="saveStatus === 'error'">⚠ Save failed</span>
@@ -39,7 +43,12 @@
           Next Lesson →
         </button>
 
-        <button *ngIf="isLastLesson" class="btn-success" (click)="completeTraining()" [disabled]="isCompleting">
+        <button
+          *ngIf="isLastLesson"
+          class="btn-success"
+          (click)="completeTraining()"
+          [disabled]="isCompleting"
+        >
           <ng-container *ngIf="hasAssessment">
             {{ isCompleting ? 'Loading Assessment...' : 'Take Assessment →' }}
           </ng-container>
@@ -56,6 +65,5 @@
         <button class="btn-primary" (click)="goBack()">Return to Dashboard</button>
       </div>
     </div>
-
   </div>
 </div>

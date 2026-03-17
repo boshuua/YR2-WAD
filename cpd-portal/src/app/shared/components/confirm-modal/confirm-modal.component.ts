@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './confirm-modal.component.html',
-  styleUrls: ['./confirm-modal.component.css']
+  styleUrls: ['./confirm-modal.component.css'],
 })
 export class ConfirmModalComponent {
   @Input() isVisible: boolean = false;

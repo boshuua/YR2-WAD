@@ -1,9 +1,23 @@
 <?php
 // ===============================================================
-// 1. CORS CONFIGURATION (MUST BE FIRST)
+// 1. LOAD ENVIRONMENT & HELPERS (MUST BE FIRST)
 // ===============================================================
-// In production, we hardcode the fallback to ensure CORS always works even if .env is missing
-$allowed_origin = "https://ws369808-wad.remote.ac";
+require_once __DIR__ . '/../helpers/env_helper.php';
+
+// Error reporting based on environment
+if (function_exists('env') && env('APP_DEBUG', false)) {
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+} else {
+    ini_set('display_errors', 0);
+    error_reporting(0);
+}
+
+// ===============================================================
+// 2. CORS CONFIGURATION
+// ===============================================================
+// Use the environment variable for allowed origin, with a fallback for production
+$allowed_origin = env('CORS_ALLOWED_ORIGIN', 'https://ws369808-wad.remote.ac');
 
 header("Access-Control-Allow-Origin: $allowed_origin");
 header("Access-Control-Allow-Credentials: true");
@@ -15,20 +29,6 @@ header("Content-Type: application/json; charset=UTF-8");
 if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
-}
-
-// ===============================================================
-// 2. LOAD ENVIRONMENT
-// ===============================================================
-require_once __DIR__ . '/../helpers/env_helper.php';
-
-// Error reporting based on environment
-if (function_exists('env') && env('APP_DEBUG', false)) {
-    ini_set('display_errors', 1);
-    error_reporting(E_ALL);
-} else {
-    ini_set('display_errors', 0);
-    error_reporting(0);
 }
 
 // ===============================================================

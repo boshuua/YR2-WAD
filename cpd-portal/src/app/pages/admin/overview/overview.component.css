@@ -378,7 +378,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .empty-state {
@@ -387,7 +389,6 @@
   padding: 2rem 1rem;
   font-size: 0.9375rem;
 }
-
 
 /* Responsive adjustments */
 @media (max-width: 768px) {

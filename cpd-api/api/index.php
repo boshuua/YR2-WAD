@@ -27,6 +27,8 @@ $routes = [
     'admin_update_user.php' => ['App\Controllers\UserController', 'update'],
     'admin_delete_user.php' => ['App\Controllers\UserController', 'delete'],
     'admin_update_password.php' => ['App\Controllers\UserController', 'updatePassword'],
+    'update_self.php' => ['App\Controllers\UserController', 'updateSelf'],
+    'update_self_password.php' => ['App\Controllers\UserController', 'updateSelfPassword'],
 
     // Courses (Admin/Global)
     'get_courses.php' => ['App\Controllers\CourseController', 'index'],
@@ -52,7 +54,7 @@ $routes = [
     'get_course_questions.php' => ['App\Controllers\QuestionController', 'index'],
     'admin_create_question.php' => ['App\Controllers\QuestionController', 'create'],
     'admin_delete_question.php' => ['App\Controllers\QuestionController', 'delete'],
-    'submit_quiz.php' => ['App\Controllers\QuestionController', 'submitQuiz'],
+    'submit_quiz.php' => ['App\Controllers\CourseController', 'submitQuiz'],
 
     // Dashboard & Activity
     'get_user_dashboard.php' => ['App\Controllers\DashboardController', 'getUserDashboard'],
