@@ -1,34 +1,91 @@
-# CPD Portal & API
+# YR2-WAD: MOT Tester CPD Portal
 
-A Continuing Professional Development (CPD) management system with a PHP REST API backend and Angular frontend portal.
+This project is a full-stack **Continuing Professional Development (CPD) Management Portal** specifically designed for **UK MOT Testers**. It provides a platform for vehicle testers to complete their mandatory annual training and assessments as required by the **DVSA (Driver and Vehicle Standards Agency)**.
+
+This is likely a "Year 2 Web Application Development" university project.
 
 ## Overview
 
-This project consists of two main components:
+The application consists of two main parts:
 
-- **cpd-api**: PHP-based REST API with PostgreSQL database support
-- **cpd-portal**: Angular-based frontend application
+*   **`cpd-portal` (Frontend):** An **Angular v20** single-page application that provides the user interface for testers. Here, they can access their dashboard, browse and complete training courses, and take the final annual assessment.
+*   **`cpd-api` (Backend):** A **PHP-based REST API** that powers the frontend. It handles user authentication, serves course and assessment content, and records user progress. It uses a **PostgreSQL** database to store all data.
 
-The system provides secure user authentication, CSRF protection, and session management for managing CPD activities.
+## Key Features
 
-## Features
-
-- 🔐 Session-based authentication with cookie support
-- 🛡️ CSRF token protection for state-changing operations
-- 📊 PostgreSQL database integration
-- 🌐 CORS-enabled API with credential support
-- 🎨 Angular-based responsive UI
-- ⚙️ Environment-based configuration
+-   **Specialized Content:** Training and assessment content is tailored for the **2025-2026 MOT training year**, including modules on Electric/Hybrid vehicles, DVSA regulations, and testing procedures.
+-   **Role-Based Access:** The API supports different user access levels (e.g., 'admin', 'user').
+-   **Course Management:** A structured system for courses, lessons, and multiple-choice questions.
+-   **User Progress Tracking:** Records which lessons have been completed and the results of assessments.
+-   **Modern Tech Stack:** Built with a recent version of Angular and a clean, helper-driven PHP backend.
 
 ## Prerequisites
 
-- PHP 7.4+ with PDO PostgreSQL extension
-- PostgreSQL 12+
-- Node.js 14+ and npm (for Angular frontend)
-- Web server (Apache/Nginx)
+-   **Backend:**
+    -   PHP 8.0+ with the `pdo_pgsql` extension
+    -   PostgreSQL 12+
+    -   [Composer](https://getcomposer.org/) (optional, but recommended)
+-   **Frontend:**
+    -   Node.js v18+
+    -   Angular CLI v20+
 
-## Installation
+## Setup & Installation
 
-### Backend Setup (cpd-api)
+### 1. Backend Setup (`cpd-api`)
 
-1. Clone the repository and navigate to the API directory:
+The backend is a straightforward PHP application.
+
+1.  **Navigate to the API directory:**
+    ```bash
+    cd YR2-WAD/cpd-api
+    ```
+
+2.  **Install Dependencies (Optional):**
+    If you have Composer, you can install the dependencies. The app is configured to work without this step if needed.
+    ```bash
+    composer install
+    ```
+
+3.  **Configure Environment:**
+    Copy the example `.env` file and edit it with your local database credentials.
+    ```bash
+    cp .env.example .env
+    ```
+    Update `DB_HOST`, `DB_NAME`, `DB_USER`, and `DB_PASS`.
+
+4.  **Database Setup:**
+    -   Ensure your PostgreSQL server is running.
+    -   Create the database specified in your `.env` file.
+    -   Connect to the new database and enable the `pgcrypto` extension:
+        ```sql
+        CREATE EXTENSION IF NOT EXISTS pgcrypto;
+        ```
+    -   Run the SQL migration scripts located in `/cpd-api/migrations/` against your database to set up the schema and seed the initial training content. It is recommended to run them in numerical order.
+
+5.  **Run the PHP Server:**
+    You can use the built-in PHP web server for development. The server must be run from the `api` directory to ensure endpoints are resolved correctly.
+    ```bash
+    # Run from the /cpd-api/api directory
+    cd cpd-api/api
+    php -S localhost:8000
+    ```
+
+### 2. Frontend Setup (`cpd-portal`)
+
+The frontend is an Angular application managed with the Angular CLI.
+
+1.  **Navigate to the portal directory:**
+    ```bash
+    cd YR2-WAD/cpd-portal
+    ```
+
+2.  **Install Dependencies:**
+    ```bash
+    npm install
+    ```
+
+3.  **Run the Development Server:**
+    ```bash
+    ng serve
+    ```
+    The application will be available at `http://localhost:4200/`. The API is expected to be running on `http://localhost:8000`. If your API is on a different port, you will need to update the API base URL in the Angular application's environment files (`src/environments/`).
