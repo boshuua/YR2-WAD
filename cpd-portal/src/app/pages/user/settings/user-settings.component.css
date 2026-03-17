@@ -30,6 +30,15 @@
   height: fit-content;
 }
 
+.settings-card .card-header {
+  padding: 2rem 2.5rem;
+}
+
+.settings-card .card-body {
+  padding: 2.5rem;
+}
+
+
 .card-header h3 {
   margin: 0;
   font-size: 1.25rem;
