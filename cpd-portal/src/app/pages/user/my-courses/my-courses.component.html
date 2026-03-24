@@ -88,11 +88,17 @@
           </div>
           <div class="course-meta">
             <span>Completed: {{ course.completion_date | date }}</span>
-            <span class="score-badge">Final Score: {{ course.score || 0 }}%</span>
+            <span class="score-badge" *ngIf="course.score !== null && !isMotCourse(course)">
+              Final Score: {{ course.score }}%
+            </span>
           </div>
           <div class="course-actions">
-            <span class="completed-msg">✓ Certificate Available</span>
-            <button class="btn-certificate" (click)="generateCertificate(course.id)">
+            <span class="completed-msg">✓ Completed</span>
+            <button
+              *ngIf="!isMotCourse(course)"
+              class="btn-certificate"
+              (click)="generateCertificate(course.id)"
+            >
               <i class="fas fa-certificate"></i> Download Certificate
             </button>
           </div>
@@ -118,9 +124,21 @@
             <span class="exam-date">{{ exam.completion_date | date: 'shortDate' }}</span>
           </div>
           <div class="exam-result">
-            <span class="exam-score">{{ exam.score }}%</span>
-            <span *ngIf="exam.passed" class="result-icon">✓</span>
-            <span *ngIf="!exam.passed" class="result-icon">✗</span>
+            <span class="exam-score" *ngIf="exam.score !== null">{{ exam.score }}%</span>
+            <span class="exam-score" *ngIf="exam.score === null">N/A</span>
+            <div class="exam-outcome">
+              <span *ngIf="exam.passed" class="result-icon">✓</span>
+              <span *ngIf="!exam.passed && exam.score !== null" class="result-icon">✗</span>
+            </div>
+          </div>
+          <div class="exam-actions" *ngIf="exam.passed || exam.title.includes('Assessment')">
+            <span *ngIf="exam.passed" class="completed-msg">✓ Certificate Available</span>
+            <button *ngIf="exam.passed" class="btn-certificate" (click)="generateCertificate(exam.id)">
+              <i class="fas fa-certificate"></i> Download Certificate
+            </button>
+            <p *ngIf="!exam.passed && exam.title.includes('Assessment')" class="fail-notice">
+              Assessment not passed. 80% required for certificate.
+            </p>
           </div>
         </div>
       </div>

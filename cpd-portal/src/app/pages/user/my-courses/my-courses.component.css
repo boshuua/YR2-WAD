@@ -401,6 +401,18 @@ h1 {
   border-top: 1px solid var(--border-color);
 }
 
+.exam-outcome {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exam-actions {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
 .exam-score {
   font-size: 1.5rem;
   font-weight: 700;

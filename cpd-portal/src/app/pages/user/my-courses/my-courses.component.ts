@@ -51,12 +51,19 @@ export class MyCoursesComponent implements OnInit {
 
         const completed = userCourses.filter((c) => c.user_progress_status === 'completed');
 
+        // historyCourses: Regular training + MOT Training (but we will hide score/cert in template for MOT)
         this.historyCourses = completed.filter(
-          (c) => c.category !== 'Assessment' && !c.title.includes('Assessment'),
+          (c) => c.category !== 'Assessment' && !c.title.toLowerCase().includes('assessment'),
         );
 
+        // examHistory: Assessment courses + MOT Training (where the result/cert lives)
         this.examHistory = completed
-          .filter((c) => c.category === 'Assessment' || c.title.includes('Assessment'))
+          .filter(
+            (c) =>
+              c.category === 'Assessment' ||
+              c.title.toLowerCase().includes('assessment') ||
+              c.title.toLowerCase().includes('training'),
+          )
           .map((c) => ({ ...c, passed: (c.score ?? 0) >= 80 }));
 
         this.courseService.getUpcomingCourses().subscribe({
@@ -154,5 +161,10 @@ export class MyCoursesComponent implements OnInit {
       return ['/courses', course.id, 'lesson', course.last_accessed_lesson_id];
     }
     return ['/courses', course.id];
+  }
+
+  isMotCourse(course: UserCourse): boolean {
+    const title = course.title.toLowerCase();
+    return title.includes('mot') && !title.includes('assessment') && course.category !== 'Assessment';
   }
 }
