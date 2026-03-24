@@ -71,23 +71,23 @@ export class CalendarComponent implements OnInit {
   loadResources(): void {
     this.loadingService.show();
 
-    this.userService.getUsers().subscribe({
-      next: (data) => {
-        this.users = data;
+    this.userService.getUsers(1, 1000).subscribe({
+      next: (response) => {
+        this.users = response.data;
       },
       error: (err) => console.error('Failed to load users', err),
     });
 
-    this.courseService.getCourses('locked').subscribe({
-      next: (data) => {
-        this.courses = data;
+    this.courseService.getCourses('locked', 1, 1000).subscribe({
+      next: (response) => {
+        this.courses = response.data;
       },
       error: (err) => console.error('Failed to load locked courses', err),
     });
 
-    this.courseService.getCourses('active').subscribe({
-      next: (data) => {
-        this.scheduledCourses = data;
+    this.courseService.getCourses('active', 1, 1000).subscribe({
+      next: (response) => {
+        this.scheduledCourses = response.data;
         this.mapCoursesToCalendar();
         this.loadingService.hide();
       },

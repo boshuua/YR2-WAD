@@ -14,14 +14,13 @@ import { ActivityLog } from '../../../core/models/dashboard.model';
 })
 export class ActivityLogComponent implements OnInit {
   activityLog: ActivityLog[] = [];
-  filteredLog: ActivityLog[] = [];
   isLoading = true;
   loadError = '';
 
-  Math = Math;
-
   currentPage = 1;
   itemsPerPage = 20;
+  totalItems = 0;
+  lastPage = 1;
 
   searchTerm = '';
   filterAction = '';
@@ -42,12 +41,13 @@ export class ActivityLogComponent implements OnInit {
   loadActivityLog(): void {
     this.isLoading = true;
     this.loadError = '';
-    this.courseService.getActivityLog(200).subscribe({
-      next: (logs) => {
-        this.activityLog = logs;
-        this.filteredLog = logs;
-        this.extractUniqueValues();
+    this.courseService.getActivityLog(this.currentPage, this.itemsPerPage).subscribe({
+      next: (response) => {
+        this.activityLog = response.data;
+        this.totalItems = response.meta.total;
+        this.lastPage = response.meta.last_page;
         this.isLoading = false;
+        // For simplicity, we're not doing server-side filtering yet as per the prompt's focus on pagination
       },
       error: (err) => {
         console.error('Failed to load activity log', err);
@@ -57,34 +57,42 @@ export class ActivityLogComponent implements OnInit {
     });
   }
 
-  extractUniqueValues(): void {
-    const actions = new Set<string>();
-    const users = new Set<string>();
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.lastPage && page !== this.currentPage) {
+      this.currentPage = page;
+      this.loadActivityLog();
+    }
+  }
 
-    this.activityLog.forEach((log) => {
-      if (log.action) actions.add(log.action);
-      if (log.user_email) users.add(log.user_email);
-    });
+  nextPage(): void {
+    if (this.currentPage < this.lastPage) {
+      this.currentPage++;
+      this.loadActivityLog();
+    }
+  }
 
-    this.uniqueActions = Array.from(actions).sort();
-    this.uniqueUsers = Array.from(users).sort();
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadActivityLog();
+    }
+  }
+
+  get totalLogs(): number {
+    return this.totalItems;
+  }
+
+  get totalPages(): number {
+    return this.lastPage;
+  }
+
+  get Math() {
+    return Math;
   }
 
   applyFilters(): void {
-    this.filteredLog = this.activityLog.filter((log) => {
-      const matchesSearch =
-        !this.searchTerm ||
-        (log.action && log.action.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
-        (log.details && log.details.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
-        (log.user_email && log.user_email.toLowerCase().includes(this.searchTerm.toLowerCase()));
-
-      const matchesAction = !this.filterAction || log.action === this.filterAction;
-      const matchesUser = !this.filterUser || log.user_email === this.filterUser;
-
-      return matchesSearch && matchesAction && matchesUser;
-    });
-
     this.currentPage = 1;
+    this.loadActivityLog();
   }
 
   clearFilters(): void {
@@ -95,28 +103,7 @@ export class ActivityLogComponent implements OnInit {
   }
 
   get paginatedLogs(): ActivityLog[] {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    return this.filteredLog.slice(startIndex, startIndex + this.itemsPerPage);
-  }
-
-  get totalPages(): number {
-    return Math.ceil(this.filteredLog.length / this.itemsPerPage);
-  }
-
-  get totalLogs(): number {
-    return this.filteredLog.length;
-  }
-
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) this.currentPage++;
-  }
-
-  previousPage(): void {
-    if (this.currentPage > 1) this.currentPage--;
-  }
-
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) this.currentPage = page;
+    return this.activityLog;
   }
 
   get visiblePageNumbers(): number[] {

@@ -31,6 +31,12 @@ export class CourseListComponent implements OnInit {
 
   currentTab: 'active' | 'library' = 'active';
 
+  // Pagination
+  currentPage = 1;
+  pageSize = 10;
+  totalItems = 0;
+  lastPage = 1;
+
   // Delete Modal
   showDeleteConfirmModal = false;
   courseToDeleteId: number | null = null;
@@ -72,6 +78,7 @@ export class CourseListComponent implements OnInit {
 
   switchTab(tab: 'active' | 'library'): void {
     this.currentTab = tab;
+    this.currentPage = 1;
     this.loadCourses();
   }
 
@@ -87,9 +94,12 @@ export class CourseListComponent implements OnInit {
 
     const apiType = this.currentTab === 'library' ? 'library' : 'active';
 
-    this.courseService.getCourses(apiType).subscribe({
-      next: (data) => {
+    this.courseService.getCourses(apiType, this.currentPage, this.pageSize).subscribe({
+      next: (response) => {
+        const data = response.data;
         this.courses = data;
+        this.totalItems = response.meta.total;
+        this.lastPage = response.meta.last_page;
 
         if (this.currentTab === 'active') {
           const now = new Date();
@@ -111,6 +121,8 @@ export class CourseListComponent implements OnInit {
         if (err.status === 404) {
           this.noCoursesFound = true;
           this.courses = [];
+          this.totalItems = 0;
+          this.lastPage = 1;
         } else {
           this.errorMessage = 'Error loading courses: ' + (err.error?.message || err.message);
           this.toastService.error(this.errorMessage);
@@ -119,6 +131,13 @@ export class CourseListComponent implements OnInit {
         this.cdr.markForCheck();
       },
     });
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.lastPage && page !== this.currentPage) {
+      this.currentPage = page;
+      this.loadCourses();
+    }
   }
 
   addCourse(): void {
@@ -131,9 +150,9 @@ export class CourseListComponent implements OnInit {
 
   openScheduleModal(): void {
     this.loadingService.show();
-    this.courseService.getCourses('template').subscribe({
-      next: (data) => {
-        this.templates = data;
+    this.courseService.getCourses('template', 1, 100).subscribe({
+      next: (response) => {
+        this.templates = response.data;
         this.showScheduleModal = true;
         this.loadingService.hide();
         if (this.users.length === 0) {
@@ -282,9 +301,9 @@ export class CourseListComponent implements OnInit {
 
   loadUsers(): void {
     this.loadingService.show();
-    this.userService.getUsers().subscribe({
-      next: (data) => {
-        this.users = data;
+    this.userService.getUsers(1, 1000).subscribe({
+      next: (response) => {
+        this.users = response.data;
         this.loadingService.hide();
         this.cdr.markForCheck();
       },

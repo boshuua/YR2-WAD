@@ -45,9 +45,9 @@ export class OverviewComponent implements OnInit {
   }
 
   loadCourses(): void {
-    this.courseService.getCourses().subscribe({
-      next: (courses) => {
-        this.courses = courses;
+    this.courseService.getCourses('all', 1, 100).subscribe({
+      next: (response) => {
+        this.courses = response.data;
         this.generateCalendar();
       },
       error: (err) => {
@@ -116,10 +116,10 @@ export class OverviewComponent implements OnInit {
   loadActivityLog(): void {
     this.isLoadingLog = true;
     this.logLoadError = '';
-    this.courseService.getActivityLog(50).subscribe({
-      next: (logs) => {
-        this.totalLogs = logs.length;
-        this.activityLog = logs;
+    this.courseService.getActivityLog(1, 50).subscribe({
+      next: (response) => {
+        this.totalLogs = response.meta.total;
+        this.activityLog = response.data;
         this.isLoadingLog = false;
       },
       error: (err) => {

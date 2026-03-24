@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, defer, map, switchMap, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { User } from '../models/user.model';
-import { ApiResponse } from '../models/api-response.model';
+import { ApiResponse, PaginatedResponse } from '../models/api-response.model';
 import { UserDashboard, Attachment, AssignCoursePayload } from '../models/dashboard.model';
 
 @Injectable({
@@ -29,18 +29,21 @@ export class UserService {
     });
   }
 
-  getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiUrl}/get_users.php`, { withCredentials: true });
+  getUsers(page: number = 1, limit: number = 10): Observable<PaginatedResponse<User>> {
+    return this.http.get<PaginatedResponse<User>>(
+      `${this.apiUrl}/get_users.php?page=${page}&limit=${limit}`,
+      { withCredentials: true }
+    );
   }
 
   getUserById(userId: number): Observable<User> {
     return this.http
-      .get<User[]>(`${this.apiUrl}/get_users.php`, {
+      .get<PaginatedResponse<User>>(`${this.apiUrl}/get_users.php?page=1&limit=1000`, {
         withCredentials: true,
       })
       .pipe(
-        map((users) => {
-          const user = users.find((u) => u.id === userId);
+        map((response) => {
+          const user = response.data.find((u) => u.id === userId);
           if (!user) {
             throw new Error(`User with ID ${userId} not found`);
           }

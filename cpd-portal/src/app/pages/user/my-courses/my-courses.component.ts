@@ -60,7 +60,8 @@ export class MyCoursesComponent implements OnInit {
           .map((c) => ({ ...c, passed: (c.score ?? 0) >= 80 }));
 
         this.courseService.getUpcomingCourses().subscribe({
-          next: (allUpcoming: Course[]) => {
+          next: (response) => {
+            const allUpcoming = response.data;
             const enrolledIds = new Set(userCourses.map((c) => c.id));
             this.availableCourses = allUpcoming.filter((c) => !enrolledIds.has(c.id));
             this.applyFilters();

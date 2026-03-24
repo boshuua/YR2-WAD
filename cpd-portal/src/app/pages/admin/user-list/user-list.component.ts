@@ -21,6 +21,12 @@ export class UserListComponent implements OnInit {
   userToDeleteId: number | null = null;
   userToDeleteName: string = '';
 
+  // Pagination
+  currentPage = 1;
+  pageSize = 10;
+  totalItems = 0;
+  lastPage = 1;
+
   constructor(
     private userService: UserService,
     private toastService: ToastService,
@@ -33,10 +39,11 @@ export class UserListComponent implements OnInit {
 
   loadUsers(): void {
     this.loadingService.show();
-    // *** Corrected: Call getUsers ***
-    this.userService.getUsers().subscribe({
-      next: (data) => {
-        this.users = data;
+    this.userService.getUsers(this.currentPage, this.pageSize).subscribe({
+      next: (response) => {
+        this.users = response.data;
+        this.totalItems = response.meta.total;
+        this.lastPage = response.meta.last_page;
         this.loadingService.hide();
       },
       error: (err) => {
@@ -45,6 +52,13 @@ export class UserListComponent implements OnInit {
         this.toastService.error('Error loading users: ' + (err.error?.message || err.message));
       },
     });
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.lastPage && page !== this.currentPage) {
+      this.currentPage = page;
+      this.loadUsers();
+    }
   }
   promptDeleteUser(userId: number, userName: string): void {
     this.userToDeleteId = userId;

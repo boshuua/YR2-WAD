@@ -16,6 +16,11 @@ class CourseController extends BaseController
         }
 
         $type = $_GET['type'] ?? 'all';
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+        if ($page < 1) $page = 1;
+        if ($limit < 1) $limit = 10;
+        $offset = ($page - 1) * $limit;
 
         // Base Query - Optimized with Eager Loading (LEFT JOIN)
         $sql = "SELECT c.id, c.title, c.description, c.duration, c.category, c.status, 
@@ -32,49 +37,60 @@ class CourseController extends BaseController
             WHERE 1=1";
 
         // Filter Logic
+        $filterSql = "";
         if ($type === 'locked') {
-            $sql .= " AND c.is_locked = TRUE";
+            $filterSql .= " AND c.is_locked = TRUE";
         } else if ($type === 'library') {
-            $sql .= " AND (c.is_template = TRUE OR c.is_locked = TRUE)";
+            $filterSql .= " AND (c.is_template = TRUE OR c.is_locked = TRUE)";
         } else if ($type === 'template') {
-            // Strictly templates for scheduling dropdown
-            // Hide Annual Assessment (auto-assigned) but allow all other templates including locked ones
-            $sql .= " AND c.is_template = TRUE AND c.title != 'MOT Tester Annual Assessment'";
+            $filterSql .= " AND c.is_template = TRUE AND c.title != 'MOT Tester Annual Assessment'";
         } else if ($type === 'active') {
-            // Active usually means filtered instances (not templates)
-            $sql .= " AND c.is_template = FALSE AND c.is_locked = FALSE";
+            $filterSql .= " AND c.is_template = FALSE AND c.is_locked = FALSE";
         } else if ($type === 'upcoming') {
-            // Only future courses
-            $sql .= " AND c.is_template = FALSE AND c.start_date >= CURRENT_DATE";
+            $filterSql .= " AND c.is_template = FALSE AND c.start_date >= CURRENT_DATE";
         } else if ($type === 'past') {
-            $sql .= " AND c.is_template = FALSE AND c.end_date < CURRENT_DATE";
+            $filterSql .= " AND c.is_template = FALSE AND c.end_date < CURRENT_DATE";
         }
 
+        $sql .= $filterSql;
+
+        // Count Total for Pagination
+        $countSql = "SELECT COUNT(*) FROM courses c WHERE 1=1" . $filterSql;
+        
         $sql .= " ORDER BY c.start_date ASC, c.created_at DESC";
+        $sql .= " LIMIT :limit OFFSET :offset";
 
         try {
+            // Get total count
+            $countStmt = $this->db->prepare($countSql);
+            $countStmt->execute();
+            $total = (int)$countStmt->fetchColumn();
+
+            // Get paginated data
             $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
             $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Determine user ID for logging? (Optional, legacy log didn't use it)
-            // log_activity($this->db, null, null, "Viewed Courses", "All courses listed.");
-
-            if (empty($courses)) {
-                // Legacy behavior: 404 if empty? 
-                // Original code sent 404 with "No courses found." if empty array.
-                // Keeping consistent, though 200 [] is often better.
+            if (empty($courses) && $page === 1) {
                 $this->error("No courses found.", 404);
             } else {
-                // Format booleans if needed (Postgres returns 't'/'f' sometimes depending on driver setup, 
-                // but fetchAll(PDO::FETCH_ASSOC) usually gives appropriate types if set up.
-                // Legacy extracted and cast (bool) $is_locked.
                 foreach ($courses as &$course) {
                     $course['is_locked'] = (bool) ($course['is_locked'] === true || $course['is_locked'] === 't' || $course['is_locked'] === 1);
                     $course['is_template'] = (bool) ($course['is_template'] === true || $course['is_template'] === 't' || $course['is_template'] === 1);
                     $course['description'] = html_entity_decode($course['description']);
                 }
-                $this->json($courses);
+                
+                $this->json([
+                    'data' => $courses,
+                    'meta' => [
+                        'total' => $total,
+                        'page' => $page,
+                        'limit' => $limit,
+                        'last_page' => ceil($total / $limit)
+                    ]
+                ]);
             }
 
         } catch (\Exception $e) {

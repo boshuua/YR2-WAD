@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, defer, map, switchMap, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Course, CourseSchedulePayload, CourseType } from '../models/course.model';
-import { ApiResponse } from '../models/api-response.model';
+import { ApiResponse, PaginatedResponse } from '../models/api-response.model';
 import { Lesson } from '../models/lesson.model';
 import { Question, QuizSubmission } from '../models/quiz.model';
 import { UserCourse, ActivityLog } from '../models/dashboard.model';
@@ -33,14 +33,19 @@ export class CourseService {
 
   // --- Courses ---
 
-  getCourses(type: CourseType | 'all' | 'library' = 'all'): Observable<Course[]> {
-    return this.http.get<Course[]>(`${this.apiUrl}/get_courses.php?type=${type}`, {
-      withCredentials: true,
-    });
+  getCourses(
+    type: CourseType | 'all' | 'library' = 'all',
+    page: number = 1,
+    limit: number = 10
+  ): Observable<PaginatedResponse<Course>> {
+    return this.http.get<PaginatedResponse<Course>>(
+      `${this.apiUrl}/get_courses.php?type=${type}&page=${page}&limit=${limit}`,
+      { withCredentials: true }
+    );
   }
 
-  getUpcomingCourses(): Observable<Course[]> {
-    return this.getCourses('upcoming');
+  getUpcomingCourses(): Observable<PaginatedResponse<Course>> {
+    return this.getCourses('upcoming', 1, 100); // For dashboard, might want more or handle differently
   }
 
   getCourseById(courseId: number): Observable<Course> {
@@ -222,9 +227,13 @@ export class CourseService {
 
   // --- Activity Log ---
 
-  getActivityLog(limit: number = 20): Observable<ActivityLog[]> {
-    return this.http.get<ActivityLog[]>(`${this.apiUrl}/get_activity_log.php?limit=${limit}`, {
-      withCredentials: true,
-    });
+  getActivityLog(
+    page: number = 1,
+    limit: number = 20
+  ): Observable<PaginatedResponse<ActivityLog>> {
+    return this.http.get<PaginatedResponse<ActivityLog>>(
+      `${this.apiUrl}/get_activity_log.php?page=${page}&limit=${limit}`,
+      { withCredentials: true }
+    );
   }
 }

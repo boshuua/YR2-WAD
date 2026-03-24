@@ -18,16 +18,39 @@ class UserController extends BaseController
 
         requireAdmin();
 
+        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+        if ($page < 1) $page = 1;
+        if ($limit < 1) $limit = 10;
+        $offset = ($page - 1) * $limit;
+
         $query = "SELECT id, first_name, last_name, email, access_level, created_at, failed_login_attempts, lockout_until FROM users ORDER BY id ASC";
+        $paginatedQuery = $query . " LIMIT :limit OFFSET :offset";
 
         try {
-            $stmt = $this->db->prepare($query);
+            // Count Total
+            $countStmt = $this->db->prepare("SELECT COUNT(*) FROM users");
+            $countStmt->execute();
+            $total = (int)$countStmt->fetchColumn();
+
+            // Fetch Data
+            $stmt = $this->db->prepare($paginatedQuery);
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
             $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            log_activity($this->db, getCurrentUserId(), getCurrentUserEmail(), "Viewed Users", "User list retrieved.");
+            log_activity($this->db, getCurrentUserId(), getCurrentUserEmail(), "Viewed Users", "User list retrieved (Page: $page).");
 
-            $this->json($users);
+            $this->json([
+                'data' => $users,
+                'meta' => [
+                    'total' => $total,
+                    'page' => $page,
+                    'limit' => $limit,
+                    'last_page' => ceil($total / $limit)
+                ]
+            ]);
 
         } catch (\Exception $e) {
             $this->error("Database error: " . $e->getMessage(), 500);

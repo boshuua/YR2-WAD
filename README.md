@@ -1,6 +1,6 @@
 # YR2-WAD: MOT Tester CPD Portal
 
-This project is a full-stack **Continuing Professional Development (CPD) Management Portal** specifically designed for **UK MOT Testers**. It provides a platform for vehicle testers to complete their mandatory annual training and assessments as required by the **DVSA (Driver and Vehicle Standards Agency)**.
+This project is a full-stack **Continuing Professional Development (CPD) Management Portal**  designed for **UK MOT Testers**. It provides a platform for vehicle testers to complete their mandatory annual training and assessments as required by the **DVSA (Driver and Vehicle Standards Agency)**.
 
 This is likely a "Year 2 Web Application Development" university project.
 

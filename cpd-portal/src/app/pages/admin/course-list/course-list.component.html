@@ -113,6 +113,17 @@
       <ng-template #noPast>
         <p class="no-data-param">No past courses in history.</p>
       </ng-template>
+
+      <!-- Pagination for Active Tab -->
+      <div class="pagination-controls" *ngIf="totalItems > pageSize">
+        <button [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)" class="page-btn">
+          Previous
+        </button>
+        <span class="page-info">Page {{ currentPage }} of {{ lastPage }}</span>
+        <button [disabled]="currentPage === lastPage" (click)="goToPage(currentPage + 1)" class="page-btn">
+          Next
+        </button>
+      </div>
     </div>
 
     <!-- Library Tab: Standard View -->
@@ -162,6 +173,18 @@
           </tr>
         </tbody>
       </table>
+      
+      <!-- Pagination for Library Tab -->
+      <div class="pagination-controls" *ngIf="totalItems > pageSize">
+        <button [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)" class="page-btn">
+          Previous
+        </button>
+        <span class="page-info">Page {{ currentPage }} of {{ lastPage }}</span>
+        <button [disabled]="currentPage === lastPage" (click)="goToPage(currentPage + 1)" class="page-btn">
+          Next
+        </button>
+      </div>
+      
       <ng-template #noLibrary>
         <div class="no-data-message">No courses in library.</div>
       </ng-template>

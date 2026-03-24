@@ -43,6 +43,16 @@
         </tr>
       </tbody>
     </table>
+
+    <div class="pagination-controls" *ngIf="totalItems > pageSize">
+      <button [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)" class="page-btn">
+        Previous
+      </button>
+      <span class="page-info">Page {{ currentPage }} of {{ lastPage }}</span>
+      <button [disabled]="currentPage === lastPage" (click)="goToPage(currentPage + 1)" class="page-btn">
+        Next
+      </button>
+    </div>
   </div>
 </div>
 <app-confirm-modal
