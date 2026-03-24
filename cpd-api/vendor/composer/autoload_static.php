@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit7aba2daad993692f9ccfaab9912fc27b
+class ComposerStaticInit37e48760ca63d065b1361d741a8eeb1d
 {
     public static $files = array (
         '72243e5536b63e298acb6476f01f1aff' => __DIR__ . '/..' . '/thecodingmachine/safe/lib/special_cases.php',
@@ -932,9 +932,9 @@ class ComposerStaticInit7aba2daad993692f9ccfaab9912fc27b
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit7aba2daad993692f9ccfaab9912fc27b::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit7aba2daad993692f9ccfaab9912fc27b::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit7aba2daad993692f9ccfaab9912fc27b::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit37e48760ca63d065b1361d741a8eeb1d::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit37e48760ca63d065b1361d741a8eeb1d::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit37e48760ca63d065b1361d741a8eeb1d::$classMap;
 
         }, null, ClassLoader::class);
     }

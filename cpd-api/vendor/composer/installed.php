@@ -3,7 +3,7 @@
         'name' => 'cpd/api',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'a41dfaaef69932962b288f513e7d7f34bc7e5854',
+        'reference' => '539bf926434f85e2525691602bd4306e37c6f09b',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -13,7 +13,7 @@
         'cpd/api' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'a41dfaaef69932962b288f513e7d7f34bc7e5854',
+            'reference' => '539bf926434f85e2525691602bd4306e37c6f09b',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
