@@ -310,15 +310,43 @@ class AuthController extends BaseController
             // 5. Send Email to the User with the new password
             $frontendUrl = $_ENV['CORS_ALLOWED_ORIGIN'] ?? 'http://localhost:4200';
             $loginUrl = rtrim($frontendUrl, '/') . '/login';
+            $siteName = getSetting('site_name', 'CPD Portal');
 
-            $subject = "Your Password Has Been Reset";
+            $subject = "Security Notice: Password Reset Approved - {$siteName}";
             $body = "
-                <h2>Password Reset Approved</h2>
-                <p>Hi {$resetData['first_name']},</p>
-                <p>Your administrator has approved your password reset request.</p>
-                <p>Your new temporary password is: <strong>{$tempPassword}</strong></p>
-                <p>Please <a href='{$loginUrl}'>click here to log in</a>.</p>
-                <p style='color: red;'><strong>Important:</strong> We strongly recommend changing your password immediately after logging in.</p>
+                <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;'>
+                    <div style='background-color: #1e293b; color: #ffffff; padding: 20px; text-align: center;'>
+                        <h1 style='margin: 0; font-size: 24px;'>{$siteName}</h1>
+                        <p style='margin: 5px 0 0; opacity: 0.8;'>Technical Support & Security</p>
+                    </div>
+                    <div style='padding: 30px; color: #334155; line-height: 1.6;'>
+                        <h2 style='color: #0f172a; margin-top: 0;'>Password Reset Approved</h2>
+                        <p>Hello {$resetData['first_name']},</p>
+                        <p>Your request for a password reset has been approved by the system administrator. For security reasons, a temporary access key has been generated for your account.</p>
+                        
+                        <div style='background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 6px; margin: 25px 0; text-align: center;'>
+                            <p style='margin: 0 0 10px; font-size: 14px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;'>Temporary Password</p>
+                            <span style='font-family: monospace; font-size: 24px; font-weight: bold; color: #2563eb;'>{$tempPassword}</span>
+                        </div>
+
+                        <p><strong>Next Steps:</strong></p>
+                        <ol>
+                            <li>Click the button below to go to the login page.</li>
+                            <li>Enter your email and the temporary password provided above.</li>
+                            <li>You will be prompted to create a new, permanent password immediately.</li>
+                        </ol>
+
+                        <div style='text-align: center; margin: 30px 0;'>
+                            <a href='{$loginUrl}' style='background-color: #2563eb; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;'>Login to CPD Portal</a>
+                        </div>
+
+                        <p style='font-size: 13px; color: #ef4444;'><strong>Security Warning:</strong> This temporary password is for single-use only. Do not share this key with anyone. Our staff will never ask for your password via email or telephone.</p>
+                    </div>
+                    <div style='background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;'>
+                        <p style='margin: 0;'>&copy; " . date('Y') . " {$siteName} | Motor Industry Compliance & Training</p>
+                        <p style='margin: 5px 0 0;'>If you did not request this change, please contact technical support immediately.</p>
+                    </div>
+                </div>
             ";
 
             sendEmail($this->db, $resetData['email'], $subject, $body);
