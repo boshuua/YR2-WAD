@@ -50,12 +50,10 @@ class AuthController extends BaseController
                 $wait = ceil((strtotime($row['lockout_until']) - time()) / 60);
                 http_response_code(401);
                 echo json_encode(["message" => "Account locked due to too many failed attempts. Please try again in $wait minutes."]);
-                // Log attempt (optional, or rely on global logger)
                 return;
             }
 
             // Verify Password (pgcrypto)
-            // We use the database 'crypt' function comparison logic as before
             $verifyStmt = $this->db->prepare("SELECT (password = crypt(:input_pass, password)) as is_valid FROM users WHERE id = :id");
             $verifyStmt->execute([':input_pass' => $password, ':id' => $row['id']]);
             $res = $verifyStmt->fetch(PDO::FETCH_ASSOC);
@@ -77,20 +75,14 @@ class AuthController extends BaseController
                 $update = $this->db->prepare("UPDATE users SET failed_login_attempts = 0, lockout_until = NULL WHERE id = :id");
                 $update->execute([':id' => $row['id']]);
 
-                // LOGGING
                 log_activity($this->db, $row['id'], $email, 'login_success', 'User logged in successfully.');
 
-                // Generate Tokens (Session based or JWT - sticking to session/cookie for now based on existing frontend)
-                // Existing frontend uses PHP Session + Custom 'user' return
-
-                // Start Session if not started
                 if (session_status() == PHP_SESSION_NONE) {
                     session_start();
                 }
                 $_SESSION['user_id'] = $row['id'];
                 $_SESSION['access_level'] = $row['access_level'];
 
-                // Return User Data
                 $user_arr = array(
                     "id" => $row['id'],
                     "first_name" => $row['first_name'],
@@ -105,22 +97,20 @@ class AuthController extends BaseController
                 ]);
 
             } else {
-                // Increment Failures
                 $this->handleLoginFailure($row, $email);
             }
 
         } else {
-            // User not found. Track via session to prevent enumeration / brute force
             $_SESSION['failed_attempts'] = isset($_SESSION['failed_attempts']) ? $_SESSION['failed_attempts'] + 1 : 1;
 
             if ($_SESSION['failed_attempts'] >= 3) {
-                $_SESSION['lockout_until'] = time() + (5 * 60); // 5 minutes
-                log_activity($this->db, null, $email, 'login_lockout', 'Session locked IP due to 3 failed attempts (invalid user).');
+                $_SESSION['lockout_until'] = time() + (5 * 60);
+                log_activity($this->db, null, $email, 'login_lockout', 'Session locked IP due to 3 failed attempts.');
                 $this->error("Account locked due to too many failed attempts. Please try again in 5 minutes.", 401);
                 return;
             }
 
-            log_activity($this->db, null, $email, 'login_failed', 'Invalid credentials (User not found) - attempt ' . $_SESSION['failed_attempts']);
+            log_activity($this->db, null, $email, 'login_failed', 'Invalid credentials - attempt ' . $_SESSION['failed_attempts']);
             $this->error("Login failed. Invalid credentials.", 401);
         }
     }
@@ -129,7 +119,7 @@ class AuthController extends BaseController
     {
         $attempts = $row['failed_login_attempts'] + 1;
         $lockout = null;
-        $msg = "Login failed. Invalid credentials."; // Keep error generic
+        $msg = "Login failed. Invalid credentials.";
 
         if ($attempts >= 3) {
             $lockout = date('Y-m-d H:i:s', strtotime('+5 minutes'));
@@ -150,12 +140,8 @@ class AuthController extends BaseController
         if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
             $this->error("Method Not Allowed", 405);
         }
-
         requireAuth();
-
-        // helpers/auth_helper.php function
         $userData = getCurrentUserData();
-
         if ($userData) {
             $this->json(['user' => $userData]);
         } else {
@@ -165,9 +151,6 @@ class AuthController extends BaseController
 
     public function csrf()
     {
-        // Allow GET or POST
-        // if ($_SERVER['REQUEST_METHOD'] !== 'GET') ... 
-
         $token = getCsrfToken();
         $this->json(['csrfToken' => $token]);
     }
@@ -179,7 +162,6 @@ class AuthController extends BaseController
         }
 
         require_once __DIR__ . '/../../helpers/email_helper.php';
-
         $data = $this->getJsonInput();
 
         if (!$data || !isset($data->email)) {
@@ -189,188 +171,82 @@ class AuthController extends BaseController
 
         $email = filter_var($data->email, FILTER_SANITIZE_EMAIL);
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $this->error("Invalid email format.", 400);
-            return;
-        }
-
         try {
             // 1. Check if user exists
             $stmt = $this->db->prepare("SELECT id, first_name, last_name FROM users WHERE email = :email LIMIT 1");
             $stmt->execute([':email' => $email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Respond with success regardless of user existence to prevent enumeration
+            // Generic response to prevent email enumeration
+            $genericMsg = "If your email is registered in our system, a temporary password has been sent to you.";
+
             if (!$user) {
-                $this->json(["message" => "If your email is registered in our system, a password reset request has been sent to the administrator."]);
+                $this->json(["message" => $genericMsg]);
                 return;
             }
 
-            // 2. Clear existing unused tokens
-            $this->db->prepare("DELETE FROM password_resets WHERE user_id = :user_id")->execute([':user_id' => $user['id']]);
+            // 2. Generate secure temporary password
+            $tempPassword = bin2hex(random_bytes(4)); // 8 chars
 
-            // 3. Generate token
-            $token = bin2hex(random_bytes(32));
-            $expiresAt = date('Y-m-d H:i:s', strtotime('+24 hours'));
+            // 3. Update User: Set temp password and reset flag
+            $update = $this->db->prepare("UPDATE users SET password = crypt(:pass, gen_salt('bf')), requires_password_reset = TRUE WHERE id = :id");
+            $update->execute([':pass' => $tempPassword, ':id' => $user['id']]);
 
-            // 4. Save token
-            $insert = $this->db->prepare("INSERT INTO password_resets (user_id, token, expires_at) VALUES (:user_id, :token, :expires_at)");
-            $insert->execute([
-                ':user_id' => $user['id'],
-                ':token' => $token,
-                ':expires_at' => $expiresAt
-            ]);
-
-            // 5. Send Email to Admin
-            $scheme = isset($_SERVER['REQUEST_SCHEME']) ? $_SERVER['REQUEST_SCHEME'] : (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http');
-            $host = $_SERVER['HTTP_HOST'];
-            $baseUrl = $scheme . '://' . $host;
-            if (empty($host)) {
-                $baseUrl = "http://localhost:8000"; // fallback
-            }
-
-            $approveUrl = $baseUrl . "/api/approve_reset.php?token=" . $token;
-
-            $adminEmail = 'admin@ws369808-wad.remote.ac';
-
-            // Only send if enabled
-            if (getSetting('enable_password_reset_emails', 'true') === 'true') {
-                $siteName = getSetting('site_name', 'CPD Portal');
-                $subject = "[{$siteName}] Password Reset Request: " . $user['first_name'] . " " . $user['last_name'];
-                $body = "
-                    <h2>Password Reset Request</h2>
-                    <p>User <strong>{$user['first_name']} {$user['last_name']}</strong> ({$email}) has requested a password reset.</p>
-                    <p>To approve this request and generate a new password for the user, please click the link below:</p>
-                    <p><a href='{$approveUrl}' style='padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;'>Approve Password Reset</a></p>
-                    <p><em>If you ignore this email, the request will expire in 24 hours and the user's password will not be changed.</em></p>
-                ";
-                sendEmail($this->db, $adminEmail, $subject, $body);
-            }
-
-            log_activity($this->db, $user['id'], $email, 'password_reset_requested', 'User requested a password reset. Admin notified.');
-
-            $this->json(["message" => "If your email is registered in our system, a password reset request has been sent to the administrator."]);
-        } catch (\Exception $e) {
-            $this->error("An error occurred: " . $e->getMessage() . " at " . $e->getFile() . ":" . $e->getLine(), 500);
-            error_log("Forgot Password Error: " . $e->getMessage());
-        }
-    }
-
-    public function approveReset()
-    {
-        if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-            $this->error("Method Not Allowed", 405);
-        }
-
-        require_once __DIR__ . '/../../helpers/email_helper.php';
-
-        $token = $_GET['token'] ?? null;
-
-        if (!$token) {
-            echo "<h1>Error</h1><p>Invalid or missing token.</p>";
-            exit;
-        }
-
-        try {
-            // 1. Validate Token
-            $stmt = $this->db->prepare("
-                SELECT pr.id as reset_id, pr.expires_at, u.id as user_id, u.email, u.first_name 
-                FROM password_resets pr
-                JOIN users u ON pr.user_id = u.id
-                WHERE pr.token = :token
-            ");
-            $stmt->execute([':token' => $token]);
-            $resetData = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (!$resetData) {
-                echo "<h1>Error</h1><p>Invalid token. It may have already been used.</p>";
-                exit;
-            }
-
-            // Check expiration
-            if (strtotime($resetData['expires_at']) < time()) {
-                $this->db->prepare("DELETE FROM password_resets WHERE id = :id")->execute([':id' => $resetData['reset_id']]);
-                echo "<h1>Error</h1><p>This password reset request has expired.</p>";
-                exit;
-            }
-
-            // 2. Generate a new secure temporary password
-            $tempPassword = bin2hex(random_bytes(4));
-
-            // 3. Update the user's password using pgcrypto and set reset flag
-            $updateStmt = $this->db->prepare("UPDATE users SET password = crypt(:pass, gen_salt('bf')), requires_password_reset = TRUE WHERE id = :id");
-            $updateStmt->execute([
-                ':pass' => $tempPassword,
-                ':id' => $resetData['user_id']
-            ]);
-
-            // 4. Delete the used token
-            $this->db->prepare("DELETE FROM password_resets WHERE id = :id")->execute([':id' => $resetData['reset_id']]);
-
-            // 5. Send Email to the User with the new password
+            // 4. Send Email to User (Industry Styled)
+            $siteName = getSetting('site_name', 'CPD Portal');
             $frontendUrl = $_ENV['CORS_ALLOWED_ORIGIN'] ?? 'http://localhost:4200';
             $loginUrl = rtrim($frontendUrl, '/') . '/login';
-            $siteName = getSetting('site_name', 'CPD Portal');
 
-            $subject = "Security Notice: Password Reset Approved - {$siteName}";
-            $body = "
+            $subject = "Security Notice: Temporary Access Credentials - {$siteName}";
+            $userBody = "
                 <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;'>
-                    <div style='background-color: #1e293b; color: #ffffff; padding: 20px; text-align: center;'>
-                        <h1 style='margin: 0; font-size: 24px;'>{$siteName}</h1>
-                        <p style='margin: 5px 0 0; opacity: 0.8;'>Technical Support & Security</p>
+                    <div style='background-color: #1e293b; color: #ffffff; padding: 25px; text-align: center;'>
+                        <h1 style='margin: 0; font-size: 24px; letter-spacing: 1px;'>{$siteName}</h1>
+                        <p style='margin: 5px 0 0; opacity: 0.8; font-size: 14px;'>Automotive Compliance & Professional Development</p>
                     </div>
                     <div style='padding: 30px; color: #334155; line-height: 1.6;'>
-                        <h2 style='color: #0f172a; margin-top: 0;'>Password Reset Approved</h2>
-                        <p>Hello {$resetData['first_name']},</p>
-                        <p>Your request for a password reset has been approved by the system administrator. For security reasons, a temporary access key has been generated for your account.</p>
+                        <h2 style='color: #0f172a; margin-top: 0; font-size: 20px;'>Password Reset Initiated</h2>
+                        <p>Hello {$user['first_name']},</p>
+                        <p>As requested, a temporary access key has been generated for your account. This key allows you to access the portal and establish a new permanent password.</p>
                         
-                        <div style='background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 6px; margin: 25px 0; text-align: center;'>
-                            <p style='margin: 0 0 10px; font-size: 14px; color: #64748b; text-transform: uppercase; letter-spacing: 1px;'>Temporary Password</p>
-                            <span style='font-family: monospace; font-size: 24px; font-weight: bold; color: #2563eb;'>{$tempPassword}</span>
+                        <div style='background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 25px; border-radius: 6px; margin: 25px 0; text-align: center;'>
+                            <p style='margin: 0 0 10px; font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: bold;'>Temporary Access Password</p>
+                            <span style='font-family: \"Courier New\", monospace; font-size: 28px; font-weight: bold; color: #2563eb; letter-spacing: 2px;'>{$tempPassword}</span>
                         </div>
 
-                        <p><strong>Next Steps:</strong></p>
-                        <ol>
-                            <li>Click the button below to go to the login page.</li>
-                            <li>Enter your email and the temporary password provided above.</li>
-                            <li>You will be prompted to create a new, permanent password immediately.</li>
-                        </ol>
+                        <p><strong>Required Action:</strong></p>
+                        <p>Upon your next login, the system will require you to update your password to maintain account security.</p>
 
-                        <div style='text-align: center; margin: 30px 0;'>
-                            <a href='{$loginUrl}' style='background-color: #2563eb; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;'>Login to CPD Portal</a>
+                        <div style='text-align: center; margin: 35px 0;'>
+                            <a href='{$loginUrl}' style='background-color: #2563eb; color: #ffffff; padding: 14px 35px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>Go to Login Page</a>
                         </div>
 
-                        <p style='font-size: 13px; color: #ef4444;'><strong>Security Warning:</strong> This temporary password is for single-use only. Do not share this key with anyone. Our staff will never ask for your password via email or telephone.</p>
+                        <hr style='border: 0; border-top: 1px solid #e2e8f0; margin: 30px 0;'>
+                        <p style='font-size: 12px; color: #94a3b8;'><strong>Security Protocol:</strong> This is an automated security notification. If you did not initiate this request, please contact your training coordinator or IT department immediately. For your protection, this temporary password is for single-use only.</p>
                     </div>
-                    <div style='background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0;'>
-                        <p style='margin: 0;'>&copy; " . date('Y') . " {$siteName} | Motor Industry Compliance & Training</p>
-                        <p style='margin: 5px 0 0;'>If you did not request this change, please contact technical support immediately.</p>
+                    <div style='background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0;'>
+                        <p style='margin: 0;'>&copy; " . date('Y') . " {$siteName} | Technical Support Division</p>
                     </div>
                 </div>
             ";
+            sendEmail($this->db, $email, $subject, $userBody);
 
-            sendEmail($this->db, $resetData['email'], $subject, $body);
-
-            log_activity($this->db, $resetData['user_id'], $resetData['email'], 'password_reset_approved', 'Admin approved password reset. New password emailed to user.');
-
-            // 6. Show success message to the Admin
-            echo "
-            <html>
-            <body style='font-family: sans-serif; text-align: center; padding: 50px;'>
-                <h1 style='color: #28a745;'>Success!</h1>
-                <p>The password reset request for <strong>{$resetData['email']}</strong> has been approved.</p>
-                <p>A new secure password has been generated and emailed to the user.</p>
-                <p>You may now close this window.</p>
-            </body>
-            </html>
+            // 5. Notify Admin (Simple Alert)
+            $adminEmail = 'admin@ws369808-wad.remote.ac';
+            $adminSubject = "Alert: Password Reset Performed - {$user['first_name']} {$user['last_name']}";
+            $adminBody = "
+                <p>The password for <strong>{$user['first_name']} {$user['last_name']}</strong> ({$email}) has been reset via the self-service portal.</p>
+                <p>A temporary password was issued, and the user will be required to update it upon their next login.</p>
+                <p>Timestamp: " . date('Y-m-d H:i:s') . "</p>
             ";
-            exit;
+            sendEmail($this->db, $adminEmail, $adminSubject, $adminBody);
 
+            log_activity($this->db, $user['id'], $email, 'password_reset_auto', 'User performed self-service password reset. Temp password emailed.');
+
+            $this->json(["message" => $genericMsg]);
         } catch (\Exception $e) {
-            http_response_code(500);
-            echo "<h1>Error</h1><p>A server error occurred while processing this request.</p>";
-            error_log("Approve Reset Error: " . $e->getMessage());
-            exit;
+            error_log("Forgot Password Error: " . $e->getMessage());
+            $this->error("An error occurred while processing your request.", 500);
         }
     }
 
@@ -391,7 +267,6 @@ class AuthController extends BaseController
         $newPass = $data->new_password;
 
         try {
-            // 1. Verify temp password and reset flag
             $stmt = $this->db->prepare("SELECT id, email, first_name, last_name, access_level, requires_password_reset FROM users WHERE id = :id LIMIT 1");
             $stmt->execute([':id' => $userId]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -404,7 +279,6 @@ class AuthController extends BaseController
                 $this->error("Password reset not required for this user.", 400);
             }
 
-            // Verify the temp password
             $verifyStmt = $this->db->prepare("SELECT (password = crypt(:input_pass, password)) as is_valid FROM users WHERE id = :id");
             $verifyStmt->execute([':input_pass' => $tempPass, ':id' => $userId]);
             $res = $verifyStmt->fetch(PDO::FETCH_ASSOC);
@@ -414,21 +288,19 @@ class AuthController extends BaseController
                 $this->error("Invalid temporary password.", 401);
             }
 
-            // 2. Update to new password and clear flag
             $update = $this->db->prepare("UPDATE users SET password = crypt(:pass, gen_salt('bf')), requires_password_reset = FALSE, failed_login_attempts = 0, lockout_until = NULL WHERE id = :id");
             $update->execute([':pass' => $newPass, ':id' => $userId]);
 
-            // 3. Log them in automatically
             if (session_status() == PHP_SESSION_NONE) {
                 session_start();
             }
             $_SESSION['user_id'] = $row['id'];
             $_SESSION['access_level'] = $row['access_level'];
 
-            log_activity($this->db, $userId, $row['email'], 'password_reset_success', 'User successfully reset their temporary password and logged in.');
+            log_activity($this->db, $userId, $row['email'], 'password_reset_success', 'User successfully updated password and logged in.');
 
             $this->json([
-                'message' => 'Password reset successful and logged in.',
+                'message' => 'Password reset successful.',
                 'user' => [
                     "id" => $row['id'],
                     "first_name" => $row['first_name'],
