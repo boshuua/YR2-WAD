@@ -150,6 +150,32 @@
   color: var(--primary-color);
 }
 
+.reset-instruction {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.btn-cancel-link {
+  display: block;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.btn-cancel-link:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+}
+
 .alert-error {
   margin-top: 1.5rem;
   padding: 1rem;

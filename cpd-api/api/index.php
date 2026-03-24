@@ -20,6 +20,7 @@ $routes = [
     'csrf.php' => ['App\Controllers\AuthController', 'csrf'],
     'forgot_password.php' => ['App\Controllers\AuthController', 'forgotPassword'],
     'approve_reset.php' => ['App\Controllers\AuthController', 'approveReset'],
+    'reset_password.php' => ['App\Controllers\AuthController', 'resetPassword'],
 
     // Users
     'get_users.php' => ['App\Controllers\UserController', 'index'],

@@ -34,6 +34,21 @@ export class AuthService {
     );
   }
 
+  resetPassword(data: {
+    user_id: number;
+    temp_password: string;
+    new_password: string;
+  }): Observable<AuthResponse> {
+    return this.ensureCsrfToken().pipe(
+      switchMap((csrfToken) =>
+        this.http.post<AuthResponse>(`${this.apiUrl}/reset_password.php`, data, {
+          withCredentials: true,
+          headers: new HttpHeaders({ 'X-CSRF-Token': csrfToken }),
+        }),
+      ),
+    );
+  }
+
   getMe(): Observable<{ user: User }> {
     return this.http.get<{ user: User }>(`${this.apiUrl}/me.php`, { withCredentials: true });
   }

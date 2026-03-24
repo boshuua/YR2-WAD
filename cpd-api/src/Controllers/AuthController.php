@@ -37,7 +37,7 @@ class AuthController extends BaseController
         }
 
         // 1. Fetch User (and check DB lockout)
-        $query = "SELECT id, first_name, last_name, password, access_level, failed_login_attempts, lockout_until FROM users WHERE email = :email LIMIT 1";
+        $query = "SELECT id, first_name, last_name, password, access_level, failed_login_attempts, lockout_until, requires_password_reset FROM users WHERE email = :email LIMIT 1";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':email', $email);
         $stmt->execute();
@@ -62,6 +62,17 @@ class AuthController extends BaseController
             $valid = ($res['is_valid'] === true || $res['is_valid'] === 't');
 
             if ($valid) {
+                // Check if password reset is required
+                if ($row['requires_password_reset'] === true || $row['requires_password_reset'] === 't' || $row['requires_password_reset'] == 1) {
+                    $this->json([
+                        'message' => 'Password reset required.',
+                        'reset_required' => true,
+                        'user_id' => $row['id'],
+                        'email' => $email
+                    ], 403);
+                    return;
+                }
+
                 // Reset counters
                 $update = $this->db->prepare("UPDATE users SET failed_login_attempts = 0, lockout_until = NULL WHERE id = :id");
                 $update->execute([':id' => $row['id']]);
@@ -286,8 +297,8 @@ class AuthController extends BaseController
             // 2. Generate a new secure temporary password
             $tempPassword = bin2hex(random_bytes(4));
 
-            // 3. Update the user's password using pgcrypto
-            $updateStmt = $this->db->prepare("UPDATE users SET password = crypt(:pass, gen_salt('bf')) WHERE id = :id");
+            // 3. Update the user's password using pgcrypto and set reset flag
+            $updateStmt = $this->db->prepare("UPDATE users SET password = crypt(:pass, gen_salt('bf')), requires_password_reset = TRUE WHERE id = :id");
             $updateStmt->execute([
                 ':pass' => $tempPassword,
                 ':id' => $resetData['user_id']
@@ -332,6 +343,75 @@ class AuthController extends BaseController
             echo "<h1>Error</h1><p>A server error occurred while processing this request.</p>";
             error_log("Approve Reset Error: " . $e->getMessage());
             exit;
+        }
+    }
+
+    public function resetPassword()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->error("Method Not Allowed", 405);
+        }
+
+        $data = $this->getJsonInput();
+
+        if (!$data || !isset($data->user_id) || !isset($data->temp_password) || !isset($data->new_password)) {
+            $this->error("Missing required fields.");
+        }
+
+        $userId = (int) $data->user_id;
+        $tempPass = $data->temp_password;
+        $newPass = $data->new_password;
+
+        try {
+            // 1. Verify temp password and reset flag
+            $stmt = $this->db->prepare("SELECT id, email, first_name, last_name, access_level, requires_password_reset FROM users WHERE id = :id LIMIT 1");
+            $stmt->execute([':id' => $userId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$row) {
+                $this->error("User not found.", 404);
+            }
+
+            if (!($row['requires_password_reset'] === true || $row['requires_password_reset'] === 't' || $row['requires_password_reset'] == 1)) {
+                $this->error("Password reset not required for this user.", 400);
+            }
+
+            // Verify the temp password
+            $verifyStmt = $this->db->prepare("SELECT (password = crypt(:input_pass, password)) as is_valid FROM users WHERE id = :id");
+            $verifyStmt->execute([':input_pass' => $tempPass, ':id' => $userId]);
+            $res = $verifyStmt->fetch(PDO::FETCH_ASSOC);
+            $valid = ($res['is_valid'] === true || $res['is_valid'] === 't');
+
+            if (!$valid) {
+                $this->error("Invalid temporary password.", 401);
+            }
+
+            // 2. Update to new password and clear flag
+            $update = $this->db->prepare("UPDATE users SET password = crypt(:pass, gen_salt('bf')), requires_password_reset = FALSE, failed_login_attempts = 0, lockout_until = NULL WHERE id = :id");
+            $update->execute([':pass' => $newPass, ':id' => $userId]);
+
+            // 3. Log them in automatically
+            if (session_status() == PHP_SESSION_NONE) {
+                session_start();
+            }
+            $_SESSION['user_id'] = $row['id'];
+            $_SESSION['access_level'] = $row['access_level'];
+
+            log_activity($this->db, $userId, $row['email'], 'password_reset_success', 'User successfully reset their temporary password and logged in.');
+
+            $this->json([
+                'message' => 'Password reset successful and logged in.',
+                'user' => [
+                    "id" => $row['id'],
+                    "first_name" => $row['first_name'],
+                    "last_name" => $row['last_name'],
+                    "access_level" => $row['access_level'],
+                    "email" => $row['email']
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            $this->error("Database error: " . $e->getMessage(), 500);
         }
     }
 }

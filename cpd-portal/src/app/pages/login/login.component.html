@@ -7,7 +7,8 @@
     </div>
 
     <div class="card-body">
-      <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+      <!-- Login Form -->
+      <form *ngIf="!isResetMode" [formGroup]="loginForm" (ngSubmit)="onLogin()">
         <div class="form-field">
           <label for="email">Email Address</label>
           <div class="input-wrapper">
@@ -56,6 +57,67 @@
           <a href="javascript:void(0)" class="forgot-link" (click)="openForgotPassword()"
             >Forgot Password?</a
           >
+        </div>
+
+        <div *ngIf="errorMessage" class="alert-error">
+          {{ errorMessage }}
+        </div>
+      </form>
+
+      <!-- Password Reset Form (After Temp Password) -->
+      <form *ngIf="isResetMode" [formGroup]="resetForm" (ngSubmit)="onResetPassword()">
+        <p class="reset-instruction">
+          Please set a new permanent password for your account ({{ resetData?.email }}).
+        </p>
+
+        <div class="form-field">
+          <label for="new_password">New Password</label>
+          <div class="input-wrapper">
+            <input
+              id="new_password"
+              type="password"
+              formControlName="new_password"
+              placeholder="Min 6 characters"
+              [class.error]="
+                resetForm.get('new_password')?.invalid && resetForm.get('new_password')?.touched
+              "
+            />
+          </div>
+          <div
+            *ngIf="resetForm.get('new_password')?.invalid && resetForm.get('new_password')?.touched"
+            class="error-text"
+          >
+            Password must be at least 6 characters.
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="confirm_password">Confirm New Password</label>
+          <div class="input-wrapper">
+            <input
+              id="confirm_password"
+              type="password"
+              formControlName="confirm_password"
+              placeholder="Repeat new password"
+              [class.error]="
+                (resetForm.get('confirm_password')?.invalid || resetForm.hasError('mismatch')) &&
+                resetForm.get('confirm_password')?.touched
+              "
+            />
+          </div>
+          <div
+            *ngIf="resetForm.hasError('mismatch') && resetForm.get('confirm_password')?.touched"
+            class="error-text"
+          >
+            Passwords do not match.
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-login" [disabled]="resetForm.invalid">
+            RESET & LOGIN
+          </button>
+          <button type="button" class="btn-cancel-link" (click)="cancelReset()">Cancel</button>
         </div>
 
         <div *ngIf="errorMessage" class="alert-error">
