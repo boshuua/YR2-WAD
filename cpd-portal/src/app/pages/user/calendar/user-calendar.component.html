@@ -4,10 +4,16 @@
     <div class="calendar-title">
       <h2>{{ currentDate | date: 'MMMM yyyy' }}</h2>
       <div class="calendar-controls">
-        <button class="btn-today" (click)="today()">Today</button>
+        <button
+          class="btn btn-sm btn-primary"
+          style="background-color: #007bff; color: white"
+          (click)="today()"
+        >
+          Today
+        </button>
         <div class="nav-buttons">
-          <button class="nav-btn" (click)="prevMonth()"><i class="fas fa-chevron-left"></i></button>
-          <button class="nav-btn" (click)="nextMonth()"><i class="fas fa-chevron-right"></i></button>
+          <button class="btn btn-icon" (click)="prevMonth()">❮</button>
+          <button class="btn btn-icon" (click)="nextMonth()">❯</button>
         </div>
       </div>
     </div>
@@ -41,9 +47,9 @@
       [style.grid-row]="segment.gridRow"
       [style.grid-column-start]="segment.gridColumnStart"
       [style.grid-column-end]="segment.gridColumnEnd"
-      [style.margin-top.px]="32 + segment.lane * 24"
+      [style.margin-top.px]="30 + segment.lane * 22"
     >
-      <span class="segment-title">{{ segment.title }}</span>
+      {{ segment.title }}
     </div>
   </div>
 </div>
