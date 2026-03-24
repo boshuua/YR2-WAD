@@ -1,55 +1,12 @@
 <?php
-// ===============================================================
-// 1. LOAD ENVIRONMENT & HELPERS (MUST BE FIRST)
-// ===============================================================
-require_once __DIR__ . '/../helpers/env_helper.php';
+// cpd-api/config/database.php
 
-// Error reporting based on environment
-if (function_exists('env') && env('APP_DEBUG', false)) {
-    ini_set('display_errors', 1);
-    error_reporting(E_ALL);
-} else {
-    ini_set('display_errors', 0);
-    error_reporting(0);
-}
-
-// ===============================================================
-// 2. CORS CONFIGURATION
-// ===============================================================
-// Use the environment variable for allowed origin, with a fallback for production
-$allowed_origin = env('CORS_ALLOWED_ORIGIN', 'https://ws369808-wad.remote.ac');
-
-header("Access-Control-Allow-Origin: $allowed_origin");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-CSRF-Token");
-header("Content-Type: application/json; charset=UTF-8");
-
-// Handle preflight OPTIONS request immediately
-if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
-// ===============================================================
-// 3. CSRF PROTECTION (SESSION + X-CSRF-Token HEADER)
-// ===============================================================
-include_once __DIR__ . '/../helpers/response_helper.php';
-include_once __DIR__ . '/../helpers/auth_helper.php';
-include_once __DIR__ . '/../helpers/CSRF_helper.php';
-
-$method = $_SERVER['REQUEST_METHOD'] ?? 'CLI';
-$unsafe = in_array($method, ['POST', 'PUT', 'DELETE'], true);
-
-$path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
-$endpoint = basename($path);
-
-// Allow login + csrf token bootstrap without CSRF header
-$csrfExempt = in_array($endpoint, ['user_login.php', 'csrf.php'], true);
-
-if ($unsafe && !$csrfExempt) {
-    requireCsrfToken('CSRF token missing or invalid.');
-}
+/**
+ * Database Configuration & Connection
+ *
+ * This file handles the PDO connection to the PostgreSQL database.
+ * CORS and CSRF are handled globally in bootstrap.php.
+ */
 
 class Database
 {
@@ -77,11 +34,17 @@ class Database
             $this->conn = new PDO("pgsql:host=" . $this->host . ";port=" . $this->port . ";dbname=" . $this->db_name, $this->username, $this->password);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
+            // Use standard JSON error response
             http_response_code(500);
-            exit(json_encode(["message" => "Connection error: " . $e->getMessage()]));
+            header('Content-Type: application/json; charset=UTF-8');
+            echo json_encode([
+                "status" => "error",
+                "message" => "Database connection error.",
+                "details" => $e->getMessage()
+            ]);
+            exit;
         }
 
         return $this->conn;
     }
 }
-?>
