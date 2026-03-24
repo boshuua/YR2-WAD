@@ -27,7 +27,7 @@ class AttachmentController extends BaseController
             $this->error("File upload error code: " . $file['error'], 500);
         }
 
-        $allowedExts = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'txt'];
+        $allowedExts = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'txt', 'csv'];
         $fileName = $file['name'];
         $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
