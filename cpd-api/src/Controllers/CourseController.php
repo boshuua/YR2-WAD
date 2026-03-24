@@ -837,7 +837,7 @@ class CourseController extends BaseController
                 </div>
             ";
 
-            // 3. Save to disk
+            // 3. Save to disk using Dompdf
             $uploadDir = __DIR__ . '/../../uploads/user_attachments/' . $userId . '/';
             if (!is_dir($uploadDir)) {
                 if (!mkdir($uploadDir, 0777, true)) {
@@ -850,10 +850,18 @@ class CourseController extends BaseController
             $fileName = "Certificate_" . $safeTitle . "_" . time() . ".pdf";
             $filePath = $uploadDir . $fileName;
             
-            // We save HTML content. Without a PDF library like dompdf, we can't make a real binary PDF,
-            // but saving it as .pdf sometimes allows browsers to open it or it acts as a placeholder.
-            // Ideally: require_once 'dompdf/autoload.inc.php'; $dompdf = new Dompdf(); $dompdf->loadHtml($html); ...
-            file_put_contents($filePath, $html);
+            // Initialize Dompdf
+            $options = new \Dompdf\Options();
+            $options->set('isHtml5ParserEnabled', true);
+            $options->set('isRemoteEnabled', true);
+            
+            $dompdf = new \Dompdf\Dompdf($options);
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+            
+            // Output the generated PDF to file
+            file_put_contents($filePath, $dompdf->output());
 
             // 4. Save to Database
             $relativePath = 'uploads/user_attachments/' . $userId . '/' . $fileName;
