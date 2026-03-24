@@ -13,7 +13,8 @@ function loadEnv() {
     $envFile = __DIR__ . '/../.env';
 
     if (!file_exists($envFile)) {
-        throw new Exception('.env file not found. Please create one based on .env.example');
+        // Don't crash if .env is missing; just use defaults defined in env() calls
+        return;
     }
 
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
