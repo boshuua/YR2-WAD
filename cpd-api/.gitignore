@@ -3,6 +3,7 @@
 
 # Composer
 composer.lock
+vendor/
 
 # IDE
 .idea/
