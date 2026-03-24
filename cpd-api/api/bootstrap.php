@@ -49,11 +49,12 @@ $allowed_origin = env('CORS_ALLOWED_ORIGIN', 'https://ws369808-wad.remote.ac');
 header("Access-Control-Allow-Origin: $allowed_origin");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-CSRF-Token");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-CSRF-Token, Access-Control-Allow-Private-Network");
 header("Content-Type: application/json; charset=UTF-8");
 
 // Handle preflight OPTIONS request immediately
 if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header("Access-Control-Allow-Private-Network: true");
     http_response_code(200);
     exit();
 }
