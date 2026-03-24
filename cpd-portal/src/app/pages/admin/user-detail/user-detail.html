@@ -53,6 +53,7 @@
             <strong>{{ course.title }}</strong>
             <div class="completion-details">
               <span>Completed: {{ course.completion_date | date: 'shortDate' }}</span>
+              <span class="score-text">Score: {{ course.score || 0 }}%</span>
               <span class="hours-badge">{{ course.hours_completed || 0 }} Hours</span>
             </div>
           </div>

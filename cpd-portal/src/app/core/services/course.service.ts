@@ -137,6 +137,21 @@ export class CourseService {
     });
   }
 
+  generateCertificate(courseId: number): Observable<ApiResponse> {
+    return this.ensureCsrfToken().pipe(
+      switchMap((csrfToken) =>
+        this.http.post<ApiResponse>(
+          `${this.apiUrl}/generate_certificate.php`,
+          { course_id: courseId },
+          {
+            withCredentials: true,
+            headers: new HttpHeaders({ 'X-CSRF-Token': csrfToken }),
+          },
+        ),
+      ),
+    );
+  }
+
   enrollCourse(courseId: number): Observable<ApiResponse> {
     return this.ensureCsrfToken().pipe(
       switchMap((csrfToken) =>

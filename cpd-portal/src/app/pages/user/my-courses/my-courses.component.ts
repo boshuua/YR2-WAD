@@ -131,6 +131,19 @@ export class MyCoursesComponent implements OnInit {
     });
   }
 
+  generateCertificate(courseId: number): void {
+    this.toastService.info('Generating certificate...');
+    this.courseService.generateCertificate(courseId).subscribe({
+      next: (res) => {
+        this.toastService.success('Certificate generated and added to your attachments!');
+        this.loadData();
+      },
+      error: (err) => {
+        this.toastService.error('Failed to generate certificate: ' + (err.error?.message || err.message));
+      }
+    });
+  }
+
   isFull(course: Course): boolean {
     if (!course.max_attendees) return false;
     return (course.enrolled_count ?? 0) >= course.max_attendees;

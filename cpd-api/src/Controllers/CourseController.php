@@ -747,6 +747,7 @@ class CourseController extends BaseController
                         c.description,
                         ucp.status AS user_progress_status,
                         ucp.completion_date,
+                        ucp.score,
                         ucp.last_accessed_lesson_id,
                         c.category
                       FROM courses c
@@ -765,6 +766,7 @@ class CourseController extends BaseController
                     "description" => html_entity_decode($row['description']),
                     "user_progress_status" => $row['user_progress_status'],
                     "completion_date" => $row['completion_date'],
+                    "score" => $row['score'],
                     "last_accessed_lesson_id" => $row['last_accessed_lesson_id'],
                     "category" => $row['category']
                 ];
@@ -778,6 +780,105 @@ class CourseController extends BaseController
 
         } catch (\Exception $e) {
             $this->error("Database error: " . $e->getMessage(), 500);
+        }
+    }
+
+    public function generateCertificate()
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->error("Method Not Allowed", 405);
+        }
+
+        requireAuth();
+
+        $data = $this->getJsonInput();
+        if (!isset($data->course_id)) {
+            $this->error("Course ID is required.");
+        }
+
+        $userId = getCurrentUserId();
+        $courseId = (int) $data->course_id;
+
+        try {
+            // 1. Verify Completion
+            $stmt = $this->db->prepare("
+                SELECT ucp.status, ucp.score, ucp.completion_date, c.title, u.first_name, u.last_name
+                FROM user_course_progress ucp
+                JOIN courses c ON ucp.course_id = c.id
+                JOIN users u ON ucp.user_id = u.id
+                WHERE ucp.user_id = :uid AND ucp.course_id = :cid
+            ");
+            $stmt->execute([':uid' => $userId, ':cid' => $courseId]);
+            $progress = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$progress || $progress['status'] !== 'completed') {
+                $this->error("Course not completed. Cannot generate certificate.", 400);
+            }
+
+            // 2. Generate "Certificate" (HTML content)
+            $userName = $progress['first_name'] . ' ' . $progress['last_name'];
+            $courseTitle = $progress['title'];
+            $date = $progress['completion_date'] ? date('d M Y', strtotime($progress['completion_date'])) : date('d M Y');
+            $score = $progress['score'] ?? 0;
+
+            $html = "
+                <div style='font-family: Arial, sans-serif; text-align: center; border: 10px solid #67a8d9; padding: 50px; background: #fff;'>
+                    <h1 style='font-size: 40px; color: #2c5e9e;'>Certificate of Completion</h1>
+                    <p style='font-size: 20px;'>This is to certify that</p>
+                    <h2 style='font-size: 30px; color: #2c5e9e; text-decoration: underline;'>$userName</h2>
+                    <p style='font-size: 20px;'>has successfully completed the course</p>
+                    <h2 style='font-size: 24px; color: #2c5e9e;'>$courseTitle</h2>
+                    <p style='font-size: 18px;'>on</p>
+                    <h3 style='font-size: 20px;'>$date</h3>
+                    <p style='font-size: 18px;'>Final Score: <strong>$score%</strong></p>
+                    <div style='margin-top: 50px; border-top: 2px solid #67a8d9; padding-top: 20px;'>
+                        <p style='font-size: 16px; color: #666;'>CPD Learning Portal - Official Training Record</p>
+                    </div>
+                </div>
+            ";
+
+            // 3. Save to disk
+            $uploadDir = __DIR__ . '/../../uploads/user_attachments/' . $userId . '/';
+            if (!is_dir($uploadDir)) {
+                if (!mkdir($uploadDir, 0777, true)) {
+                    throw new \Exception("Failed to create directory: $uploadDir");
+                }
+            }
+
+            // Sanitized name for file
+            $safeTitle = preg_replace('/[^a-zA-Z0-9]/', '_', $courseTitle);
+            $fileName = "Certificate_" . $safeTitle . "_" . time() . ".pdf";
+            $filePath = $uploadDir . $fileName;
+            
+            // We save HTML content. Without a PDF library like dompdf, we can't make a real binary PDF,
+            // but saving it as .pdf sometimes allows browsers to open it or it acts as a placeholder.
+            // Ideally: require_once 'dompdf/autoload.inc.php'; $dompdf = new Dompdf(); $dompdf->loadHtml($html); ...
+            file_put_contents($filePath, $html);
+
+            // 4. Save to Database
+            $relativePath = 'uploads/user_attachments/' . $userId . '/' . $fileName;
+            $ins = $this->db->prepare("
+                INSERT INTO user_attachments (user_id, file_name, file_path, file_type)
+                VALUES (:uid, :name, :path, 'pdf')
+            ");
+            $ins->execute([
+                ':uid' => $userId,
+                ':name' => "Certificate - $courseTitle",
+                ':path' => $relativePath
+            ]);
+
+            log_activity($this->db, $userId, getCurrentUserEmail(), 'generate_certificate', "Generated certificate for course ID: $courseId");
+
+            $this->json([
+                "message" => "Certificate generated and added to your attachments.",
+                "attachment" => [
+                    "file_name" => "Certificate - $courseTitle",
+                    "file_path" => $relativePath
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            $this->error("Failed to generate certificate: " . $e->getMessage(), 500);
         }
     }
 

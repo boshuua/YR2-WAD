@@ -88,10 +88,13 @@
           </div>
           <div class="course-meta">
             <span>Completed: {{ course.completion_date | date }}</span>
-            <span class="score-badge">Final Score: {{ course.score }}%</span>
+            <span class="score-badge">Final Score: {{ course.score || 0 }}%</span>
           </div>
           <div class="course-actions">
             <span class="completed-msg">✓ Certificate Available</span>
+            <button class="btn-certificate" (click)="generateCertificate(course.id)">
+              <i class="fas fa-certificate"></i> Download Certificate
+            </button>
           </div>
         </div>
       </div>

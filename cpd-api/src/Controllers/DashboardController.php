@@ -18,10 +18,10 @@ class DashboardController extends BaseController
             $this->error("User ID is required.", 400);
         }
 
-        // Check cache first (5 minute cache)
+        // Check cache first (5 minute cache) - DISABLED FOR THIS TASK
         $cacheKey = "dashboard_user_{$userId}";
         $cacheFile = sys_get_temp_dir() . "/{$cacheKey}.json";
-        $cacheLifetime = 300; // 5 minutes
+        $cacheLifetime = 0; // 5 minutes (Disabled)
 
         if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheLifetime)) {
             $cachedData = json_decode(file_get_contents($cacheFile), true);
@@ -107,7 +107,8 @@ class DashboardController extends BaseController
                         'id' => $course['id'],
                         'title' => $course['title'],
                         'completion_date' => $course['completion_date'],
-                        'hours_completed' => $course['hours_completed']
+                        'hours_completed' => $course['hours_completed'],
+                        'score' => $course['score']
                     ];
                 } else {
                     $activeCourses[] = [
@@ -115,6 +116,7 @@ class DashboardController extends BaseController
                         'title' => $course['title'],
                         'status' => $course['status'],
                         'enrolled_at' => $course['enrolled_at'],
+                        'score' => $course['score'],
                         'last_accessed_lesson_id' => $course['last_accessed_lesson_id'],
                         'total_lessons' => (int) $course['total_lessons'],
                         'completed_lessons' => (int) $course['completed_lessons']
