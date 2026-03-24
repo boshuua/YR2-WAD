@@ -2,6 +2,20 @@
 # Prevent directory browsing
 Options -Indexes
 
+# CORS Configuration
+<IfModule mod_headers.c>
+    # Always set these headers for every response
+    Header always set Access-Control-Allow-Origin "https://ws369808-wad.remote.ac"
+    Header always set Access-Control-Allow-Methods "POST, GET, OPTIONS, DELETE, PUT"
+    Header always set Access-Control-Allow-Headers "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-CSRF-Token, Access-Control-Allow-Private-Network"
+    Header always set Access-Control-Allow-Credentials "true"
+</IfModule>
+
+# Handle OPTIONS preflight at the server level to avoid reaching PHP for preflight
+RewriteEngine On
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L]
+
 # Protect sensitive files
 <FilesMatch "^\.(env|git|gitignore|vendor)$">
   Order allow,deny
@@ -16,7 +30,6 @@ Options -Indexes
 
 # Route API requests to Front Controller
 <IfModule mod_rewrite.c>
-  RewriteEngine On
   RewriteCond %{REQUEST_URI} ^/api/.*\.php$ [NC]
   RewriteCond %{REQUEST_URI} !^/api/index\.php$ [NC]
   RewriteRule ^api/(.*\.php)$ api/index.php [L,QSA]
