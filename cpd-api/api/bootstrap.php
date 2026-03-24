@@ -1,17 +1,8 @@
 <?php
 // cpd-api/api/bootstrap.php
 
-// 1. Error Handling (Environment dependent)
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
-// 2. Load Helpers & Config early
-require_once __DIR__ . '/../helpers/env_helper.php';
-// loadEnv() is already called at the end of env_helper.php
-
-// 3. CORS Handling
-// Use the environment variable for allowed origin, with a fallback for production
-$allowed_origin = env('CORS_ALLOWED_ORIGIN', 'https://ws369808-wad.remote.ac');
+// 1. CORS Headers FIRST (Most robust for preflight)
+$allowed_origin = 'https://ws369808-wad.remote.ac';
 header("Access-Control-Allow-Origin: $allowed_origin");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS");
@@ -24,6 +15,14 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS
     http_response_code(200);
     exit();
 }
+
+// 2. Error Handling
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+// 3. Load Helpers & Config early
+require_once __DIR__ . '/../helpers/env_helper.php';
+// loadEnv() is already called at the end of env_helper.php
 
 // 4. Composer Autoloader
 $composer_autoload = __DIR__ . '/../vendor/autoload.php';
