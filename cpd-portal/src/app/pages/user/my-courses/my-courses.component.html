@@ -93,14 +93,7 @@
             </span>
           </div>
           <div class="course-actions">
-            <span class="completed-msg">✓ Completed</span>
-            <button
-              *ngIf="!isMotCourse(course)"
-              class="btn-certificate"
-              (click)="generateCertificate(course.id)"
-            >
-              <i class="fas fa-certificate"></i> Download Certificate
-            </button>
+            <span class="completed-msg">✓ Certificate Sent</span>
           </div>
         </div>
       </div>
@@ -132,10 +125,7 @@
             </div>
           </div>
           <div class="exam-actions" *ngIf="exam.passed || exam.title.includes('Assessment')">
-            <span *ngIf="exam.passed" class="completed-msg">✓ Certificate Available</span>
-            <button *ngIf="exam.passed" class="btn-certificate" (click)="generateCertificate(exam.id)">
-              <i class="fas fa-certificate"></i> Download Certificate
-            </button>
+            <span *ngIf="exam.passed" class="completed-msg">✓ Certificate Sent</span>
             <p *ngIf="!exam.passed && exam.title.includes('Assessment')" class="fail-notice">
               Assessment not passed. 80% required for certificate.
             </p>
