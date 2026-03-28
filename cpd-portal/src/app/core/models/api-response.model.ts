@@ -1,8 +1,8 @@
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   message?: string;
   data?: T;
   error?: string;
-  [key: string]: any; // Allow for other properties like 'user', 'courses' etc until standardized
+  [key: string]: unknown; // Allow for other properties like 'user', 'courses' etc until standardized
 }
 
 export interface PaginatedResponse<T> {

@@ -15,8 +15,8 @@ export class ToastNotificationComponent implements OnInit, OnDestroy {
   @Output() closed = new EventEmitter<void>();
 
   progress: number = 100;
-  private timer: any;
-  private progressInterval: any;
+  private timer: ReturnType<typeof setTimeout> | undefined;
+  private progressInterval: ReturnType<typeof setInterval> | undefined;
 
   ngOnInit(): void {
     const intervalTime = 50; // Update progress every 50ms

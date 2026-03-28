@@ -4,6 +4,11 @@ import { ActivatedRoute, NavigationEnd, Router, RouterModule, Data } from '@angu
 import { filter, map, startWith } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
+export interface Breadcrumb {
+  label: string;
+  url: string;
+}
+
 @Component({
   selector: 'app-breadcrumb',
   standalone: true,
@@ -12,7 +17,7 @@ import { Observable } from 'rxjs';
   styleUrls: ['./breadcrumb.component.css'],
 })
 export class BreadcrumbComponent {
-  public breadcrumbs$: Observable<any[]>;
+  public breadcrumbs$: Observable<Breadcrumb[]>;
 
   constructor(
     private router: Router,
@@ -28,8 +33,8 @@ export class BreadcrumbComponent {
   private createBreadcrumbs(
     route: ActivatedRoute,
     url: string = '',
-    breadcrumbs: any[] = [],
-  ): any[] {
+    breadcrumbs: Breadcrumb[] = [],
+  ): Breadcrumb[] {
     const children: ActivatedRoute[] = route.children;
     if (children.length === 0) {
       return breadcrumbs;

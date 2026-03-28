@@ -74,7 +74,7 @@ export class CourseFormComponent implements OnInit {
           this.toastService.success('Course updated successfully!');
           this.router.navigate(['/admin/courses']);
         },
-        error: (err: any) =>
+        error: (err) =>
           this.toastService.error('Failed to update course: ' + err.error?.message),
       });
     } else {
@@ -83,7 +83,7 @@ export class CourseFormComponent implements OnInit {
           this.toastService.success('Course created successfully!');
           this.router.navigate(['/admin/courses']);
         },
-        error: (err: any) =>
+        error: (err) =>
           this.toastService.error('Failed to create course: ' + err.error?.message),
       });
     }

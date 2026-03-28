@@ -80,14 +80,14 @@ export class UserEditComponent implements OnInit {
     }
 
     if (this.userForm.valid) {
-      const updateData: any = { ...this.userForm.value };
-      const newPassword = updateData.new_password;
+      const updateData: Record<string, unknown> = { ...this.userForm.value };
+      const newPassword = updateData['new_password'] as string | undefined;
 
       // Remove new_password from the main update payload
-      delete updateData.new_password;
+      delete updateData['new_password'];
 
       // The PHP backend still requires id in the payload
-      updateData.id = this.userId;
+      updateData['id'] = this.userId;
 
       // First update the basic user details
       this.userService.adminUpdateUser(this.userId, updateData).subscribe({
@@ -104,7 +104,7 @@ export class UserEditComponent implements OnInit {
                   this.toastService.success('User and password updated successfully');
                   this.router.navigate(['/admin/users']);
                 },
-                error: (err: any) => {
+                error: (err) => {
                   this.toastService.error(
                     'User details updated, but password change failed: ' +
                       (err.error?.message || 'Unknown error'),
@@ -117,7 +117,7 @@ export class UserEditComponent implements OnInit {
             this.router.navigate(['/admin/users']);
           }
         },
-        error: (err: any) => {
+        error: (err) => {
           console.error('Failed to update user', err);
           this.toastService.error(
             'Error updating user: ' + (err.error?.message || 'Unknown error'),

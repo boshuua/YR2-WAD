@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 // cpd-api/src/Controllers/BaseController.php
 
 namespace App\Controllers;
@@ -7,16 +10,12 @@ use Database;
 
 class BaseController
 {
-    protected $db;
+    protected ?\PDO $db;
 
     public function __construct()
     {
-        $database = new Database();
+        $database = \Database::getInstance();
         $this->db = $database->getConn();
-
-        // Expose $pdo globally so helpers (e.g. getSetting()) can access the connection
-        global $pdo;
-        $pdo = $this->db;
     }
 
     /**

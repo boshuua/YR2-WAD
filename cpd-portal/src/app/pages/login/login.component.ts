@@ -8,6 +8,7 @@ import {
   FormControl,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import { AuthResponse } from '../../core/models/api-response.model';
 import { LoadingService } from '../../core/services/loading.service';
@@ -72,7 +73,7 @@ export class LoginComponent implements OnInit {
       next: (response: AuthResponse) => {
         this.handleSuccessfulAuth(response);
       },
-      error: (error: any) => {
+      error: (error: HttpErrorResponse) => {
         this.loadingService.hide();
         
         if (error.status === 403 && error.error?.reset_required) {
@@ -110,7 +111,7 @@ export class LoginComponent implements OnInit {
       next: (response: AuthResponse) => {
         this.handleSuccessfulAuth(response);
       },
-      error: (error: any) => {
+      error: (error: HttpErrorResponse) => {
         this.loadingService.hide();
         this.errorMessage = error.error?.message || 'Failed to reset password. Please try again.';
       }
@@ -138,7 +139,7 @@ export class LoginComponent implements OnInit {
           this.router.navigate(['/dashboard']);
         }
       },
-      error: (error: any) => {
+      error: (error: HttpErrorResponse) => {
         this.loadingService.hide();
         console.error('CSRF bootstrap failed', error);
         this.errorMessage = error?.error?.message || 'Unable to start secure session.';

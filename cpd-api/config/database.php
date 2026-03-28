@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 // cpd-api/config/database.php
 
 /**
@@ -10,12 +13,13 @@
 
 class Database
 {
-    private $host;
-    private $db_name;
-    private $username;
-    private $password;
-    private $port;
-    public $conn;
+    private static ?Database $instance = null;
+    private string $host;
+    private string $db_name;
+    private string $username;
+    private string $password;
+    private string $port;
+    public ?PDO $conn = null;
 
     public function __construct()
     {
@@ -26,7 +30,15 @@ class Database
         $this->port = env('DB_PORT', '5432');
     }
 
-    public function getConn()
+    public static function getInstance(): Database
+    {
+        if (self::$instance === null) {
+            self::$instance = new Database();
+        }
+        return self::$instance;
+    }
+
+    public function getConn(): ?PDO
     {
         $this->conn = null;
 

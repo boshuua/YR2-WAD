@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 // cpd-api/server.php
 // This router script mimics the project's .htaccess rule for the PHP built-in server.
 

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 // cpd-api/api/bootstrap.php
 
 /**
@@ -35,12 +38,21 @@ set_exception_handler(function ($e) {
     header("Access-Control-Allow-Credentials: true");
     header('Content-Type: application/json; charset=UTF-8');
     
-    echo json_encode([
+    $env = getenv('APP_ENV') ?: 'production';
+    $isDev = ($env === 'development' || $env === 'dev' || $env === 'local');
+
+    $response = [
         "status" => "error",
-        "message" => "Internal Server Error: " . $e->getMessage(),
-        "file" => basename($e->getFile()),
-        "line" => $e->getLine()
-    ]);
+        "message" => "Internal Server Error"
+    ];
+
+    if ($isDev) {
+        $response["message"] .= ": " . $e->getMessage();
+        $response["file"] = basename($e->getFile());
+        $response["line"] = $e->getLine();
+    }
+
+    echo json_encode($response);
     exit;
 });
 

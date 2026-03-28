@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 // cpd-api/helpers/log_helper.php
 
 if (!function_exists('log_activity')) { // Prevent redefinition errors

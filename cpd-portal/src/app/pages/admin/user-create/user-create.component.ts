@@ -40,7 +40,7 @@ export class UserCreateComponent implements OnInit {
           this.toastService.success('User created successfully!');
           this.router.navigate(['/admin/users']);
         },
-        error: (err: any) => {
+        error: (err) => {
           console.error('Failed to create user', err);
           this.toastService.error('Error creating user: ' + (err.error?.message || err.message));
         },

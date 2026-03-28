@@ -22,7 +22,7 @@ export class LoginComponent {
 
   onLogin() {
     this.authService.loginUser(this.credentials).subscribe({
-      next: (response: any) => {
+      next: (response) => {
         console.log('Login successful', response);
 
         // Keep for UI convenience only; authorization is enforced via /me.php + backend
@@ -43,7 +43,7 @@ export class LoginComponent {
           },
         });
       },
-      error: (error: any) => {
+      error: (error) => {
         console.error('Login failed', error);
         this.errorMessage = error.error.message || 'An unknown error occurred.';
       },

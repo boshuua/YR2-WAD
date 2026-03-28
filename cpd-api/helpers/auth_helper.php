@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * Authentication Helper Functions
  *
@@ -97,7 +100,7 @@ function isAdmin()
  */
 function getSetting($key, $default = '')
 {
-    global $pdo;
+    $pdo = \Database::getInstance()->getConn();
     if (!$pdo)
         return $default;
     try {

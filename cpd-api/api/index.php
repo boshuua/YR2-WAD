@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 // cpd-api/api/index.php
 
 require_once __DIR__ . '/bootstrap.php';

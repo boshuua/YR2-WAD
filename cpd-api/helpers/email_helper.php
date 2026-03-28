@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 // helpers/email_helper.php
 
 use PHPMailer\PHPMailer\PHPMailer;

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 // cpd-api/src/Controllers/DashboardController.php
 
 namespace App\Controllers;
