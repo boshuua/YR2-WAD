@@ -89,3 +89,16 @@ The frontend is an Angular application managed with the Angular CLI.
     ng serve
     ```
     The application will be available at `http://localhost:4200/`. The API is expected to be running on `http://localhost:8000`. If your API is on a different port, you will need to update the API base URL in the Angular application's environment files (`src/environments/`).
+
+## Logging In and Testing
+
+### Admin Access
+
+The database is seeded with a default administrator account.
+
+-   **Email:** `admin@test.com`
+-   **Password:** `admin123`
+
+### Note for Assessors
+
+To test the standard user workflow (enrolling in courses, completing lessons, and taking assessments), you will need to **create a new user account** using the registration feature on the login page. The admin account should be used for administrative tasks only.
