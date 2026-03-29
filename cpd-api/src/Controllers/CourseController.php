@@ -755,7 +755,6 @@ class CourseController extends BaseController
                         c.category
                       FROM courses c
                       INNER JOIN user_course_progress ucp ON c.id = ucp.course_id AND ucp.user_id = :user_id
-                      WHERE c.is_template = FALSE
                       ORDER BY c.title ASC";
 
             $stmt = $this->db->prepare($query);

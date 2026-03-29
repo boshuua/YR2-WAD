@@ -68,7 +68,6 @@ class DashboardController extends BaseController
                 LEFT JOIN lessons l ON c.id = l.course_id
                 LEFT JOIN user_lesson_progress ulp ON l.id = ulp.lesson_id AND ulp.user_id = ucp.user_id
                 WHERE ucp.user_id = :uid 
-                    AND c.is_template = FALSE
                 GROUP BY c.id, c.title, c.category, ucp.status, ucp.enrolled_at, ucp.completion_date, ucp.hours_completed, ucp.score, ucp.last_accessed_lesson_id
                 ORDER BY 
                     CASE 
@@ -88,45 +87,35 @@ class DashboardController extends BaseController
             $totalCompletedLessons = 0;
 
             foreach ($allCourses as $course) {
-                // If it's an assessment, add to exam history
-                if ($course['category'] === 'Assessment' || strpos($course['title'], 'Assessment') !== false) {
-                    // Only add to exam history if completed? Or all? User said "Exams History".
-                    // Usually history implies completed.
-                    // But if they are failing they might want to see it?
-                    // Let's add all assessments to exam history.
-                    $examHistory[] = [
-                        'id' => $course['id'],
-                        'title' => $course['title'],
-                        'status' => $course['status'],
-                        'completion_date' => $course['completion_date'],
-                        'score' => $course['score'],
-                        'passed' => $course['score'] >= 80
-                    ];
-                    continue; // Skip adding to active/completed lists
+                $courseData = [
+                    'id' => $course['id'],
+                    'title' => $course['title'],
+                    'status' => $course['status'],
+                    'enrolled_at' => $course['enrolled_at'],
+                    'completion_date' => $course['completion_date'],
+                    'hours_completed' => $course['hours_completed'],
+                    'score' => $course['score'],
+                    'last_accessed_lesson_id' => $course['last_accessed_lesson_id'],
+                    'total_lessons' => (int) $course['total_lessons'],
+                    'completed_lessons' => (int) $course['completed_lessons'],
+                    'passed' => $course['score'] !== null && (float)$course['score'] >= 80
+                ];
+
+                // Logic for splitting into sections:
+                // 1. If it's a pure assessment (no lessons AND Assessment category/title), it's Exam History
+                $isPureAssessment = ($courseData['total_lessons'] === 0) && 
+                                    ($course['category'] === 'Assessment' || stripos($course['title'], 'Assessment') !== false);
+
+                if ($isPureAssessment) {
+                    $examHistory[] = $courseData;
+                } elseif ($course['status'] === 'completed') {
+                    $completedCourses[] = $courseData;
+                } else {
+                    $activeCourses[] = $courseData;
                 }
 
-                if ($course['status'] === 'completed') {
-                    $completedCourses[] = [
-                        'id' => $course['id'],
-                        'title' => $course['title'],
-                        'completion_date' => $course['completion_date'],
-                        'hours_completed' => $course['hours_completed'],
-                        'score' => $course['score']
-                    ];
-                } else {
-                    $activeCourses[] = [
-                        'id' => $course['id'],
-                        'title' => $course['title'],
-                        'status' => $course['status'],
-                        'enrolled_at' => $course['enrolled_at'],
-                        'score' => $course['score'],
-                        'last_accessed_lesson_id' => $course['last_accessed_lesson_id'],
-                        'total_lessons' => (int) $course['total_lessons'],
-                        'completed_lessons' => (int) $course['completed_lessons']
-                    ];
-                }
-                $totalLessons += (int) $course['total_lessons'];
-                $totalCompletedLessons += (int) $course['completed_lessons'];
+                $totalLessons += $courseData['total_lessons'];
+                $totalCompletedLessons += $courseData['completed_lessons'];
             }
 
             // 3. Fetch Attachments
